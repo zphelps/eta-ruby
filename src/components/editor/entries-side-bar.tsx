@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import {FC, useCallback, useEffect, useState} from "react";
 import {StickyNote} from "lucide-react";
 import {Entry} from "@/types/entry";
 import {api} from "@/lib/api";
@@ -9,51 +9,33 @@ import {Separator} from "@/components/ui/separator";
 import {cn} from "@/lib/utils";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {useEntries} from "@/hooks/useEntries";
+import {v4 as uuidv4, validate} from "uuid";
 
 interface EntriesSideBarProps {
 
 }
 
+const useGroupedEntries = (entries: Entry[]) => {
+    return entries.reduce((groups: { [x: string]: Entry[]; }, item: Entry) => {
+        const date = new Date(item.created_at);
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+        const key = `${month} ${year}`;
+        if (!groups[key]) {
+            groups[key] = [];
+        }
+        groups[key].push(item);
+        return groups;
+    }, {});
+}
+
 export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
-    const [groupedEntries, setGroupedEntries] = useState<{ [month: string]: Entry[]; }>({});
-
-    const entries = useEntries(selectedNotebookId);
-
-    const [loading, setLoading] = useState<boolean>(true);
-
     const searchParams = useSearchParams();
-
     const selectedEntryId = searchParams.get("entry");
     const selectedNotebookId = searchParams.get("notebook");
 
-    async function fetchEntries() {
-        if (!selectedNotebookId) {
-            setLoading(false)
-            return;
-        }
-
-        const {data} = await api.get("/entries", {
-            params: {
-                notebook_id: selectedNotebookId
-            }
-        });
-
-        const groupedEntries = data.reduce((groups: { [x: string]: Entry[]; }, item: Entry) => {
-            const date = new Date(item.created_at);
-            const month = date.toLocaleString('default', { month: 'long' });
-            const year = date.getFullYear();
-            const key = `${month} ${year}`;
-            if (!groups[key]) {
-                groups[key] = [];
-            }
-            groups[key].push(item);
-            return groups;
-        }, {});
-
-        setLoading(false)
-        console.log(groupedEntries);
-        setGroupedEntries(groupedEntries);
-    }
+    const entries = useEntries(selectedNotebookId as string);
+    const groupedEntries = useGroupedEntries(entries);
 
     function onEntrySelect(entryId: string) {
         const params = new URLSearchParams(searchParams.toString())
@@ -61,29 +43,22 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
         window.history.pushState(null, '', `?${params.toString()}`)
     }
 
-
-    useEffect(() => {
-        fetchEntries();
-    }, [selectedNotebookId]);
+    if (Object.keys(groupedEntries).length === 0 || !selectedNotebookId) {
+        return null;
+    }
 
     return (
         <div className={'h-full border-r border-r-slate-200 w-full'}>
-            <div className={'flex justify-between pl-3 pr-1 pt-1 items-center'}>
-                <p className={'font-semibold text-lg'}>
+            <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-10'}>
+                <p className={'font-semibold'}>
                     Entries
                 </p>
                 <UploadEntryDialog />
             </div>
 
-            <Separator className={'mt-1'} />
+            <Separator className={'mt-0'} />
 
-            {loading && (
-                <div className={'p-3'}>
-                    Loading...
-                </div>
-            )}
-
-            {Object.keys(entries).length === 0 && !loading && (
+            {Object.keys(groupedEntries).length === 0 && (
                 <div className={'w-full min-h-full text-center justify-center content-center space-y-2'}>
                     <StickyNote size={75} className={'text-gray-400 mx-auto'}/>
                     <p className={'text-gray-400 font-medium text-lg '}>
@@ -93,14 +68,14 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
             )}
             <div className={'overflow-y-auto'}>
                 <Accordion type="multiple" className="w-full">
-                    {Object.keys(entries).map((key, index) => {
+                    {Object.keys(groupedEntries).map((key, index) => {
                         return (
-                            <AccordionItem value={key} key={key} className={""}>
+                            <AccordionItem value={key} key={key}>
                                 <AccordionTrigger className={'font-semibold text-sm mx-3 pb-2'}>
                                     {key}
                                 </AccordionTrigger>
                                 <div className={'pb-2'}>
-                                    {entries[key].map((entry: Entry) => {
+                                    {groupedEntries[key].map((entry: Entry) => {
                                         return (
                                             <AccordionContent
                                                 key={entry.id}

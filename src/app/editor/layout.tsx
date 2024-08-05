@@ -1,7 +1,7 @@
 import AuthGuard from "@/guards/auth-guard";
 import DashboardHeader from "@/components/editor/header";
 
-export default async function DashboardLayout({children}: {children: React.ReactNode}) {
+export default function DashboardLayout({children}: {children: React.ReactNode}) {
 
     return (
         <AuthGuard>

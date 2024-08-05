@@ -9,13 +9,12 @@ export const useEntry = (id: string) => {
 
     const fetchEntry = useCallback(async (id: string) => {
         try {
+            console.log('Fetching entry', id)
             const response = await api.get("/entries", {
                 params: {
                     entry_id: id,
                 }
             });
-
-            console.log(response.data)
 
             dispatch(setEntry(response.data));
         } catch (err) {
@@ -24,7 +23,9 @@ export const useEntry = (id: string) => {
     }, [id]);
 
     useEffect(() => {
-            fetchEntry(id);
+            if (!entry) {
+                fetchEntry(id);
+            }
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [id]

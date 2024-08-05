@@ -1,57 +1,45 @@
 "use client"
-import {Button} from "@/components/ui/button";
-import {api} from "@/lib/api";
-import {useAuth} from "@/hooks/useAuth";
-import {useEffect, useState} from "react";
-import {Task} from "@/types/task";
-import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+
+import {useEffect} from "react";
 import {useSearchParams} from "next/navigation";
 import {EntriesSideBar} from "@/components/editor/entries-side-bar";
-import DashboardHeader from "@/components/editor/header";
 import {EntryToolbar} from "@/components/editor/entry-toolbar";
+import {PDFViewer} from "@/components/editor/pdf-viewer";
+import {validate} from "uuid";
 
 export default function Dashboard() {
-
-    const {user} = useAuth();
-    const [tasks, setTasks] = useState<Task[]>([]);
-
     const searchParams = useSearchParams();
 
     const selectedEntryId = searchParams.get("entry");
     const selectedNotebookId = searchParams.get("notebook");
 
-    async function addTask() {
-        await api.post("/tasks", {
-            uid: user?.id,
-            name: "New Task",
-            description: "This is a new tasks",
-            completed: false,
-            dueDate: new Date(),
-        });
-    }
-
-    async function fetchTasks() {
-        const response = await api.get("/tasks", {
-            params: {
-                uid: user?.id
-            }
-        });
-        console.log(response.data);
-        setTasks(response.data);
-    }
-
+    // TODO: Unify all url validation logic into a single hook
     useEffect(() => {
-        // fetchTasks();
-    }, []);
+        if (!selectedNotebookId && selectedEntryId) {
+            console.log('Dashboard: No notebook selected, removing entry from URL');
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('entry')
+            window.history.pushState(null, '', `?${params.toString()}`)
+        } else if (!validate(selectedEntryId as string)) {
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('entry')
+            window.history.pushState(null, '', `?${params.toString()}`)
+        }
+    }, [selectedNotebookId, selectedEntryId]);
 
     return (
-        <div className={'h-screen pt-[64px] flex'}>
+        <div className={'h-screen pt-[56px] flex'}>
             <div className={'min-w-[325px] max-w-[325px]'}>
                 <EntriesSideBar />
             </div>
 
-            {selectedEntryId && <div className={"w-full"}>
-                <EntryToolbar id={selectedEntryId}/>
+            {selectedEntryId && <div className={"w-full h-full"}>
+                <EntryToolbar />
+                <PDFViewer
+                    // fileUrl={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/State-compressed.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvU3RhdGUtY29tcHJlc3NlZC5wZGYiLCJpYXQiOjE3MjI4Njk3MzUsImV4cCI6MTcyMzQ3NDUzNX0.GmfUsE5aDCTm4CRLhBQ_OsaCbRYDYhi1ROdnXlYpnc8&t=2024-08-05T14%3A55%3A35.408Z"}
+                    // fileUrl={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/State.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvU3RhdGUucGRmIiwiaWF0IjoxNzIyODY3NTUyLCJleHAiOjE3MjM0NzIzNTJ9.1yoAnKHgaevrPCTrySfU-XAz15UtIGf7rSSIAO8Puv8&t=2024-08-05T14%3A19%3A13.056Z"}
+                    // fileUrl={'https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/ghfhfghgf.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvZ2hmaGZnaGdmLnBkZiIsImlhdCI6MTcyMjg2Nzg4OSwiZXhwIjoxNzIzNDcyNjg5fQ.qezV-0rAUQ9iFunsUQJuN4pPQCou06kdj1o8eFQ9DAs&t=2024-08-05T14%3A24%3A49.664Z'}
+                />
             </div>}
         </div>
     )

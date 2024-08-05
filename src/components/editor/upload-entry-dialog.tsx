@@ -28,6 +28,8 @@ import {api} from "@/lib/api";
 import {useState} from "react";
 import toast from "react-hot-toast";
 import {v4 as uuid} from "uuid";
+import {setEntry} from "@/slices/entries";
+import {useAppDispatch} from "@/store";
 
 const formSchema = z.object({
     title: z.string().min(3, "Entry title must be at least 3 characters.").max(100, "Entry title cannot be more than 100 characters."),
@@ -39,6 +41,7 @@ export function UploadEntryDialog() {
 
     const [uploading, setUploading] = useState(false)
     const [open, setOpen] = useState(false)
+    const dispatch = useAppDispatch();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -77,7 +80,7 @@ export function UploadEntryDialog() {
             formData.append('date', values.date.toISOString());
             formData.append('notebook_id', notebookId)
 
-            await toast.promise(api.post("/entries", formData), {
+            const {data: entry} = await toast.promise(api.post("/entries", formData), {
                 loading: "Uploading entry...",
                 success: () => {
                     form.reset()
@@ -90,6 +93,8 @@ export function UploadEntryDialog() {
                     return `Failed to upload entry: ${err.message}`
                 },
             })
+
+            dispatch(setEntry(entry))
             const params = new URLSearchParams(searchParams.toString())
             params.set('entry', id)
             window.history.pushState(null, '', `?${params.toString()}`)
@@ -103,7 +108,7 @@ export function UploadEntryDialog() {
     return (
         <Dialog open={open} onOpenChange={o => setOpen(o)}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className={'p-2.5 h-fit'}>
                     <Plus className="h-5 w-5" />
                 </Button>
             </DialogTrigger>

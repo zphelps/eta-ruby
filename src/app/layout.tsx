@@ -9,7 +9,6 @@ import {cn} from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
-
 export const metadata: Metadata = getMetadata();
 
 export default function RootLayout({

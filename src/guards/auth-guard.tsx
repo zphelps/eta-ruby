@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode } from "react";
-import {redirect, usePathname, useSearchParams} from "next/navigation";
+import {redirect} from "next/navigation";
 import {config} from "@/config";
 import {useAuth} from "@/hooks/useAuth";
 

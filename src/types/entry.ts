@@ -5,4 +5,5 @@ export interface Entry {
     created_at: string;
     updated_at: string;
     team_id: string;
+    url: string;
 }

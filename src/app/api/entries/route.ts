@@ -88,23 +88,9 @@ export async function POST(request: Request) {
     try {
         const id = body.id ?? uuid();
         const supabase = createClient();
-        const {error: databaseError} = await supabase.from("entries").insert({
-            id: id,
-            title: body.title,
-            created_at: body.created_at,
-            notebook_id: body.notebook_id
-        });
-
-        if (databaseError) {
-            console.log(databaseError)
-            return NextResponse.json({
-                message: databaseError.message,
-                error: databaseError.message
-            }, { status: 400 })
-        }
 
         const {error: storageError} = await supabase.storage.from(body.notebook_id).upload(
-            `${body.title}-${id}.pdf`,
+            `${id}.pdf`,
             body.file,
             { contentType: body.file.type } // Optional
         );
@@ -117,8 +103,33 @@ export async function POST(request: Request) {
             }, { status: 400 })
         }
 
+        const {data: urlData} = await supabase.storage.from(body.notebook_id).getPublicUrl(`${id}.pdf`);
+
+        const {error: databaseError} = await supabase.from("entries").insert({
+            id: id,
+            title: body.title,
+            created_at: body.created_at,
+            notebook_id: body.notebook_id,
+            url: urlData?.publicUrl
+        });
+
+        if (databaseError) {
+            console.log(databaseError)
+            return NextResponse.json({
+                message: databaseError.message,
+                error: databaseError.message
+            }, { status: 400 })
+        }
+
         return NextResponse.json({
             message: 'Success',
+            data: {
+                id: id,
+                title: body.title,
+                created_at: body.created_at,
+                notebook_id: body.notebook_id,
+                url: urlData?.publicUrl
+            }
         }, { status: 200 })
     } catch (e) {
         console.log(e)
@@ -131,6 +142,43 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {}
 
-export async function DELETE(request: Request) {}
+export async function DELETE(request: NextRequest) {
+    const params = Object.fromEntries(request.nextUrl.searchParams.entries())
+
+    const schema = z.object({
+        entry_id: z.string(),
+    });
+
+    const validationResponse = schema.safeParse(params);
+    if (!validationResponse.success) {
+        return NextResponse.json({
+            message: "Invalid request schema",
+            error: validationResponse.error.errors
+        }, { status: 400 })
+    }
+
+    try {
+        const supabase = createClient();
+
+        const {data, error} = await supabase.from("entries").delete().eq("id", params.entry_id);
+
+        if (error) {
+            return NextResponse.json({
+                message: error.message,
+                error: error.message
+            }, {status: 400})
+        }
+
+        return NextResponse.json({
+            message: 'Success',
+        }, {status: 200})
+
+    } catch (e) {
+        return NextResponse.json({
+            message: 'Invalid Request',
+            error: e
+        }, {status: 400})
+    }
+}
 
 export async function PATCH(request: Request) {}

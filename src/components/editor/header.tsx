@@ -13,8 +13,8 @@ export default function DashboardHeader() {
 
     return (
         <Disclosure as="nav" className="absolute bg-white border-b border-b-slate-200 w-full">
-            <div className="mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 justify-between">
+            <div className="mx-auto px-2 sm:px-3 lg:px-4">
+                <div className="flex h-14 justify-between">
                     <div className="flex items-center gap-x-6">
                         <div className="-ml-2 mr-2 flex items-center md:hidden">
                             {/* Mobile menu button */}
