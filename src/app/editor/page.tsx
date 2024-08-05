@@ -5,11 +5,20 @@ import {useAuth} from "@/hooks/useAuth";
 import {useEffect, useState} from "react";
 import {Task} from "@/types/task";
 import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {useSearchParams} from "next/navigation";
+import {EntriesSideBar} from "@/components/editor/entries-side-bar";
+import DashboardHeader from "@/components/editor/header";
+import {EntryToolbar} from "@/components/editor/entry-toolbar";
 
 export default function Dashboard() {
 
     const {user} = useAuth();
     const [tasks, setTasks] = useState<Task[]>([]);
+
+    const searchParams = useSearchParams();
+
+    const selectedEntryId = searchParams.get("entry");
+    const selectedNotebookId = searchParams.get("notebook");
 
     async function addTask() {
         await api.post("/tasks", {
@@ -32,36 +41,18 @@ export default function Dashboard() {
     }
 
     useEffect(() => {
-        fetchTasks();
+        // fetchTasks();
     }, []);
 
     return (
-        <div>
-            <p
-                className={'font-bold text-2xl'}
-            >
-                Good Morning! 🌤️
-            </p>
-            <div
-                className={'p-3 space-y-2'}
-            >
-                {tasks.map(task => (
-                    <div
-                        key={task.id}
-                        className={'rounded-lg p-3 border border-gray-200'}
-                    >
-                        <p className={'font-bold text-xl'}>
-                            {task.name}
-                        </p>
-                        <p className={'font-medium text-gray-500'}>
-                            {task.description}
-                        </p>
-                    </div>
-                ))}
+        <div className={'h-screen pt-[64px] flex'}>
+            <div className={'min-w-[325px] max-w-[325px]'}>
+                <EntriesSideBar />
             </div>
-            <Button onClick={addTask}>
-                Add Task
-            </Button>
+
+            {selectedEntryId && <div className={"w-full"}>
+                <EntryToolbar id={selectedEntryId}/>
+            </div>}
         </div>
     )
 }

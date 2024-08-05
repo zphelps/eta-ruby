@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/next-launch.iml" filepath="$PROJECT_DIR$/.idea/next-launch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/eta-ruby.iml" filepath="$PROJECT_DIR$/.idea/eta-ruby.iml" />
     </modules>
   </component>
 </project>

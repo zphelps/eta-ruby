@@ -15,7 +15,7 @@ export default function AuthGuard({
         const searchParams = new URLSearchParams({
             returnTo: window.location.pathname + window.location.search,
         }).toString();
-        redirect(config.auth.loginUrl + `?${searchParams}`);
+        redirect(config.auth.signinUrl + `?${searchParams}`);
     }
 
     return (<>{children}</>);

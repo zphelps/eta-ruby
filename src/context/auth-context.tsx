@@ -2,10 +2,12 @@
 import type {FC, ReactNode} from "react";
 import {createContext, useCallback, useEffect, useReducer} from "react";
 import PropTypes from "prop-types";
-import {AuthChangeEvent, Session, User} from "@supabase/supabase-js";
+import {AuthChangeEvent, Session} from "@supabase/supabase-js";
 import {createClient} from "@/utils/supabase/client";
 import {useSearchParams} from "next/navigation";
 import {config} from "@/config";
+import {User} from "@/types/user";
+import {api} from "@/lib/api";
 
 interface State {
     isInitialized: boolean;
@@ -49,6 +51,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface AuthContextType extends State {
+    signUp: (data: {email: string, password: string}) => Promise<any>;
     signInWithEmailAndPassword: (data: {email: string, password: string}) => Promise<any>;
     signInWithGoogle: () => Promise<any>;
     signOut: () => Promise<any>;
@@ -56,6 +59,8 @@ export interface AuthContextType extends State {
 
 export const AuthContext = createContext<AuthContextType>({
     ...initialState,
+    signUp: () => Promise.resolve(),
+    signInWithEmailAndPassword: () => Promise.resolve(),
     signInWithGoogle: () => Promise.resolve(),
     signOut: () => Promise.resolve()
 } as AuthContextType);
@@ -71,6 +76,16 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     const supabase = createClient();
     const auth = supabase.auth;
     const searchParams = useSearchParams();
+
+    const signUp = async (data: {email: string, password: string}) => {
+        const {data: response, error} = await supabase.auth.signUp(data)
+
+        if (error) {
+            throw error;
+        }
+
+        return response.user;
+    }
 
     const signInWithEmailAndPassword = async (data: {email: string, password: string}) => {
         const {error} = await supabase.auth.signInWithPassword(data)
@@ -106,14 +121,21 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     const handleAuthStateChanged = useCallback(
         async (_: AuthChangeEvent, session: Session | null) => {
             if (session?.user) {
-                console.log("SIGNED_IN", session);
+                // console.log("SIGNED_IN", session);
 
+                const {data: user} = await api.get("/users", {
+                    params: {
+                        uid: session.user.id
+                    }
+                });
+
+                console.log("SIGNED_IN", user);
 
                 dispatch({
                     type: ActionType.AUTH_STATE_CHANGED,
                     payload: {
                         isAuthenticated: true,
-                        user: session.user,
+                        user: user,
                     }
                 });
             } else {
@@ -144,6 +166,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         <AuthContext.Provider
             value={{
                 ...state,
+                signUp,
                 signInWithEmailAndPassword,
                 signInWithGoogle,
                 signOut,
