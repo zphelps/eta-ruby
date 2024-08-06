@@ -16,6 +16,12 @@ interface EntriesSideBarProps {
 }
 
 const useGroupedEntries = (entries: Entry[]) => {
+    // sort entries by date
+    entries = entries.sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateA.getTime() - dateB.getTime();
+    });
     return entries.reduce((groups: { [x: string]: Entry[]; }, item: Entry) => {
         const date = new Date(item.created_at);
         const month = date.toLocaleString('default', { month: 'long' });
@@ -36,6 +42,17 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
 
     const entries = useEntries(selectedNotebookId as string);
     const groupedEntries = useGroupedEntries(entries);
+
+    const getDefaultValue = useCallback(() => {
+        const selectedEntry = entries.find(entry => entry.id === selectedEntryId);
+        if (!selectedEntry) {
+            return undefined;
+        }
+        const date = new Date(selectedEntry.created_at);
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+        return [`${month} ${year}`];
+    }, [entries, selectedEntryId]);
 
     function onEntrySelect(entryId: string) {
         const params = new URLSearchParams(searchParams.toString())
@@ -67,7 +84,7 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
                 </div>
             )}
             <div className={'overflow-y-auto'}>
-                <Accordion type="multiple" className="w-full">
+                <Accordion type="multiple" className="w-full" defaultValue={getDefaultValue()}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (
                             <AccordionItem value={key} key={key}>

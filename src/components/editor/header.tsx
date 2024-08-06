@@ -34,33 +34,6 @@ export default function DashboardHeader() {
                         </div>
 
                         <NotebookSelector/>
-                        {/*<div className="hidden md:ml-6 md:flex md:space-x-8">*/}
-                        {/*    /!* Current: "border-sky-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" *!/*/}
-                        {/*    <a*/}
-                        {/*        href="#"*/}
-                        {/*        className="inline-flex items-center border-b-2 border-sky-500 px-1 pt-1 text-sm font-medium text-gray-900"*/}
-                        {/*    >*/}
-                        {/*        Dashboard*/}
-                        {/*    </a>*/}
-                        {/*    <a*/}
-                        {/*        href="#"*/}
-                        {/*        className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"*/}
-                        {/*    >*/}
-                        {/*        Team*/}
-                        {/*    </a>*/}
-                        {/*    <a*/}
-                        {/*        href="#"*/}
-                        {/*        className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"*/}
-                        {/*    >*/}
-                        {/*        Projects*/}
-                        {/*    </a>*/}
-                        {/*    <a*/}
-                        {/*        href="#"*/}
-                        {/*        className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"*/}
-                        {/*    >*/}
-                        {/*        Calendar*/}
-                        {/*    </a>*/}
-                        {/*</div>*/}
                     </div>
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
@@ -73,14 +46,6 @@ export default function DashboardHeader() {
                             </button>
                         </div>
                         <div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">
-                            {/*<button*/}
-                            {/*    type="button"*/}
-                            {/*    className="relative rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"*/}
-                            {/*>*/}
-                            {/*    <span className="absolute -inset-1.5" />*/}
-                            {/*    <span className="sr-only">View notifications</span>*/}
-                            {/*    <BellIcon aria-hidden="true" className="h-6 w-6" />*/}
-                            {/*</button>*/}
 
                             {/* Profile dropdown */}
                             <Menu as="div" className="relative ml-3">
@@ -99,20 +64,20 @@ export default function DashboardHeader() {
                                     transition
                                     className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                                 >
-                                    <MenuItem>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">
-                                            Your Profile
-                                        </a>
-                                    </MenuItem>
-                                    <MenuItem>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">
-                                            Settings
-                                        </a>
-                                    </MenuItem>
+                                    {/*<MenuItem>*/}
+                                    {/*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*/}
+                                    {/*        Your Profile*/}
+                                    {/*    </a>*/}
+                                    {/*</MenuItem>*/}
+                                    {/*<MenuItem>*/}
+                                    {/*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*/}
+                                    {/*        Settings*/}
+                                    {/*    </a>*/}
+                                    {/*</MenuItem>*/}
                                     <MenuItem>
                                         <button onClick={async () => {
                                             await signOut()
-                                        }} className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">
+                                        }} className="block px-4 py-2 text-sm w-full text-start text-gray-700 data-[focus]:bg-gray-100">
                                             Sign out
                                         </button>
                                     </MenuItem>

@@ -4,7 +4,7 @@ import {useSearchParams} from "next/navigation";
 import {useEntry} from "@/hooks/useEntry";
 import { format } from "date-fns";
 import {Button} from "@/components/ui/button";
-import {MoreHorizontal, Plus} from "lucide-react";
+import {MoreHorizontal, Plus, Trash} from "lucide-react";
 import * as React from "react";
 import {validate} from "uuid";
 import {api} from "@/lib/api";
@@ -64,7 +64,7 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
             </div>
 
 
-            // TODO: Add dropdown menu for entry actions
+            {/*TODO: Add dropdown menu for entry actions*/}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className={"py-1 h-full"}>
@@ -75,7 +75,8 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
                     <DropdownMenuLabel>Entry Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={handleDeleteEntry}>
+                        <DropdownMenuItem className={'text-red-500'}>
+                            <Trash className={'h-5 w-5 mr-2'}/>
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuGroup>

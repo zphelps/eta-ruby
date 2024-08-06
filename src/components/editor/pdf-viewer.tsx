@@ -1,15 +1,12 @@
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/search/lib/styles/index.css';
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-import { pdfjs } from "react-pdf";
-import { Reader } from "@/components/pdf-viewer/index";
 import React, {ChangeEvent, FC, useEffect, useRef, useState} from "react";
-import { PageChangeEvent, ReaderAPI, RenderPageProps } from "@/components/pdf-viewer/types";
-import { Page } from "react-pdf";
+import {Page, pdfjs} from "react-pdf";
 import {useSearchParams} from "next/navigation";
 import {useEntry} from "@/hooks/useEntry";
+import {PageChangeEvent, Reader, ReaderAPI, RenderPageProps} from "react-pdf-headless";
+import {RotateLoader} from "react-spinners";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -120,7 +117,11 @@ export const PDFViewer: FC<PDFViewerProps> = (props) => {
                 initialRotation={0}
                 setReaderAPI={(api: ReaderAPI) => setReaderAPI(api)}
                 renderPage={renderPage}
-                reactPDFDocumentProps={{loading: LoadingComponent}}
+                reactPDFDocumentProps={{loading: (
+                        <div className={'w-full mt-96 justify-center flex'}>
+                            <RotateLoader color={"#2563EB"} size={8} />
+                        </div>
+                    )}}
             />}
         </div>
 

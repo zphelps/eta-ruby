@@ -194,7 +194,7 @@ export function UploadEntryDialog() {
                                     <EntryUploader
                                         disabled={uploading}
                                         maxFileCount={1}
-                                        maxSize={8 * 1024 * 1024}
+                                        maxSize={900 * 1024 * 1024}
                                         value={field.value ? [field.value] : []}
                                         onValueChange={files => field.onChange(files[0])}
                                         accept={{
