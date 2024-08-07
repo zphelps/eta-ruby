@@ -1,8 +1,7 @@
-// import xior from "xior";
-import axios from "axios";
+import xior from "xior";
 import {toast} from "@/components/ui/use-toast";
 
-export const api = axios.create({
+export const api = xior.create({
     baseURL: "/api",
 })
 
