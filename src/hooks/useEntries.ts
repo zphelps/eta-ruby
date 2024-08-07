@@ -15,6 +15,7 @@ export const useEntries = (notebook_id: string) => {
                 }
             });
 
+            console.log(response)
             console.log(response.data)
 
             dispatch(setEntries(response.data));

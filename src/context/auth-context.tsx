@@ -129,7 +129,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
                     }
                 });
 
-                console.log("SIGNED_IN", user);
+                // console.log("SIGNED_IN", user);
 
                 dispatch({
                     type: ActionType.AUTH_STATE_CHANGED,

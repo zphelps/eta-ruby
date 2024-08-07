@@ -6,10 +6,32 @@ import {useAuth} from "@/hooks/useAuth";
 import {Eye} from "lucide-react";
 import {NotebookSelector} from "@/components/editor/notebook-selector";
 import {useSearchParams} from "next/navigation";
+import {api} from "@/lib/api";
+import {useState} from "react";
 
 export default function DashboardHeader() {
 
     const {signOut} = useAuth();
+
+    const searchParams = useSearchParams();
+    const notebook_id = searchParams.get("notebook");
+
+    const [file, setFile] = useState<File | null>(null);
+
+    async function handlePreview() {
+        const response = await api.get("/preview", {
+            params: {
+                notebook_id,
+            }
+        })
+
+        const newFile = new File([response.data], "preview.pdf", {type: "application/pdf"})
+
+        setFile(newFile)
+
+        console.log(response.data)
+        console.log(newFile)
+    }
 
     return (
         <Disclosure as="nav" className="absolute bg-white border-b border-b-slate-200 w-full">
@@ -38,6 +60,7 @@ export default function DashboardHeader() {
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <button
+                                onClick={handlePreview}
                                 type="button"
                                 className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >

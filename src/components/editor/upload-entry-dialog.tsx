@@ -196,7 +196,10 @@ export function UploadEntryDialog() {
                                         maxFileCount={1}
                                         maxSize={900 * 1024 * 1024}
                                         value={field.value ? [field.value] : []}
-                                        onValueChange={files => field.onChange(files[0])}
+                                        onValueChange={files => {
+                                            console.log(files)
+                                            field.onChange(files[0])
+                                        }}
                                         accept={{
                                             "application/pdf": [],
                                         }}

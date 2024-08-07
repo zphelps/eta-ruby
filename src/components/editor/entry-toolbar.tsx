@@ -75,7 +75,7 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
                     <DropdownMenuLabel>Entry Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem className={'text-red-500'}>
+                        <DropdownMenuItem onClick={handleDeleteEntry} className={'text-red-500'}>
                             <Trash className={'h-5 w-5 mr-2'}/>
                             Delete
                         </DropdownMenuItem>

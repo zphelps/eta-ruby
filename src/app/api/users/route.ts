@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         const {error} = await supabase.from("users").insert(validationResponse.data);
 
         if (error) {
-            console.log(error)
+            // console.log(error)
             return NextResponse.json({
                 message: error.message,
                 error: error.message
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
             message: 'Success',
         }, { status: 200 })
     } catch (e) {
-        console.log(e)
+        // console.log(e)
         return NextResponse.json({
             message: 'Invalid Request',
             error: e

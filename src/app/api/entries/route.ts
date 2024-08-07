@@ -2,6 +2,7 @@ import {createClient} from "@/utils/supabase/server";
 import {z} from "zod";
 import {NextRequest, NextResponse} from "next/server";
 import {v4 as uuid} from "uuid";
+import {pdfjs} from "react-pdf";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -89,6 +90,10 @@ export async function POST(request: Request) {
         const id = body.id ?? uuid();
         const supabase = createClient();
 
+        // get number of pages in pdf file
+        const buffer = await body.file.arrayBuffer();
+        const num_pages = await pdfjs.getDocument(buffer).promise.then(pdf => pdf.numPages);
+
         const {error: storageError} = await supabase.storage.from(body.notebook_id).upload(
             `${id}.pdf`,
             body.file,
@@ -110,7 +115,8 @@ export async function POST(request: Request) {
             title: body.title,
             created_at: body.created_at,
             notebook_id: body.notebook_id,
-            url: urlData?.publicUrl
+            url: urlData?.publicUrl,
+            page_count: num_pages
         });
 
         if (databaseError) {

@@ -18,7 +18,7 @@ const LoadingComponent = () => {
 
 interface PDFViewerProps {
 }
-export const PDFViewer: FC<PDFViewerProps> = (props) => {
+export const EntryViewer: FC<PDFViewerProps> = (props) => {
 
     const searchParams = useSearchParams();
 
@@ -34,6 +34,7 @@ export const PDFViewer: FC<PDFViewerProps> = (props) => {
     const [offset, setOffset] = useState<number | null>(null);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const initialHighlight = useRef(false);
+
 
     const onPageChange = (e: PageChangeEvent) => {
         setPageNum(e.currentPage);

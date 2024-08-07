@@ -6,4 +6,5 @@ export interface Entry {
     updated_at: string;
     team_id: string;
     url: string;
+    page_count: number;
 }

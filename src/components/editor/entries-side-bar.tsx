@@ -60,7 +60,7 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
         window.history.pushState(null, '', `?${params.toString()}`)
     }
 
-    if (Object.keys(groupedEntries).length === 0 || !selectedNotebookId) {
+    if (!selectedNotebookId) {
         return null;
     }
 
