@@ -61,8 +61,6 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
         if (entry) setPage(entry.start_page);
     }, [selectedEntryId, entries, setPage]);
 
-    const defaultAccordionValue = getDefaultValue();
-
     return (
         <div className={'h-full border-r border-r-slate-200 w-full'}>
             <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-10'}>
@@ -82,7 +80,7 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
                 </div>
             )}
             <div className={'overflow-y-auto'}>
-                <Accordion type="multiple" className="w-full" defaultValue={defaultAccordionValue}>
+                <Accordion type="multiple" className="w-full" value={getDefaultValue()}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (
                             <AccordionItem value={key} key={key}>

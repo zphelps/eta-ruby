@@ -10,6 +10,7 @@ import {pdfjs} from "react-pdf";
 import {PreviewHeader} from "@/components/preview/preview-header";
 import {usePreview} from "@/hooks/usePreview";
 import {PreviewTocSideBar} from "@/components/preview/preview-toc-side-bar";
+import {ErrorIcon} from "react-hot-toast";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -33,13 +34,22 @@ export default function Preview({ params }: { params: { notebook_id: string } })
                     />}
                 </div>
 
-                <div className={"w-full h-full"}>
+                {preview && preview.entries.length > 0 && <div className={"w-full h-full"}>
                     {/*<EntryToolbar/>*/}
-                    {preview && <PDFViewer
+                    <PDFViewer
                         url={preview?.preview_url}
                         setReaderAPI={setReaderAPI}
-                    />}
-                </div>
+                    />
+                </div>}
+
+                {preview && preview.entries.length === 0 && (
+                    <div className={'w-full h-full items-center align-middle flex justify-center gap-2'}>
+                        <ErrorIcon className={"w-12 h-12"}/>
+                        <p className={'font-lg font-semibold text-gray-500'}>
+                            Preview not available
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     )

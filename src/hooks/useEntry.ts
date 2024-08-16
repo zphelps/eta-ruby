@@ -9,7 +9,7 @@ export const useEntry = (id: string) => {
 
     const fetchEntry = useCallback(async (id: string) => {
         try {
-            console.log('Fetching entry', id)
+            console.log('FETCHING ENTRY', id)
             const response = await api.get("/entries", {
                 params: {
                     entry_id: id,

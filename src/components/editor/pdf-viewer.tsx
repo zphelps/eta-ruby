@@ -90,18 +90,10 @@ export const PDFViewer: FC<PDFViewerProps> = (props) => {
 
     return (
         <div
-            // style={{
-            //     width: "700px",
-            //     height: "800px",
-            //     borderColor: "gray",
-            //     borderWidth: "1px",
-            //     borderStyle: "solid",
-            // }}
             className={'w-full h-full'}
         >
             <Reader
                 file={url}
-                // file={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/public/312e53be-46b0-4ab9-8ebd-b60c688ecd14/3aba8b73-d106-4ec2-9f2c-7f3790ee1d2d.pdf"}
                 onPageChange={onPageChange}
                 onDocumentLoad={onDocumentLoaded}
                 onViewportsMeasured={onViewportsMeasured}

@@ -31,18 +31,7 @@ export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
 
     const handleDownload = async () => {
         console.log('Downloading notebook...');
-
-        // const supabase = createClient();
-        //
-        // const {data, error} = await supabase.storage
-        //     .from(preview.notebook_id)
-        //     .download("preview.pdf");
-
         downloadFile(preview.preview_url, `${preview.team_number}-${preview.team_name}.pdf`);
-
-        // if (error) {
-        //     console.log('Error downloading notebook:', error);
-        // }
     }
 
     return (
@@ -71,24 +60,18 @@ export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
                                 {preview.team_name}
                             </p>
                         </div>
-
-
-                        {/*<NotebookSelector/>*/}
                     </div>
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <button
                                 onClick={handleDownload}
                                 type="button"
-                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black shadow-sm hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                             >
                                 <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
                                 Download
                             </button>
                         </div>
-                        {/*<div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">*/}
-                        {/*    */}
-                        {/*</div>*/}
                     </div>
                 </div>
             </div>

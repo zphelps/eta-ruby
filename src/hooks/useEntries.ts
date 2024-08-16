@@ -9,14 +9,12 @@ export const useEntries = (notebook_id: string) => {
 
     const fetchEntries = useCallback(async (id: string) => {
         try {
-            console.log("FETCHING ENTRIES")
-            console.log(id)
+            console.log("FETCHING ENTRIES", id);
             const response = await api.get("/entries", {
                 params: {
                     notebook_id: id,
                 }
             });
-
             dispatch(setEntries(response.data));
         } catch (err) {
             console.error(err);

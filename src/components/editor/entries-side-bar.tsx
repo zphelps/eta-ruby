@@ -84,7 +84,7 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
                 </div>
             )}
             <div className={'overflow-y-auto'}>
-                <Accordion type="multiple" className="w-full" defaultValue={getDefaultValue()}>
+                <Accordion type="multiple" className="w-full" value={getDefaultValue()}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (
                             <AccordionItem value={key} key={key}>

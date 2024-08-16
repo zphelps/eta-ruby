@@ -1,5 +1,5 @@
 import {Entry} from "@/types/entry";
-import {FC, useEffect} from "react";
+import {FC, useEffect, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {useEntry} from "@/hooks/useEntry";
 import { format } from "date-fns";
@@ -18,6 +18,15 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {DropdownMenu, DropdownMenuContent} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel,
+    AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import {EntryActionsDropdown} from "@/components/editor/entry-actions-dropdown";
 
 interface EntryToolbarProps {
 }
@@ -29,22 +38,6 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
 
     const selectedEntryId = searchParams.get("entry") as string;
     const entry = useEntry(selectedEntryId as string);
-
-    async function handleDeleteEntry() {
-        console.log('Add page');
-
-        await api.delete(`/entries`, {
-            params: {
-                entry_id: selectedEntryId
-            }
-        });
-
-        dispatch(removeEntry(selectedEntryId));
-
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete('entry')
-        window.history.pushState(null, '', `?${params.toString()}`)
-    }
 
     if (!entry) {
         return null;
@@ -63,25 +56,7 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
                 </p>
             </div>
 
-
-            {/*TODO: Add dropdown menu for entry actions*/}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className={"py-1 h-full"}>
-                        <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Entry Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={handleDeleteEntry} className={'text-red-500'}>
-                            <Trash className={'h-5 w-5 mr-2'}/>
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <EntryActionsDropdown />
 
         </div>
     )

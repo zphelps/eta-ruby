@@ -3,7 +3,14 @@ import {z} from "zod";
 import {NextRequest, NextResponse} from "next/server";
 import {v4 as uuid} from "uuid";
 import {PDFDocument} from "pdf-lib";
-import {previewPDFExists} from "@/app/api/notebooks/helpers";
+import {
+    deleteEntry, deletePDF, getEntry, getIndicesToRemove,
+    getPreviewPDFDoc,
+    insertEntry,
+    mergePDFs,
+    previewPDFExists, removeIndicesFromPDF,
+    upsertPDF
+} from "@/app/api/notebooks/helpers";
 // import {pdfjs} from "react-pdf";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -96,87 +103,39 @@ export async function POST(request: Request) {
 
         // get number of pages in pdf file
         const buffer = await body.file.arrayBuffer();
-        const doc = await PDFDocument.load(buffer)
-        const num_pages = doc.getPages().length
+        const newEntryDoc = await PDFDocument.load(buffer)
+        const num_pages = newEntryDoc.getPages().length
 
         // upload pdf file to storage
-        const {error: storageError} = await supabase.storage.from(body.notebook_id).upload(
-            `${id}.pdf`,
-            body.file,
-            { contentType: body.file.type} // Optional
-        );
+        await upsertPDF(body.notebook_id, `${id}.pdf`, newEntryDoc);
 
-        if (storageError) {
-            console.log(storageError)
-            return NextResponse.json({
-                message: storageError.message,
-                error: storageError.message
-            }, { status: 400 })
-        }
-
-        let previewDoc;
+        let existingPreviewDoc;
         const previewExists = await previewPDFExists(body.notebook_id);
 
         if (previewExists) {
-            const {data: previewData, error: previewDownloadError} = await supabase.storage.from(body.notebook_id).download(`preview.pdf?buster=${new Date().getTime()}`);
-
-            if (previewDownloadError) {
-                console.log(previewDownloadError)
-                return NextResponse.json({
-                    message: previewDownloadError.message,
-                    error: previewDownloadError.message
-                }, { status: 400 })
-            }
-
-            const previewBuffer = await previewData.arrayBuffer();
-            previewDoc = await PDFDocument.load(previewBuffer, {ignoreEncryption: true});
-
-            console.log("PAGES", previewDoc.getPages())
-            console.log("PAGE COUNT", previewDoc.getPageCount())
+            existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
+            console.log("PAGES", existingPreviewDoc.getPages())
+            console.log("PAGE COUNT", existingPreviewDoc.getPageCount())
         } else {
-            previewDoc = await PDFDocument.create();
+            existingPreviewDoc = await PDFDocument.create();
         }
 
-        const newPages = await previewDoc.copyPages(doc, doc.getPageIndices());
+        const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
 
-        newPages.forEach((page) => {
-            previewDoc.addPage(page);
-        });
-
-        const previewPdfBytes = await previewDoc.save();
-
-        const { error: previewUploadError } = await supabase.storage.from(body.notebook_id).upload(
-            `preview.pdf`,
-            previewPdfBytes,
-            { contentType: 'application/pdf', upsert: true }
-        );
-
-        if (previewUploadError) {
-            console.log(previewUploadError);
-            return NextResponse.json({
-                message: previewUploadError.message,
-                error: previewUploadError.message
-            }, { status: 400 });
-        }
+        await upsertPDF(body.notebook_id, "preview.pdf", newPreviewDoc);
 
         const {data: urlData} = supabase.storage.from(body.notebook_id).getPublicUrl(`${id}.pdf`);
 
-        const {error: databaseError} = await supabase.from("entries").insert({
+        await insertEntry({
             id: id,
             title: body.title,
             created_at: body.created_at,
+            updated_at: body.created_at,
             notebook_id: body.notebook_id,
             url: urlData?.publicUrl,
             page_count: num_pages
-        });
+        })
 
-        if (databaseError) {
-            console.log(databaseError)
-            return NextResponse.json({
-                message: databaseError.message,
-                error: databaseError.message
-            }, { status: 400 })
-        }
 
         return NextResponse.json({
             message: 'Success',
@@ -202,7 +161,10 @@ export async function PUT(request: Request) {}
 export async function DELETE(request: NextRequest) {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
 
+    const { notebook_id, entry_id } = params;
+
     const schema = z.object({
+        notebook_id: z.string(),
         entry_id: z.string(),
     });
 
@@ -215,15 +177,23 @@ export async function DELETE(request: NextRequest) {
     }
 
     try {
-        const supabase = createClient();
 
-        const {data, error} = await supabase.from("entries").delete().eq("id", params.entry_id);
+        const existingPreviewPDF = await getPreviewPDFDoc(notebook_id);
 
-        if (error) {
-            return NextResponse.json({
-                message: error.message,
-                error: error.message
-            }, {status: 400})
+        const entry = await getEntry(entry_id);
+
+        await deleteEntry(entry_id);
+
+        await deletePDF(notebook_id, `${entry_id}.pdf`);
+
+        const indicesToRemove = await getIndicesToRemove(entry);
+
+        const newPreviewPDF = await removeIndicesFromPDF(existingPreviewPDF, indicesToRemove);
+
+        if (newPreviewPDF === null) {
+            await deletePDF(notebook_id, "preview.pdf");
+        } else {
+            await upsertPDF(notebook_id, "preview.pdf", newPreviewPDF);
         }
 
         return NextResponse.json({

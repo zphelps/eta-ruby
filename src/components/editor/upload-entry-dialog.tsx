@@ -83,7 +83,11 @@ export function UploadEntryDialog() {
             const {data: entry} = await toast.promise(api.post("/entries", formData), {
                 loading: "Uploading entry...",
                 success: () => {
-                    form.reset()
+                    form.reset({
+                        title: "",
+                        date: new Date(),
+                        file: undefined,
+                    })
                     setUploading(false)
                     setOpen(false)
                     return "Entry uploaded"
