@@ -1,17 +1,23 @@
 "use client"
 
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {EntriesSideBar} from "@/components/editor/entries-side-bar";
 import {EntryToolbar} from "@/components/editor/entry-toolbar";
-import {EntryViewer} from "@/components/editor/entry-viewer";
+import {PDFViewer} from "@/components/editor/pdf-viewer";
 import {validate} from "uuid";
+import {useEntry} from "@/hooks/useEntry";
+import {ReaderAPI} from "react-pdf-headless";
 
 export default function Dashboard() {
     const searchParams = useSearchParams();
 
-    const selectedEntryId = searchParams.get("entry");
-    const selectedNotebookId = searchParams.get("notebook");
+    const selectedEntryId = searchParams.get("entry") as string;
+    const selectedNotebookId = searchParams.get("notebook") as string;
+
+    const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
+
+    const entry = useEntry(selectedEntryId);
 
     // TODO: Unify all url validation logic into a single hook
     useEffect(() => {
@@ -35,11 +41,10 @@ export default function Dashboard() {
 
             {selectedEntryId && selectedNotebookId && <div className={"w-full h-full"}>
                 <EntryToolbar />
-                <EntryViewer
-                    // fileUrl={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/State-compressed.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvU3RhdGUtY29tcHJlc3NlZC5wZGYiLCJpYXQiOjE3MjI4Njk3MzUsImV4cCI6MTcyMzQ3NDUzNX0.GmfUsE5aDCTm4CRLhBQ_OsaCbRYDYhi1ROdnXlYpnc8&t=2024-08-05T14%3A55%3A35.408Z"}
-                    // fileUrl={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/State.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvU3RhdGUucGRmIiwiaWF0IjoxNzIyODY3NTUyLCJleHAiOjE3MjM0NzIzNTJ9.1yoAnKHgaevrPCTrySfU-XAz15UtIGf7rSSIAO8Puv8&t=2024-08-05T14%3A19%3A13.056Z"}
-                    // fileUrl={'https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/sign/312e53be-46b0-4ab9-8ebd-b60c688ecd14/ghfhfghgf.pdf?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiIzMTJlNTNiZS00NmIwLTRhYjktOGViZC1iNjBjNjg4ZWNkMTQvZ2hmaGZnaGdmLnBkZiIsImlhdCI6MTcyMjg2Nzg4OSwiZXhwIjoxNzIzNDcyNjg5fQ.qezV-0rAUQ9iFunsUQJuN4pPQCou06kdj1o8eFQ9DAs&t=2024-08-05T14%3A24%3A49.664Z'}
-                />
+                {entry && <PDFViewer
+                    url={entry.url}
+                    setReaderAPI={setReaderAPI}
+                />}
             </div>}
         </div>
     )

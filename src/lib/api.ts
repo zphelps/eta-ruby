@@ -11,7 +11,8 @@ api.interceptors.response.use(
     },
     function (error) {
 
-        // console.log(error.response);
+        console.log("ERROR!!")
+        console.log(error.response);
         toast({
             title: "Error",
             variant: "destructive",

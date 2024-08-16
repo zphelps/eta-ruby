@@ -5,9 +5,10 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import {useAuth} from "@/hooks/useAuth";
 import {Eye} from "lucide-react";
 import {NotebookSelector} from "@/components/editor/notebook-selector";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {api} from "@/lib/api";
 import {useState} from "react";
+import Link from "next/link";
 
 export default function DashboardHeader() {
 
@@ -35,7 +36,7 @@ export default function DashboardHeader() {
 
     return (
         <Disclosure as="nav" className="absolute bg-white border-b border-b-slate-200 w-full">
-            <div className="mx-auto px-2 sm:px-3 lg:px-4">
+            <div className="mx-auto sm:px-3 lg:px-4">
                 <div className="flex h-14 justify-between">
                     <div className="flex items-center gap-x-6">
                         <div className="-ml-2 mr-2 flex items-center md:hidden">
@@ -47,27 +48,29 @@ export default function DashboardHeader() {
                                 <XMarkIcon aria-hidden="true" className="hidden h-6 w-6 group-data-[open]:block" />
                             </DisclosureButton>
                         </div>
-                        <div className="flex flex-shrink-0 items-center">
-                            <img
-                                alt="Your Company"
-                                src="https://tailwindui.com/img/logos/mark.svg?color=sky&shade=600"
-                                className="h-8 w-auto"
-                            />
-                        </div>
+                        {/*<div className="flex flex-shrink-0 items-center">*/}
+                        {/*    <img*/}
+                        {/*        alt="Your Company"*/}
+                        {/*        src="https://tailwindui.com/img/logos/mark.svg?color=sky&shade=600"*/}
+                        {/*        className="h-8 w-auto"*/}
+                        {/*    />*/}
+                        {/*</div>*/}
 
                         <NotebookSelector/>
                     </div>
                     <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <button
-                                onClick={handlePreview}
-                                type="button"
+                        {notebook_id && <div className="flex-shrink-0">
+                            <Link
+                                href={`/preview/${notebook_id}`}
+                                target={"_blank"}
+                                // onClick={handlePreview}
+                                // type="button"
                                 className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                                <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5" />
+                                <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
                                 Preview
-                            </button>
-                        </div>
+                            </Link>
+                        </div>}
                         <div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">
 
                             {/* Profile dropdown */}

@@ -9,14 +9,13 @@ export const useEntries = (notebook_id: string) => {
 
     const fetchEntries = useCallback(async (id: string) => {
         try {
+            console.log("FETCHING ENTRIES")
+            console.log(id)
             const response = await api.get("/entries", {
                 params: {
                     notebook_id: id,
                 }
             });
-
-            console.log(response)
-            console.log(response.data)
 
             dispatch(setEntries(response.data));
         } catch (err) {
@@ -30,6 +29,5 @@ export const useEntries = (notebook_id: string) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [notebook_id]
     );
-
     return Object.values(entries);
 }

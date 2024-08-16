@@ -24,10 +24,14 @@ const entriesSlice = createSlice({
         //     }
         // },
         setEntries: (state, action: PayloadAction<Entry[]>) => {
-            state.entries = action.payload.reduce((acc, entry) => {
-                acc[entry.id] = entry
-                return acc
-            }, {} as { [id: string]: Entry; })
+            // const entries = action.payload.reduce((acc, entry) => {
+            //     acc[entry.id] = entry
+            //     return acc
+            // }, {} as { [id: string]: Entry })
+
+            for (const entry of action.payload) {
+                state.entries[entry.id] = entry
+            }
         },
         removeEntry: (state, action: PayloadAction<string>) => {
             delete state.entries[action.payload]

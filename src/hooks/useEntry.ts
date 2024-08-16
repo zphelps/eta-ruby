@@ -15,7 +15,6 @@ export const useEntry = (id: string) => {
                     entry_id: id,
                 }
             });
-
             dispatch(setEntry(response.data));
         } catch (err) {
             console.error(err);
@@ -23,7 +22,7 @@ export const useEntry = (id: string) => {
     }, [id]);
 
     useEffect(() => {
-            if (!entry) {
+            if (!entry && id) {
                 fetchEntry(id);
             }
         },

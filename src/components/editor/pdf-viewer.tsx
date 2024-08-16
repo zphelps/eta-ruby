@@ -1,10 +1,7 @@
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
 import React, {ChangeEvent, FC, useEffect, useRef, useState} from "react";
 import {Page, pdfjs} from "react-pdf";
-import {useSearchParams} from "next/navigation";
-import {useEntry} from "@/hooks/useEntry";
 import {PageChangeEvent, Reader, ReaderAPI, RenderPageProps} from "react-pdf-headless";
 import {RotateLoader} from "react-spinners";
 
@@ -17,20 +14,19 @@ const LoadingComponent = () => {
 };
 
 interface PDFViewerProps {
+    url: string;
+    setReaderAPI: (api: ReaderAPI) => void;
 }
-export const EntryViewer: FC<PDFViewerProps> = (props) => {
 
-    const searchParams = useSearchParams();
+export const PDFViewer: FC<PDFViewerProps> = (props) => {
 
-    const selectedEntryId = searchParams.get("entry") as string;
-
-    const entry = useEntry(selectedEntryId);
+    const {url, setReaderAPI} = props;
 
     const [pageNum, setPageNum] = useState<number | null>(null);
     const [scale, setScale] = useState<number | null>(0.75);
     const [file, setFile] = useState<string>();
     const [wantPage, setWantPage] = useState<number | null>(null);
-    const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
+    // const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
     const [offset, setOffset] = useState<number | null>(null);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const initialHighlight = useRef(false);
@@ -92,11 +88,6 @@ export const EntryViewer: FC<PDFViewerProps> = (props) => {
         // debugger;
     };
 
-
-    if (!entry) {
-        return null;
-    }
-
     return (
         <div
             // style={{
@@ -108,8 +99,8 @@ export const EntryViewer: FC<PDFViewerProps> = (props) => {
             // }}
             className={'w-full h-full'}
         >
-            {entry && <Reader
-                file={entry.url}
+            <Reader
+                file={url}
                 // file={"https://mqtngvbwllxtievxdfll.supabase.co/storage/v1/object/public/312e53be-46b0-4ab9-8ebd-b60c688ecd14/3aba8b73-d106-4ec2-9f2c-7f3790ee1d2d.pdf"}
                 onPageChange={onPageChange}
                 onDocumentLoad={onDocumentLoaded}
@@ -123,7 +114,7 @@ export const EntryViewer: FC<PDFViewerProps> = (props) => {
                             <RotateLoader color={"#2563EB"} size={8} />
                         </div>
                     )}}
-            />}
+            />
         </div>
 
     );

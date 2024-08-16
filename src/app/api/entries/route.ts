@@ -2,7 +2,9 @@ import {createClient} from "@/utils/supabase/server";
 import {z} from "zod";
 import {NextRequest, NextResponse} from "next/server";
 import {v4 as uuid} from "uuid";
-import {pdfjs} from "react-pdf";
+import {PDFDocument} from "pdf-lib";
+import {previewPDFExists} from "@/app/api/notebooks/helpers";
+// import {pdfjs} from "react-pdf";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -33,7 +35,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             query = query.eq("notebook_id", params.notebook_id)
         }
 
-        const {data, error} = await query;
+        const {data, error} = await query.order("created_at", {ascending: true});
+
+        console.log(data)
 
         if (error) {
             return NextResponse.json({
@@ -92,12 +96,14 @@ export async function POST(request: Request) {
 
         // get number of pages in pdf file
         const buffer = await body.file.arrayBuffer();
-        const num_pages = await pdfjs.getDocument(buffer).promise.then(pdf => pdf.numPages);
+        const doc = await PDFDocument.load(buffer)
+        const num_pages = doc.getPages().length
 
+        // upload pdf file to storage
         const {error: storageError} = await supabase.storage.from(body.notebook_id).upload(
             `${id}.pdf`,
             body.file,
-            { contentType: body.file.type } // Optional
+            { contentType: body.file.type} // Optional
         );
 
         if (storageError) {
@@ -108,7 +114,52 @@ export async function POST(request: Request) {
             }, { status: 400 })
         }
 
-        const {data: urlData} = await supabase.storage.from(body.notebook_id).getPublicUrl(`${id}.pdf`);
+        let previewDoc;
+        const previewExists = await previewPDFExists(body.notebook_id);
+
+        if (previewExists) {
+            const {data: previewData, error: previewDownloadError} = await supabase.storage.from(body.notebook_id).download(`preview.pdf?buster=${new Date().getTime()}`);
+
+            if (previewDownloadError) {
+                console.log(previewDownloadError)
+                return NextResponse.json({
+                    message: previewDownloadError.message,
+                    error: previewDownloadError.message
+                }, { status: 400 })
+            }
+
+            const previewBuffer = await previewData.arrayBuffer();
+            previewDoc = await PDFDocument.load(previewBuffer, {ignoreEncryption: true});
+
+            console.log("PAGES", previewDoc.getPages())
+            console.log("PAGE COUNT", previewDoc.getPageCount())
+        } else {
+            previewDoc = await PDFDocument.create();
+        }
+
+        const newPages = await previewDoc.copyPages(doc, doc.getPageIndices());
+
+        newPages.forEach((page) => {
+            previewDoc.addPage(page);
+        });
+
+        const previewPdfBytes = await previewDoc.save();
+
+        const { error: previewUploadError } = await supabase.storage.from(body.notebook_id).upload(
+            `preview.pdf`,
+            previewPdfBytes,
+            { contentType: 'application/pdf', upsert: true }
+        );
+
+        if (previewUploadError) {
+            console.log(previewUploadError);
+            return NextResponse.json({
+                message: previewUploadError.message,
+                error: previewUploadError.message
+            }, { status: 400 });
+        }
+
+        const {data: urlData} = supabase.storage.from(body.notebook_id).getPublicUrl(`${id}.pdf`);
 
         const {error: databaseError} = await supabase.from("entries").insert({
             id: id,
@@ -134,7 +185,7 @@ export async function POST(request: Request) {
                 title: body.title,
                 created_at: body.created_at,
                 notebook_id: body.notebook_id,
-                url: urlData?.publicUrl
+                url: urlData?.publicUrl + `?buster=${new Date().getTime()}`,
             }
         }, { status: 200 })
     } catch (e) {

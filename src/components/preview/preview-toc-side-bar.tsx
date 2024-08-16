@@ -1,28 +1,20 @@
-import {FC, useCallback, useEffect, useState} from "react";
-import {StickyNote} from "lucide-react";
-import {Entry} from "@/types/entry";
-import {api} from "@/lib/api";
 import {useSearchParams} from "next/navigation";
-import {UploadEntryDialog} from "@/components/editor/upload-entry-dialog";
-import { format } from "date-fns";
+import {FC, useCallback, useEffect} from "react";
 import {Separator} from "@/components/ui/separator";
-import {cn} from "@/lib/utils";
+import {StickyNote} from "lucide-react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
-import {useEntries} from "@/hooks/useEntries";
-import {v4 as uuidv4, validate} from "uuid";
+import {cn} from "@/lib/utils";
+import {format} from "date-fns";
+import {PreviewEntry} from "@/types/preview";
 
-interface EntriesSideBarProps {
-
-}
-
-const useGroupedEntries = (entries: Entry[]) => {
+export const useGroupedPreviewEntries = (entries: PreviewEntry[]) => {
     // sort entries by date
     entries = entries.sort((a, b) => {
         const dateA = new Date(a.created_at);
         const dateB = new Date(b.created_at);
         return dateA.getTime() - dateB.getTime();
     });
-    return entries.reduce((groups: { [x: string]: Entry[]; }, item: Entry) => {
+    return entries.reduce((groups: { [x: string]: PreviewEntry[]; }, item: PreviewEntry) => {
         const date = new Date(item.created_at);
         const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
@@ -35,13 +27,17 @@ const useGroupedEntries = (entries: Entry[]) => {
     }, {});
 }
 
-export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
-    const searchParams = useSearchParams();
-    const selectedEntryId = searchParams.get("entry");
-    const selectedNotebookId = searchParams.get("notebook");
+interface PreviewTocSideBarProps {
+    entries: PreviewEntry[];
+    setPage: (page: number) => void;
+}
 
-    const entries = useEntries(selectedNotebookId as string);
-    const groupedEntries = useGroupedEntries(entries);
+export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
+    const {entries, setPage} = props;
+    const groupedEntries = useGroupedPreviewEntries(entries);
+
+    const searchParams = useSearchParams();
+    const selectedEntryId = searchParams.get("entry") as string;
 
     const getDefaultValue = useCallback(() => {
         const selectedEntry = entries.find(entry => entry.id === selectedEntryId);
@@ -54,23 +50,25 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
         return [`${month} ${year}`];
     }, [entries, selectedEntryId]);
 
-    function onEntrySelect(entryId: string) {
+    function onEntrySelect(entry: PreviewEntry) {
         const params = new URLSearchParams(searchParams.toString())
-        params.set('entry', entryId)
+        params.set('entry', entry.id)
         window.history.pushState(null, '', `?${params.toString()}`)
     }
 
-    if (!selectedNotebookId) {
-        return null;
-    }
+    useEffect(() => {
+        const entry = entries.find(entry => entry.id === selectedEntryId);
+        if (entry) setPage(entry.start_page);
+    }, [selectedEntryId, entries, setPage]);
+
+    const defaultAccordionValue = getDefaultValue();
 
     return (
         <div className={'h-full border-r border-r-slate-200 w-full'}>
             <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-10'}>
                 <p className={'font-semibold'}>
-                    Entries
+                    Table of Contents
                 </p>
-                <UploadEntryDialog />
             </div>
 
             <Separator className={'mt-0'} />
@@ -84,19 +82,19 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
                 </div>
             )}
             <div className={'overflow-y-auto'}>
-                <Accordion type="multiple" className="w-full" defaultValue={getDefaultValue()}>
+                <Accordion type="multiple" className="w-full" defaultValue={defaultAccordionValue}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (
                             <AccordionItem value={key} key={key}>
-                                <AccordionTrigger className={'font-semibold text-sm mx-3 pb-2'}>
+                                <AccordionTrigger className={'font-semibold text-sm mx-3 pb-1 pt-2'}>
                                     {key}
                                 </AccordionTrigger>
-                                <div className={'pb-2'}>
-                                    {groupedEntries[key].map((entry: Entry) => {
+                                <div className={'pb-1'}>
+                                    {groupedEntries[key].map((entry: PreviewEntry) => {
                                         return (
                                             <AccordionContent
                                                 key={entry.id}
-                                                onClick={() => onEntrySelect(entry.id)}
+                                                onClick={() => onEntrySelect(entry)}
                                                 className={cn(selectedEntryId === entry.id ? "bg-slate-100" : "", 'flex items-center justify-between hover:bg-slate-50 rounded-md py-1.5 px-2 cursor-pointer mx-1')}
                                             >
                                                 <p
