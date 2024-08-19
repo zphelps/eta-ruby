@@ -16,9 +16,9 @@ const teamsSlice = createSlice({
     reducers: {
         addTeamForUser: (state, action: PayloadAction<{user_id: string, team: Team}>) => {
             if (state.teams[action.payload.user_id]) {
-                state.teams[action.payload.user_id].push(action.payload.notebook)
+                state.teams[action.payload.user_id].push(action.payload.team)
             } else {
-                state.teams[action.payload.user_id] = [action.payload.notebook]
+                state.teams[action.payload.user_id] = [action.payload.team]
             }
         },
         setTeamsForUser: (state, action: PayloadAction<{ user_id: string, teams: Team[] }>) => {
