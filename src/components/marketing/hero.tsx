@@ -11,7 +11,7 @@ export default function Hero() {
                         <a href="#" className="inline-flex space-x-6">
               <span
                   className="rounded-full bg-blue-600/10 px-3 py-1 text-sm font-semibold leading-6 text-blue-600 ring-1 ring-inset ring-blue-600/10">
-                What's new
+                {"What's new"}
               </span>
                             <span
                                 className="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-600">

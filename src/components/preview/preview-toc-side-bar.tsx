@@ -1,5 +1,5 @@
-import {useSearchParams} from "next/navigation";
-import {FC, useCallback, useEffect} from "react";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {FC, useCallback, useEffect, useState} from "react";
 import {Separator} from "@/components/ui/separator";
 import {StickyNote} from "lucide-react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
@@ -37,7 +37,11 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
     const groupedEntries = useGroupedPreviewEntries(entries);
 
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
     const selectedEntryId = searchParams.get("entry") as string;
+
+    const [accordionValue, setAccordionValue] = useState<string[]>();
 
     const getDefaultValue = useCallback(() => {
         const selectedEntry = entries.find(entry => entry.id === selectedEntryId);
@@ -51,25 +55,25 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
     }, [entries, selectedEntryId]);
 
     function onEntrySelect(entry: PreviewEntry) {
+        if (selectedEntryId === entry.id) return;
         const params = new URLSearchParams(searchParams.toString())
+        params.set('navigating', '1')
         params.set('entry', entry.id)
-        window.history.pushState(null, '', `?${params.toString()}`)
+        router.push(`${pathname}?${params.toString()}`)
+        setPage(entry.start_page);
     }
 
-    useEffect(() => {
-        const entry = entries.find(entry => entry.id === selectedEntryId);
-        if (entry) setPage(entry.start_page);
-    }, [selectedEntryId, entries, setPage]);
+    function onAccordionValueChange(value: string[]) {
+        setAccordionValue(value);
+    }
 
     return (
-        <div className={'h-full border-r border-r-slate-200 w-full'}>
-            <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-10'}>
+        <div className={'h-[calc(100vh-56px)] border-r border-r-slate-200 w-full'}>
+            <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-11 border-b border-b-slate-200'}>
                 <p className={'font-semibold'}>
                     Table of Contents
                 </p>
             </div>
-
-            <Separator className={'mt-0'} />
 
             {Object.keys(groupedEntries).length === 0 && (
                 <div className={'w-full min-h-full text-center justify-center content-center space-y-2'}>
@@ -80,7 +84,7 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
                 </div>
             )}
             <div className={'overflow-y-auto'}>
-                <Accordion type="multiple" className="w-full" value={getDefaultValue()}>
+                <Accordion type="multiple" className="w-full" value={accordionValue ?? getDefaultValue()} onValueChange={onAccordionValueChange}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (
                             <AccordionItem value={key} key={key}>

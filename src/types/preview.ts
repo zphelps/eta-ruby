@@ -14,5 +14,6 @@ export interface PreviewEntry {
     title: string;
     created_at: string;
     start_page: number;
+    end_page: number;
     url: string;
 }

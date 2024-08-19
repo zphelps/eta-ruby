@@ -18,14 +18,14 @@ import {useForm} from "react-hook-form";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Calendar} from "@/components/ui/calendar";
-import {CalendarIcon, Plus} from "lucide-react";
+import {CalendarIcon} from "lucide-react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {format} from "date-fns";
 import {cn} from "@/lib/utils";
 import {Separator} from "@/components/ui/separator";
 import {useSearchParams} from "next/navigation";
 import {api} from "@/lib/api";
-import {useState} from "react";
+import {FC, useState} from "react";
 import toast from "react-hot-toast";
 import {v4 as uuid} from "uuid";
 import {setEntry} from "@/slices/entries";
@@ -37,8 +37,13 @@ const formSchema = z.object({
     file: z.instanceof(File),
 })
 
-export function UploadEntryDialog() {
+interface UploadEntryDialogProps {
+    minimumDate?: Date,
+    children: React.ReactNode
+}
 
+export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
+    const {children, minimumDate} = props
     const [uploading, setUploading] = useState(false)
     const [open, setOpen] = useState(false)
     const dispatch = useAppDispatch();
@@ -47,7 +52,7 @@ export function UploadEntryDialog() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            date: new Date(),
+            date: minimumDate,
             file: undefined,
         },
     })
@@ -73,11 +78,16 @@ export function UploadEntryDialog() {
         try {
             const id = uuid();
 
+            // if values.date is the same as minimumDate, add one minute to it
+            if (minimumDate && values.date.getTime() === minimumDate.getTime()) {
+                values.date.setMilliseconds(values.date.getMilliseconds() + 1)
+            }
+
             const formData = new FormData();
             formData.append('id', id);
             formData.append('file', values.file);
             formData.append('title', values.title);
-            formData.append('date', values.date.toISOString());
+            formData.append('date', values.date.toUTCString());
             formData.append('notebook_id', notebookId)
 
             const {data: entry} = await toast.promise(api.post("/entries", formData), {
@@ -85,7 +95,7 @@ export function UploadEntryDialog() {
                 success: () => {
                     form.reset({
                         title: "",
-                        date: new Date(),
+                        date: minimumDate,
                         file: undefined,
                     })
                     setUploading(false)
@@ -112,9 +122,7 @@ export function UploadEntryDialog() {
     return (
         <Dialog open={open} onOpenChange={o => setOpen(o)}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className={'p-2.5 h-fit'}>
-                    <Plus className="h-5 w-5" />
-                </Button>
+                {children}
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
@@ -174,9 +182,16 @@ export function UploadEntryDialog() {
                                                 mode="single"
                                                 selected={field.value ? new Date(field.value) : undefined}
                                                 onSelect={field.onChange}
-                                                // disabled={(date) =>
-                                                //     date > new Date() || date < new Date("1900-01-01")
-                                                // }
+                                                disabled={(date) =>
+                                                    {
+                                                        if (minimumDate) {
+                                                            return date < minimumDate
+                                                        }
+                                                        else {
+                                                            return false;
+                                                        }
+                                                    }
+                                                }
                                                 initialFocus
                                             />
                                         </PopoverContent>

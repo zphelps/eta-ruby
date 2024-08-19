@@ -34,7 +34,7 @@ export const EntryActionsDropdown = () => {
         }}>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className={"py-1 h-full"}>
+                    <Button variant="ghost" size="icon">
                         <MoreHorizontal className="h-5 w-5" />
                     </Button>
                 </DropdownMenuTrigger>

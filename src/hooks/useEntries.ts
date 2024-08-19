@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {RootState, useAppDispatch, useAppSelector} from "@/store";
 import {api} from "@/lib/api";
 import {setEntries, setEntry} from "@/slices/entries";
@@ -6,8 +6,10 @@ import {setEntries, setEntry} from "@/slices/entries";
 export const useEntries = (notebook_id: string) => {
     const dispatch = useAppDispatch();
     const entries = useAppSelector((state: RootState) => state.entries.entries);
+    const [loading, setLoading] = useState(false);
 
     const fetchEntries = useCallback(async (id: string) => {
+        setLoading(true);
         try {
             console.log("FETCHING ENTRIES", id);
             const response = await api.get("/entries", {
@@ -19,6 +21,7 @@ export const useEntries = (notebook_id: string) => {
         } catch (err) {
             console.error(err);
         }
+        setLoading(false);
     }, [notebook_id]);
 
     useEffect(() => {
@@ -27,5 +30,8 @@ export const useEntries = (notebook_id: string) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [notebook_id]
     );
-    return Object.values(entries);
+    return {
+        loading,
+        entries: Object.values(entries).filter((entry) => entry.notebook_id === notebook_id),
+    };
 }

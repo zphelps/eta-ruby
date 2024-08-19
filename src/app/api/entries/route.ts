@@ -5,13 +5,11 @@ import {v4 as uuid} from "uuid";
 import {PDFDocument} from "pdf-lib";
 import {
     deleteEntry, deletePDF, getEntry, getIndicesToRemove,
-    getPreviewPDFDoc,
+    getPreviewPDFDoc, getPublicURL,
     insertEntry,
     mergePDFs,
-    previewPDFExists, removeIndicesFromPDF,
-    upsertPDF
+    removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
-// import {pdfjs} from "react-pdf";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -30,6 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     try {
+
         const supabase = createClient();
 
         let query = supabase.from("entries").select("*")
@@ -39,12 +38,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         }
 
         if (params.notebook_id) {
+            console.log("Filtering by notebook", params.notebook_id)
             query = query.eq("notebook_id", params.notebook_id)
         }
 
         const {data, error} = await query.order("created_at", {ascending: true});
-
-        console.log(data)
 
         if (error) {
             return NextResponse.json({
@@ -79,8 +77,6 @@ export async function POST(request: Request) {
         notebook_id: formData.get('notebook_id') as string,
     }
 
-    console.log(body)
-
     const schema = z.object({
         id: z.string().optional(),
         title: z.string(),
@@ -99,32 +95,22 @@ export async function POST(request: Request) {
 
     try {
         const id = body.id ?? uuid();
-        const supabase = createClient();
 
-        // get number of pages in pdf file
+        // get number of pages in new pdf file
         const buffer = await body.file.arrayBuffer();
         const newEntryDoc = await PDFDocument.load(buffer)
         const num_pages = newEntryDoc.getPages().length
 
-        // upload pdf file to storage
-        await upsertPDF(body.notebook_id, `${id}.pdf`, newEntryDoc);
-
-        let existingPreviewDoc;
-        const previewExists = await previewPDFExists(body.notebook_id);
-
-        if (previewExists) {
-            existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
-            console.log("PAGES", existingPreviewDoc.getPages())
-            console.log("PAGE COUNT", existingPreviewDoc.getPageCount())
-        } else {
-            existingPreviewDoc = await PDFDocument.create();
-        }
-
+        const existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
         const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
 
-        await upsertPDF(body.notebook_id, "preview.pdf", newPreviewDoc);
+        // upload new entry to storage
+        await uploadPDF("entries", `${body.notebook_id}/${id}.pdf`, newEntryDoc);
 
-        const {data: urlData} = supabase.storage.from(body.notebook_id).getPublicUrl(`${id}.pdf`);
+        // upload notebook preview to storage
+        await uploadPDF("notebooks", `${body.notebook_id}/preview.pdf`, newPreviewDoc);
+
+        const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
 
         await insertEntry({
             id: id,
@@ -132,10 +118,9 @@ export async function POST(request: Request) {
             created_at: body.created_at,
             updated_at: body.created_at,
             notebook_id: body.notebook_id,
-            url: urlData?.publicUrl,
+            url: entryUrl,
             page_count: num_pages
         })
-
 
         return NextResponse.json({
             message: 'Success',
@@ -144,11 +129,12 @@ export async function POST(request: Request) {
                 title: body.title,
                 created_at: body.created_at,
                 notebook_id: body.notebook_id,
-                url: urlData?.publicUrl + `?buster=${new Date().getTime()}`,
+                url: entryUrl + `?buster=${new Date().getTime()}`,
             }
         }, { status: 200 })
     } catch (e) {
-        console.log(e)
+        console.log("Error in POST /entries", e)
+        NextResponse.error()
         return NextResponse.json({
             message: 'Invalid Request',
             error: e
@@ -156,7 +142,40 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PUT(request: Request) {}
+export async function PUT(request: NextRequest) {
+    const body = await request.json();
+
+    const schema = z.object({
+        id: z.string().optional(),
+        title: z.string().optional(),
+    });
+
+    const validationResponse = schema.safeParse(body);
+
+    if (!validationResponse.success) {
+        return NextResponse.json({
+            message: 'Invalid entry schema',
+            error: validationResponse.error
+        }, { status: 400 })
+    }
+
+    try {
+        await updateEntry({
+            id: body.id,
+            title: body.title,
+            updated_at: new Date().toISOString(),
+        })
+
+        return NextResponse.json({
+            message: 'Success',
+        }, { status: 200 })
+    } catch (e) {
+        return NextResponse.json({
+            message: 'Invalid Request',
+            error: e
+        }, { status: 400 })
+    }
+}
 
 export async function DELETE(request: NextRequest) {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -184,16 +203,18 @@ export async function DELETE(request: NextRequest) {
 
         await deleteEntry(entry_id);
 
-        await deletePDF(notebook_id, `${entry_id}.pdf`);
+        await deletePDF("entries", `${notebook_id}/${entry_id}.pdf`);
 
         const indicesToRemove = await getIndicesToRemove(entry);
+
+        console.log("Indices to remove", indicesToRemove);
 
         const newPreviewPDF = await removeIndicesFromPDF(existingPreviewPDF, indicesToRemove);
 
         if (newPreviewPDF === null) {
-            await deletePDF(notebook_id, "preview.pdf");
+            await deletePDF("notebooks", `${notebook_id}/preview.pdf`);
         } else {
-            await upsertPDF(notebook_id, "preview.pdf", newPreviewPDF);
+            await uploadPDF("notebooks", `${notebook_id}/preview.pdf`, newPreviewPDF);
         }
 
         return NextResponse.json({

@@ -8,6 +8,7 @@ import {PDFViewer} from "@/components/editor/pdf-viewer";
 import {validate} from "uuid";
 import {useEntry} from "@/hooks/useEntry";
 import {ReaderAPI} from "react-pdf-headless";
+import {read} from "node:fs";
 
 export default function Dashboard() {
     const searchParams = useSearchParams();
@@ -34,17 +35,19 @@ export default function Dashboard() {
     }, [selectedNotebookId, selectedEntryId]);
 
     return (
-        <div className={'h-screen pt-[56px] flex'}>
+        <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
             {selectedNotebookId && <div className={'min-w-[325px] max-w-[325px]'}>
                 <EntriesSideBar/>
             </div>}
 
             {selectedEntryId && selectedNotebookId && <div className={"w-full h-full"}>
-                <EntryToolbar />
-                {entry && <PDFViewer
-                    url={entry.url}
-                    setReaderAPI={setReaderAPI}
-                />}
+                <EntryToolbar readerAPI={readerAPI} />
+                {entry && (
+                    <PDFViewer
+                        url={entry.url}
+                        setReaderAPI={setReaderAPI}
+                    />
+                )}
             </div>}
         </div>
     )

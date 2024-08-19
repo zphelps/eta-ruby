@@ -3,12 +3,13 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import {useAuth} from "@/hooks/useAuth";
-import {Eye} from "lucide-react";
+import {Download, Eye, MoreHorizontal} from "lucide-react";
 import {NotebookSelector} from "@/components/editor/notebook-selector";
 import {useRouter, useSearchParams} from "next/navigation";
 import {api} from "@/lib/api";
 import {useState} from "react";
 import Link from "next/link";
+import {createClient} from "@/utils/supabase/client";
 
 export default function DashboardHeader() {
 
@@ -17,26 +18,40 @@ export default function DashboardHeader() {
     const searchParams = useSearchParams();
     const notebook_id = searchParams.get("notebook");
 
-    const [file, setFile] = useState<File | null>(null);
+    function downloadFile(url: string, fileName: string) {
+        fetch(url)
+            .then(response => response.blob())
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => console.error('Download error:', error));
+    }
 
-    async function handlePreview() {
-        const response = await api.get("/preview", {
-            params: {
-                notebook_id,
-            }
-        })
-
-        const newFile = new File([response.data], "preview.pdf", {type: "application/pdf"})
-
-        setFile(newFile)
-
-        console.log(response.data)
-        console.log(newFile)
+    const handleDownload = async () => {
+        console.log('Downloading notebook...');
+        const supabase = createClient();
+        const {data: notebook} = await supabase.from('notebooks').select('id, team:team_id(name, number)').eq('id', notebook_id).single();
+        if (!notebook) {
+            return;
+        }
+        const {data} = supabase.storage.from(notebook.id).getPublicUrl(`preview.pdf`);
+        if (!data) {
+            return;
+        }
+        // @ts-ignore
+        downloadFile(data.publicUrl, `${notebook.team.number}-${notebook.team.name}.pdf`);
     }
 
     return (
         <Disclosure as="nav" className="absolute bg-white border-b border-b-slate-200 w-full">
-            <div className="mx-auto sm:px-3 lg:px-4">
+            <div className="mx-auto sm:px-3 lg:px-3">
                 <div className="flex h-14 justify-between">
                     <div className="flex items-center gap-x-6">
                         <div className="-ml-2 mr-2 flex items-center md:hidden">
@@ -48,68 +63,78 @@ export default function DashboardHeader() {
                                 <XMarkIcon aria-hidden="true" className="hidden h-6 w-6 group-data-[open]:block" />
                             </DisclosureButton>
                         </div>
-                        {/*<div className="flex flex-shrink-0 items-center">*/}
-                        {/*    <img*/}
-                        {/*        alt="Your Company"*/}
-                        {/*        src="https://tailwindui.com/img/logos/mark.svg?color=sky&shade=600"*/}
-                        {/*        className="h-8 w-auto"*/}
-                        {/*    />*/}
-                        {/*</div>*/}
-
                         <NotebookSelector/>
                     </div>
                     <div className="flex items-center">
-                        {notebook_id && <div className="flex-shrink-0">
-                            <Link
-                                href={`/preview/${notebook_id}`}
-                                target={"_blank"}
-                                // onClick={handlePreview}
-                                // type="button"
-                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
-                            >
-                                <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
-                                Preview
-                            </Link>
-                        </div>}
-                        <div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">
-
-                            {/* Profile dropdown */}
-                            <Menu as="div" className="relative ml-3">
-                                <div>
-                                    <MenuButton className="relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
-                                        <span className="absolute -inset-1.5" />
-                                        <span className="sr-only">Open user menu</span>
-                                        <img
-                                            alt=""
-                                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                            className="h-8 w-8 rounded-full"
-                                        />
-                                    </MenuButton>
-                                </div>
-                                <MenuItems
-                                    transition
-                                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                        <div className={"flex items-center space-x-2"}>
+                            {notebook_id && <div className="flex-shrink-0">
+                                <Link
+                                    href={`/preview/${notebook_id}`}
+                                    target={"_blank"}
+                                    // onClick={handlePreview}
+                                    // type="button"
+                                    className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                                 >
-                                    {/*<MenuItem>*/}
-                                    {/*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*/}
-                                    {/*        Your Profile*/}
-                                    {/*    </a>*/}
-                                    {/*</MenuItem>*/}
-                                    {/*<MenuItem>*/}
-                                    {/*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*/}
-                                    {/*        Settings*/}
-                                    {/*    </a>*/}
-                                    {/*</MenuItem>*/}
-                                    <MenuItem>
-                                        <button onClick={async () => {
-                                            await signOut()
-                                        }} className="block px-4 py-2 text-sm w-full text-start text-gray-700 data-[focus]:bg-gray-100">
-                                            Sign out
-                                        </button>
-                                    </MenuItem>
-                                </MenuItems>
-                            </Menu>
+                                    <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
+                                    Preview
+                                </Link>
+                            </div>}
+                            <button
+                                onClick={handleDownload}
+                                type="button"
+                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
+                            >
+                                <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
+                                Download
+                            </button>
+                            <button
+                                type="button"
+                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
+                            >
+                                <MoreHorizontal aria-hidden="true" className="h-5 w-5"/>
+                            </button>
                         </div>
+                        {/*<div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">*/}
+
+                        {/*    /!* Profile dropdown *!/*/}
+                        {/*    <Menu as="div" className="relative ml-3">*/}
+                        {/*        <div>*/}
+                        {/*            <MenuButton*/}
+                        {/*                className="relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">*/}
+                        {/*                <span className="absolute -inset-1.5"/>*/}
+                        {/*                <span className="sr-only">Open user menu</span>*/}
+                        {/*                <img*/}
+                        {/*                    alt=""*/}
+                        {/*                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"*/}
+                        {/*                    className="h-8 w-8 rounded-full"*/}
+                        {/*                />*/}
+                        {/*            </MenuButton>*/}
+                        {/*        </div>*/}
+                        {/*        <MenuItems*/}
+                        {/*            transition*/}
+                        {/*            className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"*/}
+                        {/*        >*/}
+                        {/*            /!*<MenuItem>*!/*/}
+                        {/*            /!*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*!/*/}
+                        {/*            /!*        Your Profile*!/*/}
+                        {/*            /!*    </a>*!/*/}
+                        {/*            /!*</MenuItem>*!/*/}
+                        {/*            /!*<MenuItem>*!/*/}
+                        {/*            /!*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*!/*/}
+                        {/*            /!*        Settings*!/*/}
+                        {/*            /!*    </a>*!/*/}
+                        {/*            /!*</MenuItem>*!/*/}
+                        {/*            <MenuItem>*/}
+                        {/*                <button onClick={async () => {*/}
+                        {/*                    await signOut();*/}
+                        {/*                }}*/}
+                        {/*                        className="block px-4 py-2 text-sm w-full text-start text-gray-700 data-[focus]:bg-gray-100">*/}
+                        {/*                    Sign out*/}
+                        {/*                </button>*/}
+                        {/*            </MenuItem>*/}
+                        {/*        </MenuItems>*/}
+                        {/*    </Menu>*/}
+                        {/*</div>*/}
                     </div>
                 </div>
             </div>
@@ -122,7 +147,7 @@ export default function DashboardHeader() {
                         href="#"
                         className="block border-l-4 border-sky-500 bg-sky-50 py-2 pl-3 pr-4 text-base font-medium text-sky-700 sm:pl-5 sm:pr-6"
                     >
-                        Dashboard
+                    Dashboard
                     </DisclosureButton>
                     <DisclosureButton
                         as="a"

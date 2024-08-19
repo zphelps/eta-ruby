@@ -4,6 +4,7 @@ import {createClient} from "@/utils/supabase/server";
 import PDFMerger from "pdf-merger-js";
 import {v4 as uuid} from "uuid";
 import {PDFDocument} from "pdf-lib";
+import {getPublicURL} from "@/app/api/notebooks/helpers";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -41,13 +42,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         let start_page = 0
 
         for (const entry of entries) {
-            const {data} = supabase.storage.from(params.notebook_id).getPublicUrl(`${entry.id}.pdf`)
+            const entryUrl = await getPublicURL("entries", `${params.notebook_id}/${entry.id}.pdf`)
             toc_entries.push({
                 id: entry.id,
                 title: entry.title,
                 created_at: entry.created_at,
-                url: data.publicUrl,
+                url: entryUrl,
                 start_page,
+                end_page: start_page + entry.page_count,
             })
             start_page += entry.page_count
         }
@@ -69,10 +71,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             }, { status: 400 })
         }
 
-        // get preview url
-        const {data} = supabase.storage
-            .from(params.notebook_id)
-            .getPublicUrl("preview.pdf")
+        const previewUrl = await getPublicURL("notebooks", `${params.notebook_id}/preview.pdf`)
 
         const notebookPreview = {
             id: uuid(),
@@ -83,7 +82,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             team_number: notebook.team.number,
             title: notebook.title,
             entries: toc_entries,
-            preview_url: data.publicUrl + `?buster=${new Date().getTime()}`,
+            preview_url: previewUrl + `?buster=${new Date().getTime()}`,
         }
 
         return NextResponse.json({

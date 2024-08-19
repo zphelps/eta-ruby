@@ -16,14 +16,15 @@ const LoadingComponent = () => {
 interface PDFViewerProps {
     url: string;
     setReaderAPI: (api: ReaderAPI) => void;
+    onPageChange?: (e: PageChangeEvent) => void;
 }
 
 export const PDFViewer: FC<PDFViewerProps> = (props) => {
 
-    const {url, setReaderAPI} = props;
+    const {url, setReaderAPI, onPageChange} = props;
 
     const [pageNum, setPageNum] = useState<number | null>(null);
-    const [scale, setScale] = useState<number | null>(0.75);
+    const [scale, setScale] = useState<number | null>(1.5);
     const [file, setFile] = useState<string>();
     const [wantPage, setWantPage] = useState<number | null>(null);
     // const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
@@ -32,9 +33,9 @@ export const PDFViewer: FC<PDFViewerProps> = (props) => {
     const initialHighlight = useRef(false);
 
 
-    const onPageChange = (e: PageChangeEvent) => {
-        setPageNum(e.currentPage);
-    };
+    // const onPageChange = (e: PageChangeEvent) => {
+    //     setPageNum(e.currentPage);
+    // };
 
     const handleScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = parseFloat(e.target.value);
@@ -97,7 +98,7 @@ export const PDFViewer: FC<PDFViewerProps> = (props) => {
                 onPageChange={onPageChange}
                 onDocumentLoad={onDocumentLoaded}
                 onViewportsMeasured={onViewportsMeasured}
-                // initialScale={scale || undefined}
+                initialScale={scale || undefined}
                 initialRotation={0}
                 setReaderAPI={(api: ReaderAPI) => setReaderAPI(api)}
                 renderPage={renderPage}

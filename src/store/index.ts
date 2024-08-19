@@ -1,11 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import {TypedUseSelectorHook, useDispatch, useSelector, useStore} from "react-redux";
 import entriesReducer from "@/slices/entries";
+import teamsReducer from "@/slices/teams";
+import notebooksReducer from "@/slices/notebooks";
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
             entries: entriesReducer,
+            teams: teamsReducer,
+            notebooks: notebooksReducer,
         },
     })
 }

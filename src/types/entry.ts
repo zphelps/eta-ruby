@@ -18,3 +18,13 @@ export interface CreateEntry {
     url: string;
     page_count: number;
 }
+
+export interface UpdateEntry {
+    id?: string;
+    title?: string;
+    notebook_id?: string;
+    created_at?: string;
+    updated_at?: string;
+    url?: string;
+    page_count?: number;
+}
