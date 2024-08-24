@@ -17,6 +17,7 @@ export interface CreateEntry {
     updated_at?: string;
     url: string;
     page_count: number;
+    text?: string;
 }
 
 export interface UpdateEntry {

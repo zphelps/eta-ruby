@@ -11,13 +11,13 @@ api.interceptors.response.use(
     },
     function (error) {
 
-        console.log("ERROR!!")
+        console.log("API Request Error:")
         console.log(error.response);
         toast({
             title: "Error",
             variant: "destructive",
             description: error.response?.data.message || error.message,
-            duration: 9000,
+            duration: 3000,
         })
 
         // if (error.response?.status === 401) {
@@ -44,6 +44,9 @@ api.interceptors.response.use(
         // // } else {
         // //     toast.error("something went wrong...");
         // // }
-        return Promise.reject(error);
+        return Promise.reject({
+            message: error.response?.data.message || error.message,
+            status: error.response?.status,
+        });
     }
 );

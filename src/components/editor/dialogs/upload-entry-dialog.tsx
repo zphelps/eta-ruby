@@ -90,6 +90,26 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             formData.append('date', values.date.toUTCString());
             formData.append('notebook_id', notebookId)
 
+
+            // const {data} = await toast.promise(api.post("/document_ocr", formData), {
+            //     loading: "Parsing document...",
+            //     success: () => {
+            //         form.reset({
+            //             title: "",
+            //             date: minimumDate,
+            //             file: undefined,
+            //         })
+            //         return "Document parsed!"
+            //     },
+            //     error: (err) => {
+            //         setUploading(false)
+            //         return err.message
+            //     },
+            // })
+            //
+            // console.log(data)
+
+
             const {data: entry} = await toast.promise(api.post("/entries", formData), {
                 loading: "Uploading entry...",
                 success: () => {
@@ -114,7 +134,6 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             window.history.pushState(null, '', `?${params.toString()}`)
         } catch (error) {
             setUploading(false)
-            toast.error("Failed to upload entry")
         }
 
     }
@@ -213,7 +232,7 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                                     <EntryUploader
                                         disabled={uploading}
                                         maxFileCount={1}
-                                        maxSize={900 * 1024 * 1024}
+                                        maxSize={19.5 * 1024 * 1024}
                                         value={field.value ? [field.value] : []}
                                         onValueChange={files => {
                                             console.log(files)

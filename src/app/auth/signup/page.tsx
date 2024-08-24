@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {useAuth} from "@/hooks/useAuth";
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import {useToast} from "@/components/ui/use-toast";
 import { z } from "zod"
 import {zodResolver} from "@hookform/resolvers/zod";

@@ -1,7 +1,7 @@
 "use client"
 import {PDFViewer} from "@/components/editor/pdf-viewer";
-import React, {useEffect, useState} from "react";
-import {PageChangeEvent, Reader, ReaderAPI} from "react-pdf-headless";
+import React, {useState} from "react";
+import {PageChangeEvent, ReaderAPI} from "react-pdf-headless";
 import {pdfjs} from "react-pdf";
 import {PreviewHeader} from "@/components/preview/preview-header";
 import {usePreview} from "@/hooks/usePreview";

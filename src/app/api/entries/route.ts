@@ -10,6 +10,7 @@ import {
     mergePDFs,
     removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
+import {getDocumentText} from "@/app/api/document_ocr/helpers";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -65,8 +66,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function HEAD(request: Request) {}
 
-export async function POST(request: Request) {
-
+export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const body = {
@@ -89,8 +89,8 @@ export async function POST(request: Request) {
     if (!validationResponse.success) {
         return NextResponse.json({
             message: 'Invalid entry schema',
-            error: validationResponse.error
-        }, { status: 400 })
+            error: validationResponse.error.errors
+        }, { status: 400 });
     }
 
     try {
@@ -98,8 +98,12 @@ export async function POST(request: Request) {
 
         // get number of pages in new pdf file
         const buffer = await body.file.arrayBuffer();
-        const newEntryDoc = await PDFDocument.load(buffer)
-        const num_pages = newEntryDoc.getPages().length
+        const newEntryDoc = await PDFDocument.load(buffer);
+        const num_pages = newEntryDoc.getPages().length;
+
+        if (num_pages > 15) {
+            throw new Error("Document is too long. Please upload a document with less than 15 pages.");
+        }
 
         const existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
         const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
@@ -112,6 +116,8 @@ export async function POST(request: Request) {
 
         const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
 
+        const document_text = await getDocumentText(body.file);
+
         await insertEntry({
             id: id,
             title: body.title,
@@ -119,8 +125,9 @@ export async function POST(request: Request) {
             updated_at: body.created_at,
             notebook_id: body.notebook_id,
             url: entryUrl,
-            page_count: num_pages
-        })
+            page_count: num_pages,
+            text: document_text,
+        });
 
         return NextResponse.json({
             message: 'Success',
@@ -131,16 +138,18 @@ export async function POST(request: Request) {
                 notebook_id: body.notebook_id,
                 url: entryUrl + `?buster=${new Date().getTime()}`,
             }
-        }, { status: 200 })
-    } catch (e) {
-        console.log("Error in POST /entries", e)
-        NextResponse.error()
+        }, { status: 200 });
+    } catch (e: any) {
+        console.error("Error in POST /entries", e);
+
+        // Ensure you are only sending necessary information to the client
         return NextResponse.json({
-            message: 'Invalid Request',
-            error: e
-        }, { status: 400 })
+            message: e.message || 'Invalid Request',
+            error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+        }, { status: 400 });
     }
 }
+
 
 export async function PUT(request: NextRequest) {
     const body = await request.json();
@@ -170,6 +179,7 @@ export async function PUT(request: NextRequest) {
             message: 'Success',
         }, { status: 200 })
     } catch (e) {
+
         return NextResponse.json({
             message: 'Invalid Request',
             error: e

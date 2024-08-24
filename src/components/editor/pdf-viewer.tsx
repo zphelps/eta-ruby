@@ -1,11 +1,14 @@
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import React, {ChangeEvent, FC, useEffect, useRef, useState} from "react";
+import React, {ChangeEvent, FC, useRef, useState} from "react";
 import {Page, pdfjs} from "react-pdf";
 import {PageChangeEvent, Reader, ReaderAPI, RenderPageProps} from "react-pdf-headless";
 import {RotateLoader} from "react-spinners";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist/legacy/build/pdf.worker.min.mjs`;
 
 const LoadingComponent = () => {
     return <div>

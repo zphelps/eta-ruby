@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "eta-ruby",
+  "private_key_id": "cab8886a2d442a6e1e18d277b9da7c3a89a80c90",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC5S2vOfkFhAzv8\nQ16UitB9q1HhqgCY3I0iKOj4K/hVJyeNHfL5vvMY3vPDN7M0WG1KFac58dtkof3M\nTXgoChzCAAN+MnoU9VG5603PBnx0Z9tHf//27lx0atx4/ZcDfdjWG9QuvXbCIT7a\nxMEhvm4hhFLk5xR4L6Z5t3g9tJqrPaP27wCSTU+QcVmrzui71OTlceyiISrWg78n\nXu5WlDL2EFnOKj/C4W7PgEzHip6GjTmnrPXujIMRgee0mplzrN6vqbsGYKIN3c9R\n9h7yvQTYNCP1CJEbqvIGQLLHHzmiX7UeTtg0sxRLWLil4r7aJXGEqUk+wWYLDHZO\nu+OsoJedAgMBAAECggEACFE6HNn+ecoRIHzuqyjC/I0a3xAIOFRYEnM3J+KjYkEg\nbZ1tSWgYleJ2GypuJRieCUAJElkIoc8Cqy/EB7oSeePRxFGkOLodScTl6HfQUNJT\nnbVBalZfOIuOa3DonSvCNrQnlVSEVujynxPLXoYjf+YmaWd0/AMZjCef4lcvxSVq\nwlTubIiDoaUNSua9cEACsgQxrhr8Cj5GxieL7GSqdc0825eSqnD5UsgdLsNEhpGu\nvFDJJu0wmPRRfel84snKlZgr3i+6kAqvNEL99/xQhSEQlK1L7HQFOC/73YyIz1NW\nEDkOAhzAsGyHdXTPqiyt7N9iCAAIKA+8vrzb5BZr6QKBgQDy1J2zrUyGKwIhfraP\n5WLeiLblnVF7yHOlYKaBflOzP4Ddl17p6yxo4rExHnn8Ycx3MlrwiJPlX/m2+qJ2\nCT/3HlbvBM31o5WiVnt/y0NdpHXO1ABNd7UCzxYTeZTSR6GccPdYa14so6e5DDtF\n9adRYUY2yIKe55sWwxNzLpDIpQKBgQDDV/6E6y/lNUBRyWhKp17Ru5LT0ryoGFNp\nV9M+RVlsBui2pJ+VdIg/nu3JaaEnTZIGApQjwDpQ+Fq0J5krl/dvPxugqMd/Hi44\nsQ6mSsKZhcx/v9EEgVol71VCS076slcdQy9nqqIiJBJjLXYIWewMd2ynLDRzuAAb\nmr9WSAlpmQKBgEmBLpN6+9UJI8X700tPhlQSUjrDGi08CjWfQgeks7VonZt1/JcW\nRwUgyb4ymX5aJEhYh8qTrSEboj1PNOpB9ojZODt12tpmQB85ynxujN/FrpuC9Ox+\nNd65zNbsUK4uXK88SsMLDSC6EUUkfLS6nYE2zsg6fb+YIAwN1M9i4xS5AoGAHnu1\n0SIuaDNGJT0r1DKIHmyJ/hotrIGXSqIU6evCh5QQbqgD6zuzI1J2wu6D4nE9b0ip\nu2Z88zO+W8yuH1pol2ietBSChTi9d8VRhuu1sGVrwye4w144JiFSCbVczsxTwdJB\nLIk5IeDFKcrnV2hI6K0ePHwudzxob+ZXI2y8Y0kCgYBW4/G4+ejuAwv2m3XJAFN2\nscrH/x/g+xWNu/KJtbyfiK0aovSPYFyjDsLNjD9Wb2LIhQ7bpdhjJqPxfYteGzyX\nMzY5bmlOmxKFtbDUv6oJDtnBudyWQj0gozQLJFMeP2KEuxmdQWo5h85qWhnIbveC\nKLZdy6Q4QQgDqjrQwO8Cyg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "eta-ruby-document-ai@eta-ruby.iam.gserviceaccount.com",
+  "client_id": "109383270199243412864",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/eta-ruby-document-ai%40eta-ruby.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -102,7 +102,7 @@ export function EntryUploader(props: FileUploaderProps) {
         accept = {
             "image/*": [],
         },
-        maxSize = 1024 * 1024 * 1000,
+        maxSize = 1024 * 1024 * 19.5,
         maxFileCount = 1,
         multiple = false,
         disabled = false,

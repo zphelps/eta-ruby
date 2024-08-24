@@ -1,24 +1,24 @@
 "use client"
 
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {ReloadIcon} from "@radix-ui/react-icons";
 import Link from "next/link";
+import {config} from "@/config";
 import {useAuth} from "@/hooks/useAuth";
 import {useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useToast} from "@/components/ui/use-toast";
-import { z } from "zod"
-import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import { ReloadIcon } from "@radix-ui/react-icons"
-import {useRouter} from "next/navigation";
-import {useSearchParams} from "next/navigation";
-import {config} from "@/config";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
 
 const loginFormSchema = z.object({
     email: z.string().email("Must provide valid email"),
     password: z.string().min(8, "Password must be at least 8 characters.")
 })
+
 
 export default function SignIn() {
 
@@ -73,14 +73,13 @@ export default function SignIn() {
                         <h1 className="text-3xl font-bold">Welcome back.</h1>
                     </div>
 
-                    {/* Form */}
                     <div className="max-w-sm mx-auto">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                                 <FormField
                                     control={form.control}
                                     name="email"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
@@ -90,14 +89,14 @@ export default function SignIn() {
                                                     className={"py-5 rounded form-input w-full text-gray-800"}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
                                 <FormField
                                     control={form.control}
                                     name="password"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
@@ -108,7 +107,7 @@ export default function SignIn() {
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
@@ -122,9 +121,9 @@ export default function SignIn() {
                             </form>
                         </Form>
                         <div className="flex items-center my-6">
-                          <div className="border-t border-gray-300 grow mr-3" aria-hidden="true"></div>
-                          <div className="text-gray-600 italic text-sm">Or</div>
-                          <div className="border-t border-gray-300 grow ml-3" aria-hidden="true"></div>
+                            <div className="border-t border-gray-300 grow mr-3" aria-hidden="true"></div>
+                            <div className="text-gray-600 italic text-sm">Or</div>
+                            <div className="border-t border-gray-300 grow ml-3" aria-hidden="true"></div>
                         </div>
                         <div className="flex flex-wrap -mx-3">
                             <div className="w-full px-3">
@@ -147,15 +146,17 @@ export default function SignIn() {
                                             <path fill="none" d="M0 0h48v48H0z"></path>
                                         </svg>
                                     </div>
-                                    <span className="flex-auto pl-16 pr-8 -ml-16 text-black font-semibold">Continue with Google</span>
+                                    <span
+                                        className="flex-auto pl-16 pr-8 -ml-16 text-black font-semibold">Continue with Google</span>
                                 </button>
                             </div>
                         </div>
                         <div className="text-gray-600 text-center mt-6">
-                            {"Don't you have an account?"} <Link href={`${config.auth.signupUrl}?${searchParams}`} className="text-blue-600 hover:underline transition duration-150 ease-in-out">Sign up</Link>
+                            {"Don't you have an account?"} <Link href={`${config.auth.signupUrl}?${searchParams}`}
+                                                                 className="text-blue-600 hover:underline transition duration-150 ease-in-out">Sign
+                            up</Link>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
