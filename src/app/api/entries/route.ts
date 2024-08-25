@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
         const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
 
-        const document_text = await getDocumentText(body.file);
+        // const document_text = await getDocumentText(body.file);
 
         await insertEntry({
             id: id,
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
             notebook_id: body.notebook_id,
             url: entryUrl,
             page_count: num_pages,
-            text: document_text,
+            text: "",
         });
 
         return NextResponse.json({

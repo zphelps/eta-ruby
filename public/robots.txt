@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://nextlaunch.com
+
+# Sitemaps
+Sitemap: https://nextlaunch.com/sitemap.xml
