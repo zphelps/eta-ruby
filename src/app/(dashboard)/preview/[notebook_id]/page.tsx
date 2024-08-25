@@ -10,7 +10,7 @@ import {ErrorIcon} from "react-hot-toast";
 import {PreviewToolbar} from "@/components/preview/preview-toolbar";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function Preview({ params }: { params: { notebook_id: string } }) {
     const {notebook_id} = params;

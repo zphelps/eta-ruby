@@ -4,12 +4,16 @@ import {useEffect, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {EntriesSideBar} from "@/components/editor/entries-side-bar";
 import {EntryToolbar} from "@/components/editor/entry-toolbar";
-import {PDFViewer} from "@/components/editor/pdf-viewer";
+// import {PDFViewer} from "@/components/editor/pdf-viewer";
 import {validate} from "uuid";
 import {useEntry} from "@/hooks/useEntry";
 import {ReaderAPI} from "react-pdf-headless";
-import {Button} from "@/components/ui/button";
-import {createClient} from "@/utils/supabase/client";
+import dynamic from "next/dynamic";
+
+const PDFViewer = dynamic(
+    () => import('@/components/editor/pdf-viewer').then(mod => mod.PDFViewer),
+    { ssr: false }
+)
 
 export default function Dashboard() {
     const searchParams = useSearchParams();
