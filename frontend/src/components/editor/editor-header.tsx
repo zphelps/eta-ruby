@@ -10,6 +10,7 @@ import {api} from "@/lib/api";
 import {useState} from "react";
 import Link from "next/link";
 import {createClient} from "@/utils/supabase/client";
+import {AccountDropdown} from "@/components/editor/account-dropdown.tsx";
 
 export default function DashboardHeader() {
 
@@ -87,54 +88,15 @@ export default function DashboardHeader() {
                                 <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
                                 Download
                             </button>
-                            <button
-                                type="button"
-                                className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
-                            >
-                                <MoreHorizontal aria-hidden="true" className="h-5 w-5"/>
-                            </button>
+                            <AccountDropdown>
+                                <button
+                                    type="button"
+                                    className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
+                                >
+                                    <MoreHorizontal aria-hidden="true" className="h-5 w-5"/>
+                                </button>
+                            </AccountDropdown>
                         </div>
-                        {/*<div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">*/}
-
-                        {/*    /!* Profile dropdown *!/*/}
-                        {/*    <Menu as="div" className="relative ml-3">*/}
-                        {/*        <div>*/}
-                        {/*            <MenuButton*/}
-                        {/*                className="relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">*/}
-                        {/*                <span className="absolute -inset-1.5"/>*/}
-                        {/*                <span className="sr-only">Open user menu</span>*/}
-                        {/*                <img*/}
-                        {/*                    alt=""*/}
-                        {/*                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"*/}
-                        {/*                    className="h-8 w-8 rounded-full"*/}
-                        {/*                />*/}
-                        {/*            </MenuButton>*/}
-                        {/*        </div>*/}
-                        {/*        <MenuItems*/}
-                        {/*            transition*/}
-                        {/*            className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"*/}
-                        {/*        >*/}
-                        {/*            /!*<MenuItem>*!/*/}
-                        {/*            /!*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*!/*/}
-                        {/*            /!*        Your Profile*!/*/}
-                        {/*            /!*    </a>*!/*/}
-                        {/*            /!*</MenuItem>*!/*/}
-                        {/*            /!*<MenuItem>*!/*/}
-                        {/*            /!*    <a href="#" className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">*!/*/}
-                        {/*            /!*        Settings*!/*/}
-                        {/*            /!*    </a>*!/*/}
-                        {/*            /!*</MenuItem>*!/*/}
-                        {/*            <MenuItem>*/}
-                        {/*                <button onClick={async () => {*/}
-                        {/*                    await signOut();*/}
-                        {/*                }}*/}
-                        {/*                        className="block px-4 py-2 text-sm w-full text-start text-gray-700 data-[focus]:bg-gray-100">*/}
-                        {/*                    Sign out*/}
-                        {/*                </button>*/}
-                        {/*            </MenuItem>*/}
-                        {/*        </MenuItems>*/}
-                        {/*    </Menu>*/}
-                        {/*</div>*/}
                     </div>
                 </div>
             </div>

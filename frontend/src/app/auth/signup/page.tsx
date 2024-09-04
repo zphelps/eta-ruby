@@ -126,13 +126,13 @@ export default function SignUp() {
                                 </Button>
                             </form>
                         </Form>
-                        <div className="flex items-center my-6">
-                          <div className="border-t border-gray-300 grow mr-3" aria-hidden="true"></div>
-                          <div className="text-gray-600 italic text-sm">Or</div>
-                          <div className="border-t border-gray-300 grow ml-3" aria-hidden="true"></div>
-                        </div>
+                        {/*<div className="flex items-center my-6">*/}
+                        {/*  <div className="border-t border-gray-300 grow mr-3" aria-hidden="true"></div>*/}
+                        {/*  <div className="text-gray-600 italic text-sm">Or</div>*/}
+                        {/*  <div className="border-t border-gray-300 grow ml-3" aria-hidden="true"></div>*/}
+                        {/*</div>*/}
                         <div className="text-gray-600 text-center mt-6">
-                          Already have an account? <Link href="/signup" className="text-blue-600 hover:underline transition duration-150 ease-in-out">Sign in</Link>
+                          Already have an account? <Link href={`${config.auth.signinUrl}?${searchParams}`} className="text-blue-600 hover:underline transition duration-150 ease-in-out">Sign in</Link>
                         </div>
                     </div>
 

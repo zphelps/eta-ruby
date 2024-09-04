@@ -254,7 +254,7 @@ export function EntryUploader(props: FileUploaderProps) {
                                             {maxFileCount > 1
                                                 ? ` ${maxFileCount === Infinity ? "multiple" : maxFileCount}
                       files (up to ${formatBytes(maxSize)} each)`
-                                                : ` a file with ${formatBytes(maxSize)}`}
+                                                : ` a file up to ${formatBytes(maxSize)} and 15 pages`}
                                         </p>
                                     </div>
                                 </div>

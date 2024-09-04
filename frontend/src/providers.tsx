@@ -5,6 +5,7 @@ import {Toaster} from "@/components/ui/toaster";
 import {Toaster as HotToaster} from "react-hot-toast";
 import {AuthContextType} from "@/context/auth-context";
 import StoreProvider from "@/app/StoreProvider";
+import {SplashScreen} from "@/components/splash-screen.tsx";
 
 export function Providers({children}: {children: React.ReactNode}) {
     return (
@@ -12,7 +13,7 @@ export function Providers({children}: {children: React.ReactNode}) {
             <AuthConsumer>
                 {(auth: AuthContextType) => {
                     const showSlashScreen = !auth.isInitialized;
-                    if (showSlashScreen) return <div>Loading...</div>;
+                    if (showSlashScreen) return <SplashScreen/>;
                     return <>
                         <StoreProvider>
                                 {children}

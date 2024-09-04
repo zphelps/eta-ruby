@@ -9,6 +9,7 @@ import {validate} from "uuid";
 import {useEntry} from "@/hooks/useEntry";
 import {ReaderAPI} from "react-pdf-headless";
 import dynamic from "next/dynamic";
+import {MousePointerClick} from "lucide-react";
 
 const PDFViewer = dynamic(
     () => import('@/components/editor/pdf-viewer').then(mod => mod.PDFViewer),
@@ -103,6 +104,14 @@ export default function Dashboard() {
                     />
                 )}
             </div>}
+
+            {!selectedEntryId && (
+                <div className={"w-full h-full items-center align-middle flex justify-center gap-5"}>
+                    <p className={"font-lg font-semibold text-slate-500"}>
+                        Select an entry to view
+                    </p>
+                </div>
+            )}
         </div>
     )
 }
