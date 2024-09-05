@@ -21,10 +21,10 @@ export default function Hero() {
                         </a>
                     </div>
                     <h1 className="mt-10 text-6xl font-extrabold tracking-tight sm:leading-[4.75rem]">
-                        Launch your startup <br/> in days, <span className={'bg-blue-400 bg-opacity-15 text-blue-600 rotate-45 px-3'}>not months</span>
+                        The notebook platform <span className={'bg-blue-400 bg-opacity-15 text-blue-600 rotate-45'}>built specifically for robotics</span>
                     </h1>
                     <p className="mt-6 text-lg leading-8 text-gray-400">
-                        The NextJS template with everything you need to build your next SaaS product and start making $$. Focus on Innovation, Not the Foundation – Get Started in Minutes!
+                        EngScribe makes handling your notebook as simple as ever. As the only platform built specifically for VEX Robotics/RECF-accredited robotics competitions, EngScribe organizes award-winning notebooks — from your first team meeting to the World Championships.
                     </p>
                     <div className="mt-8 space-y-4">
                         <Button
@@ -32,11 +32,11 @@ export default function Hero() {
                         >
                             <Rocket className="h-5 w-5 mr-3"/>
                             <p className={''}>
-                                Get started
+                                Start your notebook
                             </p>
                         </Button>
                         <p>
-                            <span className={'font-bold text-blue-500'}>$100 off</span> for the next 20 customers!
+                            <span className={'font-bold text-blue-500'}>$25 off</span> until the end of the year!
                         </p>
                     </div>
                 </div>

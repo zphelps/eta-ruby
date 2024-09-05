@@ -52,54 +52,54 @@ const pricing = {
             ],
             mostPopular: false,
         },
-        {
-            name: "Pro",
-            id: "pro",
-            href: "#",
-            original_price: "$299",
-            discount_price: "$199",
-            currency: "USD",
-            description: "",
-            features: [
-                {
-                    "name": "Next.js, Shadcn, & Tailwind CSS Boilerplate",
-                    "included": true,
-                },
-                {
-                    "name": "SEO",
-                    "included": true,
-                },
-                {
-                    "name": "Google Oauth & Password Authentication",
-                    "included": true,
-                },
-                {
-                    "name": "Supabase, Firebase, and MongoDB",
-                    "included": true,
-                },
-                {
-                    "name": "Stripe payments",
-                    "included": true,
-                },
-                {
-                    "name": "Mailgun emails",
-                    "included": true,
-                },
-                {
-                    "name": "Dozens of pre-built UI components",
-                    "included": true,
-                },
-                {
-                    "name": "Discord community",
-                    "included": true,
-                },
-                {
-                    "name": "Lifetime updates",
-                    "included": true,
-                }
-            ],
-            mostPopular: true,
-        },
+        // {
+        //     name: "Pro",
+        //     id: "pro",
+        //     href: "#",
+        //     original_price: "$299",
+        //     discount_price: "$199",
+        //     currency: "USD",
+        //     description: "",
+        //     features: [
+        //         {
+        //             "name": "Next.js, Shadcn, & Tailwind CSS Boilerplate",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "SEO",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Google Oauth & Password Authentication",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Supabase, Firebase, and MongoDB",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Stripe payments",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Mailgun emails",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Dozens of pre-built UI components",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Discord community",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Lifetime updates",
+        //             "included": true,
+        //         }
+        //     ],
+        //     mostPopular: true,
+        // },
     ],
 };
 
@@ -110,14 +110,14 @@ export default function Pricing() {
             <div className="mx-auto max-w-4xl text-center">
                 <h1 className="text-base font-semibold leading-7 text-blue-600">Pricing</h1>
                 <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                    Save time and get profitable
+                    Give your team the competitive edge in judging
                 </p>
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-500">
-                Our boilerplate allows you to skip the tedious setup and focus on building what makes your product unique. No more reinventing the wheel!
+                Our simple per-team pricing model lets you start building your world-class notebook within seconds.
             </p>
             <div
-                className="mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 md:max-w-2xl md:grid-cols-2 lg:max-w-4xl xl:mx-0 xl:max-w-none xl:grid-cols-2">
+                className="mx-auto mt-16 grid max-w-md gap-8 md:max-w-2xl md:grid-cols-2 lg:max-w-4xl xl:mx-0 xl:max-w-none">
                 {pricing.tiers.map((tier) => (
                     <div
                         key={tier.id}

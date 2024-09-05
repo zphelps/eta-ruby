@@ -27,7 +27,7 @@ export default function Header() {
         <header className="p-4 flex items-center justify-between">
             <div className="flex space-x-4">
                 <RocketIcon size={36}/>
-                <p className="font-bold text-2xl">NextLaunch</p>
+                <p className="font-bold text-2xl">EngScribe</p>
             </div>
 
             <div className="flex items-center space-x-4 sm:hidden">
