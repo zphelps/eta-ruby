@@ -1,23 +1,18 @@
-"use client";
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { PlusIcon } from '@heroicons/react/20/solid'
-import {useAuth} from "@/hooks/useAuth";
 import {Download, Eye, MoreHorizontal} from "lucide-react";
 import {NotebookSelector} from "@/components/editor/notebook-selector";
-import {useRouter, useSearchParams} from "next/navigation";
-import {api} from "@/lib/api";
-import {useState} from "react";
+import {FC} from "react";
 import Link from "next/link";
 import {createClient} from "@/utils/supabase/client";
 import {AccountDropdown} from "@/components/editor/account-dropdown";
 
-export default function DashboardHeader() {
+interface EditorHeaderProps {
+    notebook_id?: string;
+}
 
-    const {signOut} = useAuth();
-
-    const searchParams = useSearchParams();
-    const notebook_id = searchParams.get("notebook");
+export const EditorHeader:FC<EditorHeaderProps> = (props) => {
+    const {notebook_id} = props;
 
     function downloadFile(url: string, fileName: string) {
         fetch(url)
@@ -64,7 +59,7 @@ export default function DashboardHeader() {
                                 <XMarkIcon aria-hidden="true" className="hidden h-6 w-6 group-data-[open]:block" />
                             </DisclosureButton>
                         </div>
-                        <NotebookSelector/>
+                        <NotebookSelector notebook_id={notebook_id} />
                     </div>
                     <div className="flex items-center">
                         <div className={"flex items-center space-x-2"}>

@@ -9,9 +9,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {useAuth} from "@/hooks/useAuth";
-import {Check, ChevronDown, Plus, Settings} from "lucide-react";
+import {Check, ChevronDown, Plus} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import {useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 import {Dialog} from "@/components/ui/dialog";
 import {CreateNotebookDialog} from "@/components/editor/dialogs/create-notebook-dialog";
 import {useNotebooks} from "@/hooks/useNotebooks";
@@ -19,67 +19,74 @@ import {cn} from "@/lib/utils";
 import {Notebook} from "@/types/notebook";
 
 interface NotebookSelectorProps {
-
+    notebook_id?: string;
 }
 
-export const NotebookSelector:FC<NotebookSelectorProps> = () => {
+export const NotebookSelector:FC<NotebookSelectorProps> = (props) => {
+    const {notebook_id} = props;
+
     const {user} = useAuth();
-    const searchParams = useSearchParams();
 
     const [showDialog, setShowDialog] = useState(false);
 
-    const selectedNotebookId = searchParams.get('notebook') as string;
-
-    const notebooks = useNotebooks(user?.id as string, selectedNotebookId);
+    const notebooks = useNotebooks(user?.id as string, notebook_id);
 
     const [selectedNotebook, setSelectedNotebook] = useState<Notebook>();
 
+    const router = useRouter();
+
     function onSelect(notebookId: string) {
-        const params = new URLSearchParams(searchParams.toString())
-        params.set('notebook', notebookId)
-        params.delete('entry')
-        window.history.pushState(null, '', `?${params.toString()}`)
+        router.replace(`/editor/${notebookId}`)
     }
 
     useEffect(() => {
-        if (selectedNotebookId && notebooks.length > 0) {
-            setSelectedNotebook(notebooks.find(n => n.id === selectedNotebookId) as Notebook)
+        if (notebook_id && notebooks.length > 0) {
+            setSelectedNotebook(notebooks.find(n => n.id === notebook_id) as Notebook)
         }
-    }, [selectedNotebookId, JSON.stringify(notebooks)]);
+    }, [notebook_id, JSON.stringify(notebooks)]);
 
     return (
         <Dialog open={showDialog} onOpenChange={open => setShowDialog(open)}>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className={'gap-x-2 px-1.5 pr-2.5'}>
-                        <p
-                            className={`text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-md px-2 py-0.5`}
-                        >
-                            {selectedNotebook?.team_number || "---"}
-                        </p>
+                        {!notebook_id && (
+                            <p className={'ml-1 font-semibold text-slate-600'}>
+                                Select Notebook
+                            </p>
+                        )}
+                        {notebook_id && (
+                            <div className={'flex items-center gap-x-2'}>
+                                <p
+                                    className={`text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-md px-2 py-0.5`}
+                                >
+                                    {selectedNotebook?.team_number || "---"}
+                                </p>
 
-                        <p className={'text-md font-semibold text-black'}>
-                            {selectedNotebook?.team_name || "---"}
-                        </p>
+                                <p className={"text-md font-semibold text-black"}>
+                                    {selectedNotebook?.team_name || "---"}
+                                </p>
+                            </div>
+                        )}
                         <ChevronDown size={14}/>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-96" side={'bottom'} align={'start'}>
+                <DropdownMenuContent className="w-96" side={"bottom"} align={"start"}>
                     <DropdownMenuLabel>All Notebooks</DropdownMenuLabel>
                     <DropdownMenuSeparator/>
                     <DropdownMenuGroup>
-                        {notebooks.map(notebook => (
+                    {notebooks.map(notebook => (
                             <DropdownMenuItem
-                                className={cn(notebook.id === selectedNotebookId ? 'bg-sky-50' : '', 'h-9')}
+                                className={cn(notebook.id === notebook_id ? 'bg-sky-50' : '', 'h-9')}
                                 key={notebook.id} onClick={() => onSelect(notebook.id)}>
                             <div className={'flex items-center justify-between w-full'}>
                                     <div className={'flex items-center'}>
                                         <Check
                                             size={16}
-                                            className={cn(notebook.id === selectedNotebookId ? 'text-sky-500' : 'text-transparent', 'mr-2.5')}
+                                            className={cn(notebook.id === notebook_id ? 'text-sky-500' : 'text-transparent', 'mr-2.5')}
                                         />
                                         <p
-                                            className={cn(notebook.id === selectedNotebookId ? 'text-sky-500 font-medium' : 'text-black')}
+                                            className={cn(notebook.id === notebook_id ? 'text-sky-500 font-medium' : 'text-black')}
                                         >
                                             {notebook.team_number} - {notebook.team_name}
                                         </p>

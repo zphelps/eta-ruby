@@ -14,7 +14,7 @@ import {RotateLoader} from "react-spinners";
 import {ReloadIcon} from "@radix-ui/react-icons";
 
 interface EntriesSideBarProps {
-
+    notebook_id: string;
 }
 
 const useGroupedEntries = (entries: Entry[]) => {
@@ -38,11 +38,11 @@ const useGroupedEntries = (entries: Entry[]) => {
 }
 
 export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
+    const {notebook_id} = props;
     const searchParams = useSearchParams();
     const selectedEntryId = searchParams.get("entry") as string;
-    const selectedNotebookId = searchParams.get("notebook") as string;
 
-    const {loading, entries} = useEntries(selectedNotebookId);
+    const {loading, entries} = useEntries(notebook_id);
     const groupedEntries = useGroupedEntries(entries);
 
     const getDefaultAccordionValue = useCallback(() => {
@@ -66,10 +66,6 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
 
     function onAccordionValueChange(value: string[]) {
         setAccordionValue(value);
-    }
-
-    if (!selectedNotebookId) {
-        return null;
     }
 
     return (
