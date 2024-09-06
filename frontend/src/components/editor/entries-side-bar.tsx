@@ -75,7 +75,8 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
                     Entries
                 </p>
                 <UploadEntryDialog
-                    minimumDate={entries.length > 0 ? new Date(entries[entries.length - 1].created_at) : undefined}
+                    notebook_id={notebook_id}
+                    minimum_date={entries.length > 0 ? new Date(entries[entries.length - 1].created_at) : undefined}
                 >
                     <Button variant="ghost" size="icon" className={"p-2.5 h-fit"}>
                         <Plus size={16}/>

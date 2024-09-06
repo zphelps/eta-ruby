@@ -23,8 +23,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     try {
         const supabase = createClient();
 
-        // const team_ids = await getTeamIDsForUser(query.uid);
-
         const {data, error} = await supabase
             .from("user_notebooks")
             .select("*, notebooks:notebook_id(*)")

@@ -3,6 +3,8 @@ import {RootState, useAppDispatch, useAppSelector} from "@/store";
 import {api} from "@/lib/api";
 import {setEntry} from "@/slices/entries";
 
+// status type for the entry
+
 export const useEntry = (id: string) => {
     const dispatch = useAppDispatch();
     const entry = useAppSelector((state: RootState) => state.entries.entries[id]);

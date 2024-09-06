@@ -14,6 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {useAuth} from "@/hooks/useAuth";
+import {useRouter} from "next/navigation";
 
 interface AccountDropdownProps {
     children: ReactNode;
@@ -22,7 +23,9 @@ interface AccountDropdownProps {
 export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
     const {children} = props;
 
-    const {signOut} = useAuth();
+    const {user, signOut} = useAuth();
+
+    const router = useRouter();
 
     const handleBilling = () => {
         console.log('Billing');
@@ -30,6 +33,8 @@ export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
 
     const handleLogOut = async () => {
         console.log('Log out');
+
+        router.replace('/editor');
 
         await signOut();
 
@@ -40,8 +45,8 @@ export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
             <DropdownMenuTrigger asChild>
                 {children}
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Account</DropdownMenuLabel>
+            <DropdownMenuContent className="w-64">
+                <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 {/*<DropdownMenuSeparator />*/}
                 {/*<DropdownMenuGroup>*/}
                 {/*    <DropdownMenuItem>*/}
