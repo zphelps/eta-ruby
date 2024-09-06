@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {CreditCard, LogOut, RocketIcon} from 'lucide-react';
+import {ArrowRight, CreditCard, LogOut, RocketIcon} from 'lucide-react';
 import {useAuth} from '@/hooks/useAuth';
 import Link from 'next/link';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
@@ -11,111 +11,122 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/outline";
+import {Dialog, DialogPanel} from "@headlessui/react";
 
 const navigation = [
-    {name: 'Docs', href: '/'},
     {name: 'Features', href: '#features_section'},
     {name: 'Pricing', href: '#pricing_section'},
-    {name: 'Testimonials', href: '#testimonials_section'},
+    // {name: 'Testimonials', href: '#testimonials_section'},
+    {name: 'FAQs', href: '#faq_section'},
 ];
 
 export default function Header() {
-    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const {isInitialized, isAuthenticated, signInWithGoogle} = useAuth();
 
     return (
-        <header className="p-4 flex items-center justify-between">
-            <div className="flex space-x-4">
-                <RocketIcon size={36}/>
-                <p className="font-bold text-2xl">EngScribe</p>
-            </div>
-
-            <div className="flex items-center space-x-4 sm:hidden">
-                <button
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    className="text-gray-200 focus:outline-none"
-                >
-                    {/* Mobile menu button icon */}
-                    {menuOpen ? (
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    ) : (
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 6h16M4 12h16m-7 6h7"
-                            />
-                        </svg>
-                    )}
-                </button>
-            </div>
-
-            <nav className="hidden sm:flex space-x-10 items-center">
-                {navigation.map((item) => (
-                    <a key={item.name} href={item.href}>
-                        {item.name}
-                    </a>
-                ))}
-                {/* Profile Avatar Dropdown */}
-                {/*<DropdownMenu>*/}
-                {/*    <DropdownMenuTrigger>*/}
-                {/*        <Avatar className={'hidden sm:flex'}>*/}
-                {/*            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>*/}
-                {/*            <AvatarFallback>CN</AvatarFallback>*/}
-                {/*        </Avatar>*/}
-                {/*    </DropdownMenuTrigger>*/}
-                {/*    <DropdownMenuContent side={'bottom'} align={'end'}>*/}
-                {/*        <DropdownMenuLabel>Account</DropdownMenuLabel>*/}
-                {/*        <DropdownMenuSeparator/>*/}
-                {/*        <DropdownMenuItem>*/}
-                {/*            <CreditCard size={18} className={'mr-4'}/>*/}
-                {/*            Billing*/}
-                {/*        </DropdownMenuItem>*/}
-                {/*        <DropdownMenuItem*/}
-                {/*        >*/}
-                {/*            <LogOut size={18} className={'mr-4 text-red-500'}/>*/}
-                {/*            <p className={'text-red-500 font-medium'}>*/}
-                {/*                Log Out*/}
-                {/*            </p>*/}
-                {/*        </DropdownMenuItem>*/}
-                {/*    </DropdownMenuContent>*/}
-                {/*</DropdownMenu>*/}
-            </nav>
-
-            {/* Mobile Menu */}
-            {menuOpen && (
-                <div className="absolute top-16 left-0 w-full bg-white shadow-md sm:hidden">
-                    <nav className="flex flex-col items-center space-y-4 py-4">
-                        {navigation.map((item) => (
-                            <Link key={item.name} href={item.href}>
-                                {item.name}
-                            </Link>
-                        ))}
-                    </nav>
+        <header className="bg-white">
+            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
+                <div className="flex lg:flex-1">
+                    <Link href="#" className="-m-1.5 p-1.5 flex gap-4">
+                        {/*<span className="sr-only">Your Company</span>*/}
+                        {/*<img alt="" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" className="h-8 w-auto" />*/}
+                        <RocketIcon size={36}/>
+                        <p className="font-bold text-2xl">EngScribe</p>
+                    </Link>
                 </div>
-            )}
-
-
+                <div className="hidden lg:flex lg:gap-x-12">
+                    {navigation.map((item) => (
+                        <Link key={item.name} href={item.href} className="text-sm font-semibold leading-6 text-gray-900">
+                            {item.name}
+                        </Link>
+                    ))}
+                </div>
+                <div className="flex flex-1 items-center justify-end gap-x-6">
+                    <Link href={isAuthenticated ? "#" : "/editor"} className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-gray-900">
+                        {isAuthenticated ? null : "Log in"}
+                    </Link>
+                    <Link
+                        href={isAuthenticated ? "/editor":"#"}
+                        className="flex gap-1 items-center rounded-md hover:bg-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    >
+                        {isAuthenticated ? "Dashboard" : "Sign up"}
+                        {isAuthenticated ? (
+                            <span>
+                                <ArrowRight size={20}/>
+                            </span>
+                        ) : null}
+                    </Link>
+                </div>
+                <div className="flex lg:hidden">
+                    <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen(true)}
+                        className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                    >
+                        <span className="sr-only">Open main menu</span>
+                        <Bars3Icon aria-hidden="true" className="h-6 w-6" />
+                    </button>
+                </div>
+            </nav>
+            <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
+                <div className="fixed inset-0 z-10" />
+                <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+                    <div className="flex items-center gap-x-6">
+                        <Link href="#" className="-m-1.5 p-1.5">
+                            <span className="sr-only">Your Company</span>
+                            <img
+                                alt=""
+                                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                                className="h-8 w-auto"
+                            />
+                        </Link>
+                        <Link
+                            href="#"
+                            className="ml-auto rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                            {isAuthenticated ? "Your Dashboard" : "Sign up"}
+                            {isAuthenticated ? (
+                                <span>
+                                    <ArrowRight />
+                                </span>
+                            ) : null}
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                        >
+                            <span className="sr-only">Close menu</span>
+                            <XMarkIcon aria-hidden="true" className="h-6 w-6" />
+                        </button>
+                    </div>
+                    <div className="mt-6 flow-root">
+                        <div className="-my-6 divide-y divide-gray-500/10">
+                            <div className="space-y-2 py-6">
+                                {navigation.map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                                    >
+                                        {item.name}
+                                    </Link>
+                                ))}
+                            </div>
+                            <div className="py-6">
+                                <a
+                                    href="#"
+                                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                                >
+                                    Log in
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </DialogPanel>
+            </Dialog>
         </header>
     );
 }

@@ -114,7 +114,7 @@ export default function Pricing() {
                 </p>
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-500">
-                The simple EngScribe pricing model lets you start building your world-class notebook within seconds.
+                EngScribe's pricing model lets you start building your world-class notebook within seconds.
             </p>
             <div
                 className="mx-auto mt-16 grid max-w-xl gap-8">
