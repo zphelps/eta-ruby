@@ -3,22 +3,22 @@ import {MinusIcon, PlusIcon} from "@heroicons/react/24/solid";
 
 const faqs = [
     {
-        question: "Why is your platform better than Google Drive or Dropbox?",
+        question: "Why is EngScribe better than Google Drive or Dropbox?",
         answer:
             "EngScribe is more than just a PDF viewer; it is the ultimate viewing window and notebook organization notebook tool available. With EngScribe, judges will be able to view your notebook and your table of contents at the same time. Also, EngScribe solves the file-size problem. Engineering notebook files get large quickly. Google Drive and Dropbox often stop showing document previews when the files get too big. Using EngScribe, your notebook will always appear, no matter of length.",
     },
     {
-        question: "Why does your platform cost money?",
+        question: "Why does EngScribe cost money?",
         answer:
             "The EngScribe development team is made up of former competitors in VEX Robotics, and managing the platform takes a significant amount of time. Additionally, server costs to store the engineering notebooks are not cheap.",
     },
     {
-        question: "My school doesn't let me pay with a credit card. Can I still purchase your platform?",
+        question: "My school doesn't let me pay with a credit card. Can I still purchase access to EngScribe?",
         answer:
             "Of course! EngScribe accepts purchase orders, checks, and other forms of payment. Contact us to learn more.",
     },
     {
-        question: "I coach six teams. Do you offer discounts for large organizations?",
+        question: "I mentor multiple teams. Do you offer discounts for large organizations?",
         answer:
             "Yes, EngScribe offers discount codes to organizations that sign up more than six teams. We define a single organization by the team number lsited on RobotEvents. To request a discount code, please contact us.",
     },
