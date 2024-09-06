@@ -5,10 +5,10 @@ import {Button} from "@/components/ui/button";
 const pricing = {
     tiers: [
         {
-            name: "Season-Long Access Package (One Team)",
+            name: "Full Season Access",
             id: "starter",
             href: "#",
-            original_price: "100",
+            original_price: "$100",
             discount_price: "$75",
             currency: "USD",
             description: "",
@@ -38,7 +38,7 @@ const pricing = {
                     "included": true,
                 },
                 {
-                    "name": "Lifetime updates",
+                    "name": "Season-long updates",
                     "included": true,
                 },
                 // {
@@ -106,7 +106,7 @@ const pricing = {
 export default function Pricing() {
 
     return (
-        <div id={"pricing_section"} className="mx-auto mb-16 py-24 max-w-7xl px-6 sm:mt-32 lg:px-8">
+        <div id={"pricing_section"} className="mx-auto mb-8 py-12 max-w-7xl px-6 sm:mt-32 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
                 <h1 className="text-base font-semibold leading-7 text-blue-600">Pricing</h1>
                 <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
@@ -144,10 +144,10 @@ export default function Pricing() {
                             <span
                                 className="font-bold tracking-tight text-gray-400">{tier.currency}</span>
                         </p>
-                        <ul role="list" className="mt-8 space-y-3 leading-6 text-gray-400">
+                        <ul role="list" className="mt-8 space-y-3 leading-6 text-gray-600">
                             {tier.features.map((feature) => (
                                 <li key={feature.name}
-                                    className={cn(feature.included ? "text-gray-400" : "text-gray-600", "flex gap-x-3")}>
+                                    className={cn(feature.included ? "text-gray-600" : "text-gray-600", "flex gap-x-3")}>
                                     {feature.included &&
                                         <CheckIcon aria-hidden="true" className="h-6 w-5 flex-none text-blue-600"/>}
                                     {!feature.included &&

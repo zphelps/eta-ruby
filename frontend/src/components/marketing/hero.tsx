@@ -20,11 +20,11 @@ export default function Hero() {
               </span>
                         </a>
                     </div>
-                    <h1 className="mt-10 text-6xl font-extrabold tracking-tight sm:leading-[4.75rem]">
+                    <h1 className="mt-10 text-6xl font-extrabold tracking-tight leading-tight">
                         The notebook platform <span className={'bg-blue-400 bg-opacity-15 text-blue-600 rotate-45'}>built specifically for robotics</span>
                     </h1>
                     <p className="mt-6 text-lg leading-8 text-gray-400">
-                        EngScribe makes handling your notebook as simple as ever. As the only platform built specifically for VEX Robotics/RECF-accredited robotics competitions, EngScribe organizes award-winning notebooks — from your first team meeting to the World Championship.
+                        EngScribe makes handling your notebook as simple as ever. As the only platform built specifically for VEX Robotics/REC Foundation-accredited robotics competitions, EngScribe organizes award-winning notebooks — from your first team meeting to the World Championship.
                     </p>
                     <div className="mt-8 space-y-4">
                         <Button

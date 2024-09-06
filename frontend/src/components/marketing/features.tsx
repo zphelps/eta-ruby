@@ -79,14 +79,12 @@ export default function Features() {
         // </div>
         <div id={"features_section"} className={"py-10"}>
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <div className="mx-auto grid max-w-2xl grid-cols-2 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none">
-                    <div className={"col-start-1 space-y-4 pr-10"}>
+                <div
+                    className="mx-auto grid max-w-2xl grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none">
+                    <div className={"order-2 sm:order-1 space-y-4 pr-0 sm:pr-0 lg:pr-10"}>
                         {features.map((feature) => (
                             <div
                                 key={feature.name}
-                                // className={`hover:border-solid border-2 border-transparent hover:border-blue-50 hover:bg-blue-50 rounded-lg px-5 py-4 cursor-pointer ${
-                                //     selectedFeature === feature.name ? 'hover:border-blue-100 border-blue-100 bg-blue-50' : ''
-                                // }`}
                                 className={`border-2 rounded-lg px-5 py-4 cursor-pointer ${
                                     selectedFeature === feature.name
                                         ? 'border-blue-100 bg-blue-50'
@@ -102,12 +100,12 @@ export default function Features() {
                             </div>
                         ))}
                     </div>
-                    <div className={"col-start-2 flex justify-center py-3.5"}>
+                    <div className={"order-1 sm:order-2 md:order-2 flex justify-center py-3.5"}>
                         <img
                             src={features.find(feature => feature.name === selectedFeature)?.image}
                             alt="test"
                             className={"rounded-lg shadow-lg object-cover"}
-                        ></img>
+                        />
                     </div>
                 </div>
             </div>

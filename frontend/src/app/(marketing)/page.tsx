@@ -6,6 +6,8 @@ import Features from "@/components/marketing/features";
 import Testimonials from "@/components/marketing/testimonials";
 import Pricing from "@/components/marketing/pricing";
 import Footer from "@/components/marketing/footer";
+import FAQ from "@/components/marketing/faq";
+
 
 export default function Home() {
     // redirect('/editor');
@@ -16,8 +18,8 @@ export default function Home() {
           <Hero/>
           <Features/>
           <Pricing/>
-          <Testimonials/>
-          {/*<FAQ/>*/}
+          {/*<Testimonials/>*/}
+          <FAQ/>
           <Footer/>
       </section>
     );
