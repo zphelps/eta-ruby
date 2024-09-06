@@ -11,4 +11,11 @@ export const config = {
         signupUrl: "/auth/signup",
         defaultAuthenticatedUrl: "/editor"
     },
+    stripe: {
+        plans: [
+            {
+                priceId: process.env.NODE_ENV === "development" ? "price_1PsU4GHfJctXfs5WFnxtWvfW" : "test",
+            }
+        ]
+    }
 }

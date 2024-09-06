@@ -15,7 +15,8 @@ import {useSearchParams} from "next/navigation";
 import {Dialog} from "@/components/ui/dialog";
 import {CreateNotebookDialog} from "@/components/editor/dialogs/create-notebook-dialog";
 import {useNotebooks} from "@/hooks/useNotebooks";
-import {cn} from "@/lib/utils.ts";
+import {cn} from "@/lib/utils";
+import {Notebook} from "@/types/notebook";
 
 interface NotebookSelectorProps {
 
@@ -31,7 +32,7 @@ export const NotebookSelector:FC<NotebookSelectorProps> = () => {
 
     const notebooks = useNotebooks(user?.id as string, selectedNotebookId);
 
-    const [selectedNotebook, setSelectedNotebook] = useState();
+    const [selectedNotebook, setSelectedNotebook] = useState<Notebook>();
 
     function onSelect(notebookId: string) {
         const params = new URLSearchParams(searchParams.toString())
@@ -42,7 +43,7 @@ export const NotebookSelector:FC<NotebookSelectorProps> = () => {
 
     useEffect(() => {
         if (selectedNotebookId && notebooks.length > 0) {
-            setSelectedNotebook(notebooks.find(n => n.id === selectedNotebookId))
+            setSelectedNotebook(notebooks.find(n => n.id === selectedNotebookId) as Notebook)
         }
     }, [selectedNotebookId, JSON.stringify(notebooks)]);
 

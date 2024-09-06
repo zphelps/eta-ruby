@@ -15,9 +15,10 @@ export const useNotebooks = (user_id: string, selectedNotebookId: string) => {
                     uid: user_id,
                 }
             });
+
             dispatch(setNotebooksForUser({
                 user_id: user_id,
-                notebooks: response.data,
+                notebooks: response.data.map((n: any) => n.notebooks),
             }));
         } catch (err) {
             console.error(err);

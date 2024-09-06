@@ -13,9 +13,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {LogOut} from "lucide-react";
-import {DropdownMenuIcon} from "@radix-ui/react-icons";
-import {useAuth} from "@/hooks/useAuth.ts";
+import {useAuth} from "@/hooks/useAuth";
 
 interface AccountDropdownProps {
     children: ReactNode;
@@ -44,15 +42,15 @@ export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        Settings
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
+                {/*<DropdownMenuSeparator />*/}
+                {/*<DropdownMenuGroup>*/}
+                {/*    <DropdownMenuItem>*/}
+                {/*        Billing*/}
+                {/*    </DropdownMenuItem>*/}
+                {/*    <DropdownMenuItem>*/}
+                {/*        Settings*/}
+                {/*    </DropdownMenuItem>*/}
+                {/*</DropdownMenuGroup>*/}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogOut}>
                     Sign Out

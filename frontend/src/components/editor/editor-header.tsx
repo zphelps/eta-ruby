@@ -10,7 +10,7 @@ import {api} from "@/lib/api";
 import {useState} from "react";
 import Link from "next/link";
 import {createClient} from "@/utils/supabase/client";
-import {AccountDropdown} from "@/components/editor/account-dropdown.tsx";
+import {AccountDropdown} from "@/components/editor/account-dropdown";
 
 export default function DashboardHeader() {
 

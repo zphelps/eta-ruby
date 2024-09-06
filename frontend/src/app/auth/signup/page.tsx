@@ -47,10 +47,10 @@ export default function SignUp() {
 
             const supabaseUser = await signUp(data);
 
-            await api.post("/users", {
-                id: supabaseUser.id,
-                email: supabaseUser.email,
-            })
+            // await api.post("/users", {
+            //     id: supabaseUser.id,
+            //     email: supabaseUser.email,
+            // })
 
             const returnTo = searchParams.get('returnTo');
 

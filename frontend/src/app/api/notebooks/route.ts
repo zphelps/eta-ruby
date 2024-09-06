@@ -23,12 +23,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     try {
         const supabase = createClient();
 
-        const team_ids = await getTeamIDsForUser(query.uid);
+        // const team_ids = await getTeamIDsForUser(query.uid);
 
         const {data, error} = await supabase
-            .from("notebooks")
-            .select("*")
-            .in("team_id", team_ids)
+            .from("user_notebooks")
+            .select("*, notebooks:notebook_id(*)")
+            .eq("user_id", query.uid);
 
         if (error) {
             return NextResponse.json({

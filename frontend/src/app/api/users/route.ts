@@ -53,7 +53,6 @@ export async function POST(request: Request) {
     const schema = z.object({
         id: z.string(),
         email: z.string().email("Must provide valid email"),
-        teamId: z.string().optional(),
     });
 
     const validationResponse = schema.safeParse(body);
@@ -64,12 +63,14 @@ export async function POST(request: Request) {
         }, { status: 400 })
     }
 
+    console.log(validationResponse.data)
+
     try {
         const supabase = createClient();
         const {error} = await supabase.from("users").insert(validationResponse.data);
 
         if (error) {
-            // console.log(error)
+            console.log(error)
             return NextResponse.json({
                 message: error.message,
                 error: error.message
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
             message: 'Success',
         }, { status: 200 })
     } catch (e) {
-        // console.log(e)
+        console.log(e)
         return NextResponse.json({
             message: 'Invalid Request',
             error: e

@@ -57,7 +57,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         // get notebook title
         const {data: notebook, error: notebookError} = await supabase
             .from("notebooks")
-            .select("title, team:team_id(name, number)")
+            .select("team_name, team_number")
             .eq("id", params.notebook_id)
             .single()
 
@@ -76,11 +76,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         const notebookPreview = {
             id: uuid(),
             notebook_id: params.notebook_id,
-            // @ts-ignore
-            team_name: notebook.team.name,
-            // @ts-ignore
-            team_number: notebook.team.number,
-            title: notebook.title,
+            team_name: notebook.team_name,
+            team_number: notebook.team_number,
             entries: toc_entries,
             preview_url: previewUrl + `?buster=${new Date().getTime()}`,
         }
