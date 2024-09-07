@@ -29,11 +29,15 @@ export default function Header() {
         <header className="bg-white">
             <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
                 <div className="flex lg:flex-1">
-                    <Link href="#" className="-m-1.5 p-1.5 flex gap-4">
+                    <Link href="#" className="-m-1.5 p-1.5 flex gap-4 items-center">
                         {/*<span className="sr-only">Your Company</span>*/}
                         {/*<img alt="" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" className="h-8 w-auto" />*/}
-                        <RocketIcon size={36}/>
-                        <p className="font-bold text-2xl">EngScribe</p>
+                        <img src="/images/EngScribeLogo.png" className={"w-1/6 md:w-1/12 lg:w-16"}/>
+                        {/*<RocketIcon size={36}/>*/}
+                        <div>
+                            <p className="font-bold text-2xl">EngScribe</p>
+                            <p className={"text-sm"}>The Ultimate Notebook Solution</p>
+                        </div>
                     </Link>
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12">
@@ -48,7 +52,7 @@ export default function Header() {
                         {isAuthenticated ? null : "Log in"}
                     </Link>
                     <Link
-                        href={isAuthenticated ? "/editor":"#"}
+                        href={isAuthenticated ? "/editor":"/auth/signup"}
                         className="flex gap-1 items-center rounded-md hover:bg-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                     >
                         {isAuthenticated ? "Dashboard" : "Sign up"}
@@ -93,7 +97,7 @@ export default function Header() {
 
                         {!isAuthenticated && (
                             <Link
-                                href="#"
+                                href="/auth/signup"
                                 className="ml-auto rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
                                 Sign up
@@ -125,7 +129,7 @@ export default function Header() {
                             {!isAuthenticated && (
                                 <div className="py-6">
                                     <a
-                                        href="#"
+                                        href="/editor"
                                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                     >
                                         Log in
