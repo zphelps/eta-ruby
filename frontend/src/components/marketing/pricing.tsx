@@ -26,6 +26,10 @@ const pricing = {
                     "included": true,
                 },
                 {
+                    "name": "Bulk entry upload",
+                    "included": true,
+                },
+                {
                     "name": "Unlimited PDF downloads",
                     "included": true,
                 },
@@ -42,7 +46,7 @@ const pricing = {
                     "included": true,
                 },
                 {
-                    "name": "Season-long software updates",
+                    "name": "Software updates all season",
                     "included": true,
                 },
                 // {

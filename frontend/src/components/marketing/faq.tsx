@@ -5,7 +5,7 @@ const faqs = [
     {
         question: "Why is EngScribe better than Google Drive or Dropbox?",
         answer:
-            "EngScribe is more than just a PDF viewer; it is the ultimate viewing window and notebook organization notebook tool available. With EngScribe, judges will be able to view your notebook and your table of contents at the same time. Also, EngScribe solves the file-size problem. Engineering notebook files get large quickly. Google Drive and Dropbox often stop showing document previews when the files get too big. Using EngScribe, your notebook will always appear, no matter of length.",
+            "EngScribe is more than just a PDF viewer; it is the ultimate viewing window and notebook organization notebook tool available. With EngScribe, judges will be able to view your notebook and your table of contents in the same window. Additionally, engineering notebook files get large quickly. Google Drive and Dropbox often do not allow you to view such large documents when the file size gets too big. Using EngScribe, your notebook will always appear, no matter of length.",
     },
     {
         question: "Why does EngScribe cost money?",
@@ -20,7 +20,7 @@ const faqs = [
     {
         question: "I mentor multiple teams. Do you offer discounts for large organizations?",
         answer:
-            "Yes, EngScribe offers discount codes to organizations that sign up more than six teams. We define a single organization by the team number lsited on RobotEvents. To request a discount code, please contact us.",
+            "Yes, EngScribe offers discount codes to organizations that sign up more than six teams. We define a single organization by the team number listed on RobotEvents. To request a discount code, please contact us.",
     },
     // More questions...
 ]

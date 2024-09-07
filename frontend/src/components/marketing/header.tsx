@@ -76,19 +76,15 @@ export default function Header() {
                     <div className="flex items-center gap-x-6">
                         <Link href="#" className="-m-1.5 p-1.5">
                             <span className="sr-only">EngScribe</span>
-                            <img
-                                alt=""
-                                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                                className="h-8 w-auto"
-                            />
+                            <RocketIcon size={36}/>
                         </Link>
 
                         {isAuthenticated && (
                             <Link
-                                href="#"
-                                className="ml-auto rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                href="/editor"
+                                className="ml-auto rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 items-center flex gap-1"
                             >
-                                Your Dashboard
+                                Dashboard
                                 <span>
                                     <ArrowRight/>
                                 </span>
