@@ -1,92 +1,44 @@
 import {cn} from "@/lib/utils";
-import {CheckIcon, X} from "lucide-react";
+import {CheckIcon, Info, X} from "lucide-react";
 import {Button} from "@/components/ui/button";
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
+import {InformationCircleIcon} from "@heroicons/react/24/solid";
+import Link from "next/link";
+import React from "react";
 
 const pricing = {
     tiers: [
         {
-            name: "Starter",
+            name: "Full Season Access",
             id: "starter",
             href: "#",
-            original_price: "$250",
-            discount_price: "$150",
+            original_price: "$100",
+            discount_price: "$75",
             currency: "USD",
             description: "",
             features: [
                 {
-                    "name": "Next.js, Shadcn, & Tailwind CSS Boilerplate",
+                    "name": "Customizable competition view for judging",
                     "included": true,
                 },
                 {
-                    "name": "SEO",
+                    "name": "Automatic table of contents",
                     "included": true,
                 },
                 {
-                    "name": "Google Oauth & Password Authentication",
+                    "name": "Bulk entry upload",
                     "included": true,
                 },
                 {
-                    "name": "Supabase, Firebase, and MongoDB",
+                    "name": "Unlimited PDF downloads",
                     "included": true,
                 },
                 {
-                    "name": "Stripe payments",
+                    "name": "Permanent notebook link for competitions",
                     "included": true,
                 },
                 {
-                    "name": "Mailgun emails",
-                    "included": true,
-                },
-                {
-                    "name": "Dozens of pre-built UI components",
-                    "included": true,
-                },
-                {
-                    "name": "Discord community",
-                    "included": false,
-                },
-                {
-                    "name": "Lifetime updates",
-                    "included": false,
-                }
-            ],
-            mostPopular: false,
-        },
-        {
-            name: "Pro",
-            id: "pro",
-            href: "#",
-            original_price: "$299",
-            discount_price: "$199",
-            currency: "USD",
-            description: "",
-            features: [
-                {
-                    "name": "Next.js, Shadcn, & Tailwind CSS Boilerplate",
-                    "included": true,
-                },
-                {
-                    "name": "SEO",
-                    "included": true,
-                },
-                {
-                    "name": "Google Oauth & Password Authentication",
-                    "included": true,
-                },
-                {
-                    "name": "Supabase, Firebase, and MongoDB",
-                    "included": true,
-                },
-                {
-                    "name": "Stripe payments",
-                    "included": true,
-                },
-                {
-                    "name": "Mailgun emails",
-                    "included": true,
-                },
-                {
-                    "name": "Dozens of pre-built UI components",
+                    "name": "Guaranteed customer support for the entire season",
                     "included": true,
                 },
                 {
@@ -94,30 +46,86 @@ const pricing = {
                     "included": true,
                 },
                 {
-                    "name": "Lifetime updates",
+                    "name": "Software updates all season",
                     "included": true,
-                }
+                },
+                // {
+                //     "name": "Discord community",
+                //     "included": false,
+                // },
+                // {
+                //     "name": "Lifetime updates",
+                //     "included": false,
+                // }
             ],
             mostPopular: true,
         },
+        // {
+        //     name: "Pro",
+        //     id: "pro",
+        //     href: "#",
+        //     original_price: "$299",
+        //     discount_price: "$199",
+        //     currency: "USD",
+        //     description: "",
+        //     features: [
+        //         {
+        //             "name": "Next.js, Shadcn, & Tailwind CSS Boilerplate",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "SEO",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Google Oauth & Password Authentication",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Supabase, Firebase, and MongoDB",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Stripe payments",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Mailgun emails",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Dozens of pre-built UI components",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Discord community",
+        //             "included": true,
+        //         },
+        //         {
+        //             "name": "Lifetime updates",
+        //             "included": true,
+        //         }
+        //     ],
+        //     mostPopular: true,
+        // },
     ],
 };
 
 export default function Pricing() {
 
     return (
-        <div id={"pricing_section"} className="mx-auto mb-16 py-24 max-w-7xl px-6 sm:mt-32 lg:px-8">
+        <div id={"pricing_section"} className="mx-auto mb-8 py-12 max-w-7xl px-6 sm:mt-32 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
                 <h1 className="text-base font-semibold leading-7 text-blue-600">Pricing</h1>
                 <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                    Save time and get profitable
+                    Give your team the competitive edge in judging
                 </p>
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-500">
-                Our boilerplate allows you to skip the tedious setup and focus on building what makes your product unique. No more reinventing the wheel!
+                The EngScribe pricing model lets you start building your world-class notebook within seconds.
             </p>
             <div
-                className="mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 md:max-w-2xl md:grid-cols-2 lg:max-w-4xl xl:mx-0 xl:max-w-none xl:grid-cols-2">
+                className="mx-auto mt-16 grid max-w-xl gap-8">
                 {pricing.tiers.map((tier) => (
                     <div
                         key={tier.id}
@@ -140,16 +148,34 @@ export default function Pricing() {
                             <span
                                 className="text-xl font-medium tracking-tight text-gray-400 line-through">{tier.original_price}</span>
                             <span
-                                className="text-5xl font-bold tracking-tight text-gray-100">{tier.discount_price}</span>
+                                className="text-5xl font-bold tracking-tight text-gray-600">{tier.discount_price}</span>
                             <span
                                 className="font-bold tracking-tight text-gray-400">{tier.currency}</span>
                         </p>
-                        <ul role="list" className="mt-8 space-y-3 leading-6 text-gray-400">
+                        <ul role="list" className="mt-8 space-y-3 leading-6 text-gray-600">
                             {tier.features.map((feature) => (
-                                <li key={feature.name} className={cn(feature.included ? "text-gray-400" : "text-gray-600", "flex gap-x-3")}>
-                                    {feature.included && <CheckIcon aria-hidden="true" className="h-6 w-5 flex-none text-blue-600"/>}
-                                    {!feature.included && <X aria-hidden="true" className="h-6 w-5 flex-none text-grey-900"/>}
-                                    {feature.name}
+                                <li key={feature.name}
+                                    className={cn(feature.included ? "text-gray-600" : "text-gray-600", "flex gap-x-3")}>
+                                    {feature.included &&
+                                        <CheckIcon aria-hidden="true" className="h-6 w-5 flex-none text-blue-600"/>}
+                                    {!feature.included &&
+                                        <X aria-hidden="true" className="h-6 w-5 flex-none text-grey-900"/>}
+                                    <div className={"items-center flex gap-x-1"}>
+                                        {feature.name}
+                                        {feature.name === "Discord community" && (
+                                            <HoverCard>
+                                                <HoverCardTrigger asChild>
+                                                    <div className={""}>
+                                                        <Info size={16} />
+                                                    </div>
+                                                </HoverCardTrigger>
+                                                <HoverCardContent className={"text-sm"}>
+                                                    The EngScribe Discord community is the digital hub for live technical support, feature announcements, and general tips about the Engineering Notebook process. It is also where users can request new features for future updates!
+                                                </HoverCardContent>
+                                            </HoverCard>
+                                        )}
+                                    </div>
+
                                 </li>
                             ))}
                         </ul>
@@ -161,6 +187,9 @@ export default function Pricing() {
                     </div>
                 ))}
             </div>
+            <p className="mx-auto mt-6 max-w-2xl text-center text-sm text-gray-500">
+                EngScribe will also accept a purchase order as a method of payment. EngScribe happily works with large organizations (6+ teams) to provide bulk discounts. Contact us to learn more.
+            </p>
         </div>
 
     )
