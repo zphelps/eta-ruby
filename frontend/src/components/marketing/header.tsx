@@ -72,27 +72,38 @@ export default function Header() {
             </nav>
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                 <div className="fixed inset-0 z-10" />
-                <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+                <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white pl-16 pr-16 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div className="flex items-center gap-x-6">
                         <Link href="#" className="-m-1.5 p-1.5">
-                            <span className="sr-only">Your Company</span>
+                            <span className="sr-only">EngScribe</span>
                             <img
                                 alt=""
                                 src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
                                 className="h-8 w-auto"
                             />
                         </Link>
-                        <Link
-                            href="#"
-                            className="ml-auto rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            {isAuthenticated ? "Your Dashboard" : "Sign up"}
-                            {isAuthenticated ? (
+
+                        {isAuthenticated && (
+                            <Link
+                                href="#"
+                                className="ml-auto rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            >
+                                Your Dashboard
                                 <span>
-                                    <ArrowRight />
+                                    <ArrowRight/>
                                 </span>
-                            ) : null}
-                        </Link>
+                            </Link>
+                        )}
+
+                        {!isAuthenticated && (
+                            <Link
+                                href="#"
+                                className="ml-auto rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            >
+                                Sign up
+                            </Link>
+                        )}
+
                         <button
                             type="button"
                             onClick={() => setMobileMenuOpen(false)}
@@ -115,14 +126,16 @@ export default function Header() {
                                     </Link>
                                 ))}
                             </div>
-                            <div className="py-6">
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                >
-                                    Log in
-                                </a>
-                            </div>
+                            {!isAuthenticated && (
+                                <div className="py-6">
+                                    <a
+                                        href="#"
+                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                                    >
+                                        Log in
+                                    </a>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </DialogPanel>

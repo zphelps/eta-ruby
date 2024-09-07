@@ -1,6 +1,10 @@
 import {cn} from "@/lib/utils";
-import {CheckIcon, X} from "lucide-react";
+import {CheckIcon, Info, X} from "lucide-react";
 import {Button} from "@/components/ui/button";
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
+import {InformationCircleIcon} from "@heroicons/react/24/solid";
+import Link from "next/link";
+import React from "react";
 
 const pricing = {
     tiers: [
@@ -34,11 +38,11 @@ const pricing = {
                     "included": true,
                 },
                 {
-                    "name": "Discord community access",
+                    "name": "Discord community",
                     "included": true,
                 },
                 {
-                    "name": "Season-long updates",
+                    "name": "Season-long software updates",
                     "included": true,
                 },
                 // {
@@ -152,7 +156,22 @@ export default function Pricing() {
                                         <CheckIcon aria-hidden="true" className="h-6 w-5 flex-none text-blue-600"/>}
                                     {!feature.included &&
                                         <X aria-hidden="true" className="h-6 w-5 flex-none text-grey-900"/>}
-                                    {feature.name}
+                                    <div className={"items-center flex gap-x-1"}>
+                                        {feature.name}
+                                        {feature.name === "Discord community" && (
+                                            <HoverCard>
+                                                <HoverCardTrigger asChild>
+                                                    <div className={""}>
+                                                        <Info size={16} />
+                                                    </div>
+                                                </HoverCardTrigger>
+                                                <HoverCardContent className={"text-sm"}>
+                                                    The EngScribe Discord community is the digital hub for live technical support, feature announcements, and general tips about the Engineering Notebook process. It is also where users can request new features for future updates!
+                                                </HoverCardContent>
+                                            </HoverCard>
+                                        )}
+                                    </div>
+
                                 </li>
                             ))}
                         </ul>
