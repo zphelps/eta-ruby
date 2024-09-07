@@ -38,12 +38,13 @@ const formSchema = z.object({
 })
 
 interface UploadEntryDialogProps {
-    minimumDate?: Date,
+    notebook_id?: string,
+    minimum_date?: Date,
     children: React.ReactNode
 }
 
 export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
-    const {children, minimumDate} = props
+    const {children, minimum_date, notebook_id} = props
     const [uploading, setUploading] = useState(false)
     const [open, setOpen] = useState(false)
     const dispatch = useAppDispatch();
@@ -52,7 +53,7 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            date: minimumDate,
+            date: minimum_date,
             file: undefined,
         },
     })
@@ -66,9 +67,9 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
 
         setUploading(true)
 
-        const notebookId = searchParams.get("notebook");
+        // const notebookId = searchParams.get("notebook");
 
-        if (!notebookId) {
+        if (!notebook_id) {
             //TODO: Handle error
             setUploading(false)
             toast.error("Notebook not found")
@@ -79,7 +80,7 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             const id = uuid();
 
             // if values.date is the same as minimumDate, add one minute to it
-            if (minimumDate && values.date.getTime() === minimumDate.getTime()) {
+            if (minimum_date && values.date.getTime() === minimum_date.getTime()) {
                 values.date.setMilliseconds(values.date.getMilliseconds() + 1)
             }
 
@@ -88,7 +89,7 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             formData.append('file', values.file);
             formData.append('title', values.title);
             formData.append('date', values.date.toUTCString());
-            formData.append('notebook_id', notebookId)
+            formData.append('notebook_id', notebook_id)
 
 
             // const {data} = await toast.promise(api.post("/document_ocr", formData), {
@@ -115,7 +116,7 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                 success: () => {
                     form.reset({
                         title: "",
-                        date: minimumDate,
+                        date: minimum_date,
                         file: undefined,
                     })
                     setUploading(false)
@@ -203,8 +204,8 @@ export const UploadEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                                                 onSelect={field.onChange}
                                                 disabled={(date) =>
                                                     {
-                                                        if (minimumDate) {
-                                                            return date < minimumDate
+                                                        if (minimum_date) {
+                                                            return date < minimum_date
                                                         }
                                                         else {
                                                             return false;

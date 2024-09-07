@@ -4,7 +4,7 @@ import {api} from "@/lib/api";
 import {setTeamsForUser} from "@/slices/teams";
 import {setNotebooksForUser} from "@/slices/notebooks";
 
-export const useNotebooks = (user_id: string, selectedNotebookId: string) => {
+export const useNotebooks = (user_id: string, selectedNotebookId?: string) => {
     const dispatch = useAppDispatch();
     const notebooks = useAppSelector((state: RootState) => state.notebooks.notebooks);
 
@@ -15,9 +15,10 @@ export const useNotebooks = (user_id: string, selectedNotebookId: string) => {
                     uid: user_id,
                 }
             });
+
             dispatch(setNotebooksForUser({
                 user_id: user_id,
-                notebooks: response.data,
+                notebooks: response.data.map((n: any) => n.notebooks),
             }));
         } catch (err) {
             console.error(err);

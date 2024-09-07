@@ -4,7 +4,6 @@ export interface Preview {
     notebook_id: string;
     team_name: string;
     team_number: number;
-    title: string;
     entries: PreviewEntry[],
     preview_url: string;
 }

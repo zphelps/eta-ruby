@@ -5,7 +5,7 @@ import {Toaster} from "@/components/ui/toaster";
 import {Toaster as HotToaster} from "react-hot-toast";
 import {AuthContextType} from "@/context/auth-context";
 import StoreProvider from "@/app/StoreProvider";
-import {SplashScreen} from "@/components/splash-screen.tsx";
+import {SplashScreen} from "@/components/splash-screen";
 
 export function Providers({children}: {children: React.ReactNode}) {
     return (

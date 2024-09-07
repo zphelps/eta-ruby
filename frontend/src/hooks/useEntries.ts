@@ -2,11 +2,13 @@ import {useCallback, useEffect, useState} from "react";
 import {RootState, useAppDispatch, useAppSelector} from "@/store";
 import {api} from "@/lib/api";
 import {setEntries, setEntry} from "@/slices/entries";
+import {useAuth} from "@/hooks/useAuth";
 
 export const useEntries = (notebook_id: string) => {
     const dispatch = useAppDispatch();
     const entries = useAppSelector((state: RootState) => state.entries.entries);
     const [loading, setLoading] = useState(false);
+    const {user} = useAuth();
 
     const fetchEntries = useCallback(async (id: string) => {
         setLoading(true);
@@ -14,6 +16,7 @@ export const useEntries = (notebook_id: string) => {
             console.log("FETCHING ENTRIES", id);
             const response = await api.get("/entries", {
                 params: {
+                    uid: user?.id,
                     notebook_id: id,
                 }
             });

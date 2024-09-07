@@ -8,6 +8,7 @@ import {useSearchParams} from "next/navigation";
 import {config} from "@/config";
 import {User} from "@/types/user";
 import {api} from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface State {
     isInitialized: boolean;
@@ -78,7 +79,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     const searchParams = useSearchParams();
 
     const signUp = async (data: {email: string, password: string}) => {
-        const {data: response, error} = await supabase.auth.signUp(data)
+        const {data: response, error} = await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
+        })
 
         if (error) {
             throw error;
@@ -123,13 +127,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
             if (session?.user) {
                 // console.log("SIGNED_IN", session);
 
-                const {data: user} = await api.get("/users", {
+                const {data: user} = await api.get(`/users`, {
                     params: {
                         uid: session.user.id
                     }
                 });
 
-                // console.log("SIGNED_IN", user);
+                // console.log("USER", user);
 
                 dispatch({
                     type: ActionType.AUTH_STATE_CHANGED,

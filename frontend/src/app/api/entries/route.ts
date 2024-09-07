@@ -10,12 +10,12 @@ import {
     mergePDFs,
     removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
-import {getDocumentText} from "@/app/api/document_ocr/helpers";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
 
     const schema = z.object({
+        uid: z.string(),
         entry_id: z.string().optional(),
         notebook_id: z.string().optional(),
     });
@@ -34,13 +34,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         let query = supabase.from("entries").select("*")
 
+        // get notebooks that belong to the user
+        const {data: notebooks, error: notebookError} = await supabase.from("user_notebooks").select("notebook_id").eq("user_id", params.uid);
+
+        if (notebookError) {
+            return NextResponse.json({
+                message: notebookError.message,
+                error: notebookError.message
+            }, { status: 400 })
+        }
+
         if (params.entry_id) {
-            query = query.eq("id", params.entry_id)
+            query = query.eq("id", params.entry_id).in("notebook_id", notebooks.map((notebook) => notebook.notebook_id))
         }
 
         if (params.notebook_id) {
-            console.log("Filtering by notebook", params.notebook_id)
-            query = query.eq("notebook_id", params.notebook_id)
+            query = query.eq("notebook_id", params.notebook_id).in("notebook_id", notebooks.map((notebook) => notebook.notebook_id))
         }
 
         const {data, error} = await query.order("created_at", {ascending: true});
