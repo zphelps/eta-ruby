@@ -1,48 +1,56 @@
-"use client"
 
-import {useEffect, useState} from "react";
-import {useSearchParams} from "next/navigation";
 import {EntriesSideBar} from "@/components/editor/entries-side-bar";
-import {EntryToolbar} from "@/components/editor/entry-toolbar";
-// import {PDFViewer} from "@/components/editor/pdf-viewer";
 import {validate} from "uuid";
-import {useEntry} from "@/hooks/useEntry";
-import {ReaderAPI} from "react-pdf-headless";
-import dynamic from "next/dynamic";
-import {MousePointerClick} from "lucide-react";
 import {EditorHeader} from "@/components/editor/editor-header";
+import {Metadata, ResolvingMetadata} from "next";
+import {EntryView} from "@/components/editor/entry-view";
+import {createClient} from "@/utils/supabase/server";
 
-const PDFViewer = dynamic(
-    () => import('@/components/editor/pdf-viewer').then(mod => mod.PDFViewer),
-    { ssr: false }
-)
+type Props = {
+    params: { slug?: string[] }
+    searchParams: { [key: string]: string | string[] | undefined }
+}
 
-export default function Editor({ params }: { params: { slug?: string[] } }) {
+export async function generateMetadata(
+    { params, searchParams }: Props,
+    parent: ResolvingMetadata
+): Promise<Metadata> {
+    // read route params
+    const id = params.slug?.[0];
+
+    const supabase = createClient();
+
+    const {data: notebook, error} = await supabase.from("notebooks").select("*").eq("id", id).single();
+
+    if (!id || !validate(id)) {
+        return {
+            title: "Select Notebook",
+        }
+    }
+
+    return {
+        title: `${notebook?.team_number} - ${notebook?.team_name}`,
+    }
+}
+
+export default function Editor({ params, searchParams }: Props) {
     const notebookId = params.slug?.[0];
-    const searchParams = useSearchParams();
-    const selectedEntryId = searchParams.get("entry") as string;
 
-    const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
+    console.log(notebookId);
+    console.log(searchParams);
+    const selectedEntryId = searchParams["entry"] as string;
 
-    const entry = useEntry(selectedEntryId);
+    console.log(notebookId, selectedEntryId);
 
     return (
         <div>
-            <EditorHeader notebook_id={notebookId} />
+            <EditorHeader notebook_id={notebookId}/>
             <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
                 {notebookId && <div className={'min-w-[325px] max-w-[325px]'}>
                     <EntriesSideBar notebook_id={notebookId}/>
                 </div>}
 
-                {selectedEntryId && notebookId && <div className={"w-full h-full"}>
-                    <EntryToolbar readerAPI={readerAPI} />
-                    {entry && (
-                        <PDFViewer
-                            url={entry.url}
-                            setReaderAPI={setReaderAPI}
-                        />
-                    )}
-                </div>}
+                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId} />}
 
                 {!selectedEntryId && (
                     <div className={"w-full h-full items-center align-middle flex justify-center gap-5"}>

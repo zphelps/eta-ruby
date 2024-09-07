@@ -1,20 +1,18 @@
+"use client";
+
 import {FC, ReactNode} from "react";
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuPortal,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {useAuth} from "@/hooks/useAuth";
 import {useRouter} from "next/navigation";
+import {useAppDispatch} from "@/store";
+import {removeAllEntries} from "@/slices/entries";
 
 interface AccountDropdownProps {
     children: ReactNode;
@@ -27,6 +25,8 @@ export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
 
     const router = useRouter();
 
+    const dispatch = useAppDispatch();
+
     const handleBilling = () => {
         console.log('Billing');
     }
@@ -35,6 +35,9 @@ export const AccountDropdown:FC<AccountDropdownProps> = (props) => {
         console.log('Log out');
 
         router.replace('/editor');
+
+        // Remove all entries for this user from the store
+        dispatch(removeAllEntries())
 
         await signOut();
 

@@ -1,3 +1,5 @@
+"use client"
+
 import {FC, useEffect, useState} from "react";
 import {
     DropdownMenu,
@@ -17,6 +19,7 @@ import {CreateNotebookDialog} from "@/components/editor/dialogs/create-notebook-
 import {useNotebooks} from "@/hooks/useNotebooks";
 import {cn} from "@/lib/utils";
 import {Notebook} from "@/types/notebook";
+import {validate} from "uuid";
 
 interface NotebookSelectorProps {
     notebook_id?: string;
@@ -50,12 +53,12 @@ export const NotebookSelector:FC<NotebookSelectorProps> = (props) => {
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className={'gap-x-2 px-1.5 pr-2.5'}>
-                        {!notebook_id && (
+                        {(!notebook_id || !validate(notebook_id)) && (
                             <p className={'ml-1 font-semibold text-slate-600'}>
                                 Select Notebook
                             </p>
                         )}
-                        {notebook_id && (
+                        {notebook_id && validate(notebook_id) && (
                             <div className={'flex items-center gap-x-2'}>
                                 <p
                                     className={`text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-md px-2 py-0.5`}

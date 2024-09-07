@@ -1,3 +1,5 @@
+"use client";
+
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import {Download, Eye, MoreHorizontal} from "lucide-react";
@@ -6,6 +8,8 @@ import {FC} from "react";
 import Link from "next/link";
 import {createClient} from "@/utils/supabase/client";
 import {AccountDropdown} from "@/components/editor/account-dropdown";
+import toast from "react-hot-toast";
+import {validate} from "uuid";
 
 interface EditorHeaderProps {
     notebook_id?: string;
@@ -32,17 +36,22 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
 
     const handleDownload = async () => {
         console.log('Downloading notebook...');
-        const supabase = createClient();
-        const {data: notebook} = await supabase.from('notebooks').select('id, team:team_id(name, number)').eq('id', notebook_id).single();
-        if (!notebook) {
+        if (!notebook_id) {
+            toast.error('No notebook selected');
             return;
         }
-        const {data} = supabase.storage.from(notebook.id).getPublicUrl(`preview.pdf`);
+        const supabase = createClient();
+        const {data: notebook, error} = await supabase.from('notebooks').select('id, team_name, team_number').eq('id', notebook_id).single();
+        if (error) {
+            console.error('Error fetching notebook:', error);
+            toast.error('Error fetching notebook');
+        }
+        const {data} = supabase.storage.from("notebooks").getPublicUrl(`${notebook_id}/preview.pdf`);
         if (!data) {
             return;
         }
         // @ts-ignore
-        downloadFile(data.publicUrl, `${notebook.team.number}-${notebook.team.name}.pdf`);
+        downloadFile(data.publicUrl, `${notebook.team_number}-${notebook.team_name}.pdf`);
     }
 
     return (
@@ -63,7 +72,7 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                     </div>
                     <div className="flex items-center">
                         <div className={"flex items-center space-x-2"}>
-                            {notebook_id && <div className="flex-shrink-0">
+                            {notebook_id && validate(notebook_id) && <div className="flex-shrink-0">
                                 <Link
                                     href={`/preview/${notebook_id}`}
                                     target={"_blank"}
@@ -75,14 +84,14 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                                     Preview
                                 </Link>
                             </div>}
-                            <button
+                            {notebook_id && validate(notebook_id) && <button
                                 onClick={handleDownload}
                                 type="button"
                                 className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                             >
                                 <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
                                 Download
-                            </button>
+                            </button>}
                             <AccountDropdown>
                                 <button
                                     type="button"

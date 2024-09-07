@@ -36,6 +36,9 @@ const entriesSlice = createSlice({
         removeEntry: (state, action: PayloadAction<string>) => {
             delete state.entries[action.payload]
         },
+        removeAllEntries: (state) => {
+            state.entries = {}
+        }
     }
 })
 
@@ -43,7 +46,8 @@ export const {
     setEntry,
     setEntries,
     removeEntry,
-    // updateEvent
+    // updateEvent,
+    removeAllEntries
 } = entriesSlice.actions
 
 export default entriesSlice.reducer;

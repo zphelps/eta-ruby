@@ -1,11 +1,10 @@
+"use client";
+
 import {useCallback, useEffect, useState} from "react";
-import {RootState, useAppDispatch, useAppSelector} from "@/store";
 import {api} from "@/lib/api";
-import {setEntry} from "@/slices/entries";
 import {Preview} from "@/types/preview";
 
-export const usePreview = (notebook_id: string) => {
-    const dispatch = useAppDispatch();
+export const usePreview = (notebook_id?: string) => {
     const [preview,setPreview] = useState<Preview>();
 
     const fetchPreview = useCallback(async (id: string) => {

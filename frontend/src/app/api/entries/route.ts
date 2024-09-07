@@ -15,6 +15,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
 
     const schema = z.object({
+        uid: z.string(),
         entry_id: z.string().optional(),
         notebook_id: z.string().optional(),
     });
@@ -31,23 +32,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         const supabase = createClient();
 
-        const {data: userData, error: userError} = await supabase.auth.getUser();
-        if (userError) {
-            return NextResponse.json({
-                message: 'Unauthorized',
-                error: 'Unauthorized'
-            }, { status: 401 })
-        }
-
-        const user_id = userData?.user?.id;
-
         let query = supabase.from("entries").select("*")
 
-        // notebook ids that user has access to
-        const {data: notebook_ids, error: notebookError} = await supabase
-            .from("user_notebooks")
-            .select("notebook_id")
-            .eq("user_id", user_id);
+        // get notebooks that belong to the user
+        const {data: notebooks, error: notebookError} = await supabase.from("user_notebooks").select("notebook_id").eq("user_id", params.uid);
 
         if (notebookError) {
             return NextResponse.json({
@@ -57,11 +45,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         }
 
         if (params.entry_id) {
-            query = query.eq("id", params.entry_id).in("notebook_id", notebook_ids.map((notebook: any) => notebook.notebook_id))
+            query = query.eq("id", params.entry_id).in("notebook_id", notebooks.map((notebook) => notebook.notebook_id))
         }
 
         if (params.notebook_id) {
-            query = query.eq("notebook_id", params.notebook_id).in("notebook_id", notebook_ids.map((notebook: any) => notebook.notebook_id))
+            query = query.eq("notebook_id", params.notebook_id).in("notebook_id", notebooks.map((notebook) => notebook.notebook_id))
         }
 
         const {data, error} = await query.order("created_at", {ascending: true});

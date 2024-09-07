@@ -1,17 +1,17 @@
-import {FC, useCallback, useEffect, useState} from "react";
+"use client"
+import {FC, useCallback, useState} from "react";
 import {Plus, StickyNote} from "lucide-react";
 import {Entry} from "@/types/entry";
-import {useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {UploadEntryDialog} from "@/components/editor/dialogs/upload-entry-dialog";
 import { format } from "date-fns";
-import {Separator} from "@/components/ui/separator";
 import {cn} from "@/lib/utils";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {useEntries} from "@/hooks/useEntries";
 import {Button} from "@/components/ui/button";
 import * as React from "react";
-import {RotateLoader} from "react-spinners";
 import {ReloadIcon} from "@radix-ui/react-icons";
+import {revalidatePath} from "next/cache";
 
 interface EntriesSideBarProps {
     notebook_id: string;
@@ -40,6 +40,9 @@ const useGroupedEntries = (entries: Entry[]) => {
 export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
     const {notebook_id} = props;
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
     const selectedEntryId = searchParams.get("entry") as string;
 
     const {loading, entries} = useEntries(notebook_id);
@@ -61,7 +64,8 @@ export const EntriesSideBar:FC<EntriesSideBarProps> = (props) => {
     function onEntrySelect(entryId: string) {
         const params = new URLSearchParams(searchParams.toString())
         params.set('entry', entryId)
-        window.history.pushState(null, '', `?${params.toString()}`)
+        // window.history.pushState(null, '', `?${params.toString()}`)
+        replace(`${pathname}?${params.toString()}`)
     }
 
     function onAccordionValueChange(value: string[]) {
