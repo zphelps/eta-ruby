@@ -79,8 +79,14 @@ export default function Header() {
                 <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white pl-16 pr-16 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div className="flex items-center gap-x-6">
                         <Link href="#" className="-m-1.5 p-1.5">
-                            <span className="sr-only">EngScribe</span>
-                            <RocketIcon size={36}/>
+                            <div className={"flex md:gap-x-2 gap-x-4 items-center"}>
+                                <img className={"w-1/6 md:w-1/3"} src={"/images/EngScribeLogo.png"}></img>
+                                <div className={""}>
+                                    <p className="text-2xl md:hidden font-bold">EngScribe</p>
+                                    <p className={"text-sm md:hidden"}>The Ultimate Notebook Solution</p>
+                                </div>
+                            </div>
+                            {/*<RocketIcon size={36}/>*/}
                         </Link>
 
                         {isAuthenticated && (
