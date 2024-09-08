@@ -11,7 +11,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { EntryUploader } from "@/components/editor/entry-uploader"
+import { FileUploader } from "@/components/editor/file-uploader"
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";

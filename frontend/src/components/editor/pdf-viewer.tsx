@@ -1,4 +1,3 @@
-// "use client"
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import React, {ChangeEvent, FC, useRef, useState} from "react";
@@ -6,34 +5,6 @@ import {RotateLoader} from "react-spinners";
 import {Page, pdfjs} from "react-pdf";
 import {PageChangeEvent, Reader, ReaderAPI, RenderPageProps} from "react-pdf-headless";
 import 'core-js/full/promise/with-resolvers.js';
-
-// // Polyfill for environments where window is not available (e.g., server-side rendering)
-// if (typeof Promise.withResolvers === 'undefined') {
-//     if (typeof window !== 'undefined') {
-//         // @ts-ignore
-//         window.Promise.withResolvers = function () {
-//             let resolve, reject;
-//             const promise = new Promise((res, rej) => {
-//                 resolve = res;
-//                 reject = rej;
-//             });
-//             return { promise, resolve, reject };
-//         };
-//     } else {
-//         // @ts-ignore
-//         global.Promise.withResolvers = function () {
-//             let resolve, reject;
-//             const promise = new Promise((res, rej) => {
-//                 resolve = res;
-//                 reject = rej;
-//             });
-//             return { promise, resolve, reject };
-//         };
-//     }
-// }
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-// pdfjs.GlobalWorkerOptions.workerSrc="https://unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs"
 
 pdfjs.GlobalWorkerOptions.workerSrc="https://unpkg.com/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.mjs"
 

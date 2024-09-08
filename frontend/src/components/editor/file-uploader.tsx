@@ -93,7 +93,7 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
     disabled?: boolean;
 }
 
-export function EntryUploader(props: FileUploaderProps) {
+export function FileUploader(props: FileUploaderProps) {
     const {
         value: valueProp,
         onValueChange,

@@ -29,7 +29,7 @@ export async function generateMetadata(
     }
 
     return {
-        title: `${notebook?.team_number} - ${notebook?.team_name}`,
+        title: `${notebook?.team_number} - ${notebook?.team_name} | EngScribe`,
     }
 }
 
@@ -46,11 +46,9 @@ export default function Editor({ params, searchParams }: Props) {
         <div>
             <EditorHeader notebook_id={notebookId}/>
             <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
-                {notebookId && <div className={'min-w-[325px] max-w-[325px]'}>
-                    <EntriesSideBar notebook_id={notebookId}/>
-                </div>}
+                {notebookId && <EntriesSideBar notebook_id={notebookId}/>}
 
-                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId} />}
+                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId}/>}
 
                 {!selectedEntryId && (
                     <div className={"w-full h-full items-center align-middle flex justify-center gap-5"}>

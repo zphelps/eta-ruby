@@ -33,6 +33,11 @@ const entriesSlice = createSlice({
                 state.entries[entry.id] = entry
             }
         },
+        addEntries: (state, action: PayloadAction<Entry[]>) => {
+            for (const entry of action.payload) {
+                state.entries[entry.id] = entry
+            }
+        },
         removeEntry: (state, action: PayloadAction<string>) => {
             delete state.entries[action.payload]
         },
@@ -47,6 +52,7 @@ export const {
     setEntries,
     removeEntry,
     // updateEvent,
+    addEntries,
     removeAllEntries
 } = entriesSlice.actions
 
