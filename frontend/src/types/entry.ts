@@ -18,6 +18,7 @@ export interface CreateEntry {
     url: string;
     page_count: number;
     text?: string;
+    queue?: number;
 }
 
 export interface UpdateEntry {

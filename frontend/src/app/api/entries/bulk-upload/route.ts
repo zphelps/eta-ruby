@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {PDFDocument} from "pdf-lib";
 import {extractRangeFromDoc} from "@/helpers/entries";
-import {getPublicURL, insertEntry, uploadPDF} from "@/app/api/notebooks/helpers";
+import {getLastQueueValue, getNextQueueValue, getPublicURL, insertEntry, uploadPDF} from "@/app/api/notebooks/helpers";
 import {v4 as uuid} from "uuid";
 import {CreateEntry} from "@/types/entry";
 import {EntrySelection} from "@/components/editor/dialogs/upload-multiple-entries-dialog";
@@ -18,15 +18,28 @@ export async function POST(request: NextRequest) {
 
     const {entrySelections, file, notebook_id} = body;
 
-    console.log(body);
-
     try {
 
         let entries = [];
         const initialDoc = await PDFDocument.load(await file.arrayBuffer());
 
+        // sort entry selections by created_at
+        let sortedEntrySelections = entrySelections.sort((a, b) => new Date(a.entry.created_at!).getTime() - new Date(b.entry.created_at!).getTime());
+
+        let queue = await getLastQueueValue(notebook_id) ?? 1;
+
+        sortedEntrySelections = sortedEntrySelections.map((entrySelection) => {
+            queue = queue + 1;
+            return {
+                ...entrySelection,
+                queue,
+            }
+        });
+
+        console.log(sortedEntrySelections);
+
         // Create an array of promises for uploads and entries
-        const uploadPromises = entrySelections.map(async (entrySelection) => {
+        const uploadPromises = sortedEntrySelections.map(async (entrySelection) => {
             const entryDoc = await extractRangeFromDoc(
                 initialDoc,
                 entrySelection.start_page! - 1,
@@ -38,27 +51,23 @@ export async function POST(request: NextRequest) {
             );
 
             // Upload the PDF concurrently
-            await uploadPDF('entries', `${notebook_id}/${entrySelection.entry.id}`, entryDoc);
+            await uploadPDF('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`, entryDoc);
 
             // Get the public URL after uploading
-            const publicURL = await getPublicURL('entries', `${notebook_id}/${entrySelection.entry.id}`);
+            const publicURL = await getPublicURL('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`);
 
             const entry: CreateEntry = {
                 ...entrySelection.entry,
                 notebook_id: notebook_id,
                 url: publicURL,
                 page_count: entryDoc.getPageCount(),
+                queue: entrySelection.queue,
             };
 
             entries.push(entry);
 
             // Insert entry into the database
-            await insertEntry({
-                ...entrySelection.entry,
-                notebook_id: notebook_id,
-                url: publicURL,
-                page_count: entryDoc.getPageCount(),
-            });
+            await insertEntry(entry);
 
             return entry; // Return entry to be included in the final response
         });

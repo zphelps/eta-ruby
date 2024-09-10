@@ -17,11 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      {/*<Suspense>*/}
+      <Suspense>
           <Providers>
               {children}
           </Providers>
-      {/*</Suspense>*/}
+      </Suspense>
       </body>
     </html>
   );

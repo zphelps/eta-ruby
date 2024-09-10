@@ -31,6 +31,7 @@ export interface EntrySelection {
     entry: CreateEntry,
     start_page?: number,
     end_page?: number,
+    queue?: number,
 }
 
 interface UploadMultipleEntriesDialogProps {

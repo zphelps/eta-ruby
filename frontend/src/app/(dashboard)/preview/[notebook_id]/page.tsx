@@ -1,13 +1,4 @@
-import {PDFViewer} from "@/components/editor/pdf-viewer";
 import React from "react";
-import {PageChangeEvent, ReaderAPI} from "react-pdf-headless";
-import {pdfjs} from "react-pdf";
-import {PreviewHeader} from "@/components/preview/preview-header";
-import {usePreview} from "@/hooks/usePreview";
-import {PreviewTocSideBar} from "@/components/preview/preview-toc-side-bar";
-import {ErrorIcon} from "react-hot-toast";
-import {PreviewToolbar} from "@/components/preview/preview-toolbar";
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {Metadata, ResolvingMetadata} from "next";
 import {createClient} from "@/utils/supabase/server";
 import {validate} from "uuid";
@@ -26,8 +17,6 @@ export async function generateMetadata(
     const id = params.notebook_id;
 
     const supabase = createClient();
-
-    console.log("ID", id);
 
     const {data: notebook, error} = await supabase.from("notebooks").select("*").eq("id", id).single();
 

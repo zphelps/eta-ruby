@@ -23,7 +23,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {format} from "date-fns";
 import {cn} from "@/lib/utils";
 import {Separator} from "@/components/ui/separator";
-import {useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {api} from "@/lib/api";
 import {FC, useState} from "react";
 import toast from "react-hot-toast";
@@ -59,6 +59,8 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
     })
 
     const searchParams = useSearchParams();
+    const {push} = useRouter();
+    const pathname = usePathname();
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
@@ -91,7 +93,6 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             formData.append('date', values.date.toUTCString());
             formData.append('notebook_id', notebook_id)
 
-
             // const {data} = await toast.promise(api.post("/document_ocr", formData), {
             //     loading: "Parsing document...",
             //     success: () => {
@@ -109,7 +110,6 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             // })
             //
             // console.log(data)
-
 
             const {data: entry} = await toast.promise(api.post("/entries", formData), {
                 loading: "Uploading entry...",
@@ -132,7 +132,8 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             dispatch(setEntry(entry))
             const params = new URLSearchParams(searchParams.toString())
             params.set('entry', id)
-            window.history.pushState(null, '', `?${params.toString()}`)
+            push(`${pathname}?${params.toString()}`)
+            // window.history.pushState(null, '', `?${params.toString()}`)
         } catch (error) {
             setUploading(false)
         }

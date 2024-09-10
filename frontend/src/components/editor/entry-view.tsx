@@ -12,18 +12,19 @@ const PDFViewer = dynamic(
 )
 
 interface EntryViewProps {
+    notebookId: string;
     selectedEntryId: string;
 }
 
 export const EntryView:FC<EntryViewProps> = (props) => {
-    const {selectedEntryId} = props;
+    const {selectedEntryId, notebookId} = props;
 
     const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
     const entry = useEntry(selectedEntryId);
 
     return (
         <div className={"w-full h-full"}>
-            <EntryToolbar readerAPI={readerAPI}/>
+            <EntryToolbar readerAPI={readerAPI} notebookId={notebookId}/>
             {entry && (
                 <PDFViewer
                     url={entry.url}

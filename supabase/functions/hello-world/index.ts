@@ -4,32 +4,18 @@
 
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-import {corsHeaders} from "../_shared/cors.ts";
+
+console.log("Hello from Functions!")
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
-  const {type, table, record, old_record} = await req.json();
-
-  switch (type) {
-    case 'INSERT':
-      console.log(`New record inserted into ${table}:`, record)
-      break
-    case 'UPDATE':
-      console.log(`Record updated in ${table}:`, record)
-      break
-    case 'DELETE':
-      console.log(`Record deleted from ${table}:`, old_record)
-      break
-    default:
-      console.log(`Unknown event type: ${type}`)
+  const { name } = await req.json()
+  const data = {
+    message: `Hello ${name}!`,
   }
 
   return new Response(
     JSON.stringify(data),
-    { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    { headers: { "Content-Type": "application/json" } },
   )
 })
 

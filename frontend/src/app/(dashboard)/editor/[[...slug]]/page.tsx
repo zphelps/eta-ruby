@@ -48,7 +48,7 @@ export default function Editor({ params, searchParams }: Props) {
             <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
                 {notebookId && <EntriesSideBar notebook_id={notebookId}/>}
 
-                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId}/>}
+                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId} notebookId={notebookId}/>}
 
                 {!selectedEntryId && (
                     <div className={"w-full h-full items-center align-middle flex justify-center gap-5"}>

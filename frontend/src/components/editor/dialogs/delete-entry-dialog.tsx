@@ -5,48 +5,60 @@ import {removeEntry} from "@/slices/entries";
 import toast from "react-hot-toast";
 import * as React from "react";
 import {useAppDispatch} from "@/store";
-import {useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {FC, useState} from "react";
 
 interface DeleteEntryDialogProps {
+    notebookId: string;
     setDialogMenu: (value: string) => void;
 }
 
 export const DeleteEntryDialog:FC<DeleteEntryDialogProps> = (props) => {
-    const { setDialogMenu } = props;
+    const { setDialogMenu, notebookId } = props;
 
     const dispatch = useAppDispatch();
     const searchParams = useSearchParams();
     const selectedEntryId = searchParams.get("entry") as string;
-    const selectedNotebookId = searchParams.get("notebook") as string;
+
+    const pathname = usePathname();
+    const { replace } = useRouter();
 
     const [deleting, setDeleting] = useState(false);
 
-    async function deleteEntry() {
-        setDeleting(true);
-        await api.delete(`/entries`, {
+    const deleteEntry = () => new Promise(async resolve => {
+        const response = await api.delete(`/entries/delete`, {
             params: {
-                notebook_id: selectedNotebookId,
+                notebook_id: notebookId,
                 entry_id: selectedEntryId
             }
         });
-        dispatch(removeEntry(selectedEntryId));
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete('entry')
-        window.history.pushState(null, '', `?${params.toString()}`)
-        setDeleting(false);
-        setDialogMenu("none");
-    }
+        console.log(response);
+        resolve(response);
+    });
 
     async function handleDeleteEntry() {
-        await toast.promise(
+        setDeleting(true);
+
+        const {success, message} = await toast.promise(
             deleteEntry(),
             {
                 loading: 'Deleting entry...',
                 success: <b>Entry deleted</b>,
                 error: <b>Could not delete.</b>,
             }
-        );
+        ) as {success: boolean, message: string};
+
+        if (success) {
+            dispatch(removeEntry(selectedEntryId));
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('entry')
+            replace(pathname);
+            setDeleting(false);
+            setDialogMenu("none");
+        } else {
+            setDeleting(false);
+            toast.error(message);
+        }
     }
 
     return (

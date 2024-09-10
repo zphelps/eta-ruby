@@ -13,10 +13,11 @@ import {Separator} from "@/components/ui/separator";
 
 interface EntryToolbarProps {
     readerAPI: ReaderAPI | null;
+    notebookId: string;
 }
 
 export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
-    const {readerAPI} = props;
+    const {readerAPI, notebookId} = props;
     const searchParams = useSearchParams();
 
     const selectedEntryId = searchParams.get("entry") as string;
@@ -49,7 +50,7 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
                     <Minus size={16}/>
                 </Button>
                 <Separator orientation="vertical" className={'h-5 mx-2'} />
-                <EntryActionsDropdown/>
+                <EntryActionsDropdown notebookId={notebookId}/>
             </div>
 
             {/*<EntryActionsDropdown/>*/}

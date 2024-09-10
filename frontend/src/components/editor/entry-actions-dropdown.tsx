@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {FC, useState} from "react";
 import {Dialog} from "@/components/ui/dialog";
 import {
     DropdownMenu,
@@ -12,7 +12,12 @@ import {MoreHorizontal, Trash} from "lucide-react";
 import * as React from "react";
 import {DeleteEntryDialog} from "@/components/editor/dialogs/delete-entry-dialog";
 
-export const EntryActionsDropdown = () => {
+interface EntryActionsDropdownProps {
+    notebookId: string;
+}
+
+export const EntryActionsDropdown:FC<EntryActionsDropdownProps> = (props) => {
+    const { notebookId } = props;
     const [dialogMenu, setDialogMenu] = useState<string>("none");
 
     const handleDialogMenu = (): JSX.Element | null => {
@@ -20,7 +25,7 @@ export const EntryActionsDropdown = () => {
             case "create":
                 return <div></div>
             case "delete":
-                return <DeleteEntryDialog setDialogMenu={setDialogMenu} />;
+                return <DeleteEntryDialog setDialogMenu={setDialogMenu} notebookId={notebookId} />;
             default:
                 return null;
         }

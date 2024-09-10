@@ -2,6 +2,39 @@ import {createClient} from "@/utils/supabase/server";
 import {PDFDocument} from "pdf-lib";
 import {CreateEntry, Entry, UpdateEntry} from "@/types/entry";
 
+// function to get the smallest value of in column "queue" in entries table for rows with a specific notebook_id
+export const getNextQueueValue = async (notebookId: string) => {
+    const supabase = createClient();
+    const {data, error} = await supabase
+        .from("entries")
+        .select("queue")
+        .eq("notebook_id", notebookId)
+        .order("queue", {ascending: true})
+        .limit(1);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data[0]?.queue;
+}
+
+export const getLastQueueValue = async (notebookId: string) => {
+    const supabase = createClient();
+    const {data, error} = await supabase
+        .from("entries")
+        .select("queue")
+        .eq("notebook_id", notebookId)
+        .order("queue", {ascending: false, nullsFirst: false})
+        .limit(1);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data[0]?.queue;
+}
+
 
 export const createStorageBucket = async (notebookId: string) => {
     const supabase = createClient();
@@ -85,6 +118,8 @@ export const getEntry = async (entryId: string) => {
 
 export const insertEntry = async (entry: CreateEntry) => {
     const supabase = createClient();
+
+    console.log("Inserting entry", entry);
 
     const {error: databaseError} = await supabase.from("entries").insert(entry);
 

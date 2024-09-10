@@ -114,14 +114,14 @@ export async function POST(request: NextRequest) {
             throw new Error("Document is too long. Please upload a document with less than 15 pages.");
         }
 
-        const existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
-        const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
+        // const existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
+        // const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
 
         // upload new entry to storage
         await uploadPDF("entries", `${body.notebook_id}/${id}.pdf`, newEntryDoc);
 
         // upload notebook preview to storage
-        await uploadPDF("notebooks", `${body.notebook_id}/preview.pdf`, newPreviewDoc);
+        // await uploadPDF("notebooks", `${body.notebook_id}/preview.pdf`, newPreviewDoc);
 
         const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
 
@@ -193,58 +193,6 @@ export async function PUT(request: NextRequest) {
             message: 'Invalid Request',
             error: e
         }, { status: 400 })
-    }
-}
-
-export async function DELETE(request: NextRequest) {
-    const params = Object.fromEntries(request.nextUrl.searchParams.entries())
-
-    const { notebook_id, entry_id } = params;
-
-    const schema = z.object({
-        notebook_id: z.string(),
-        entry_id: z.string(),
-    });
-
-    const validationResponse = schema.safeParse(params);
-    if (!validationResponse.success) {
-        return NextResponse.json({
-            message: "Invalid request schema",
-            error: validationResponse.error.errors
-        }, { status: 400 })
-    }
-
-    try {
-
-        const existingPreviewPDF = await getPreviewPDFDoc(notebook_id);
-
-        const entry = await getEntry(entry_id);
-
-        await deleteEntry(entry_id);
-
-        await deletePDF("entries", `${notebook_id}/${entry_id}.pdf`);
-
-        const indicesToRemove = await getIndicesToRemove(entry);
-
-        console.log("Indices to remove", indicesToRemove);
-
-        const newPreviewPDF = await removeIndicesFromPDF(existingPreviewPDF, indicesToRemove);
-
-        if (newPreviewPDF === null) {
-            await deletePDF("notebooks", `${notebook_id}/preview.pdf`);
-        } else {
-            await uploadPDF("notebooks", `${notebook_id}/preview.pdf`, newPreviewPDF);
-        }
-
-        return NextResponse.json({
-            message: 'Success',
-        }, {status: 200})
-
-    } catch (e) {
-        return NextResponse.json({
-            message: 'Invalid Request',
-            error: e
-        }, {status: 400})
     }
 }
 
