@@ -202,6 +202,7 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
     }
 
     const handlePageSelected = (page: number) => {
+        if (uploading) return;
         const entrySelectionForPage = getEntryForPage(page);
         if (entrySelectionIdBeingEdited === undefined || (entrySelectionForPage && entrySelectionForPage.id !== entrySelectionIdBeingEdited)) {
             return;
@@ -269,6 +270,7 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
     }
 
     const handlePageHover = (page: number) => {
+        if (uploading) return;
         setCurrentPageHovered(page);
     }
 
@@ -375,6 +377,7 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
                         <div ref={scrollRef} className={"space-y-2 overflow-y-auto h-[calc(100%-92px)] rounded-lg pb-4"}>
                             {entrySelections.map((selection) => (
                                 <EntrySelectionCard key={selection.id}
+                                                    uploading={uploading}
                                                     minimumDate={minimum_date}
                                                     selection={selection}
                                                     handleEntrySelectionClicked={handleEntrySelectionClicked}

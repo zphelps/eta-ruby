@@ -141,8 +141,8 @@ export const EntriesSideBar: FC<EntriesSideBarProps> = ({ notebook_id }) => {
                                             key={entry.id}
                                             onClick={() => onEntrySelect(entry.id)}
                                             className={cn(
-                                                selectedEntryId === entry.id ? "bg-slate-100" : "",
-                                                "flex items-center justify-between hover:bg-slate-50 rounded-md py-1.5 px-2 cursor-pointer mx-1"
+                                                selectedEntryId === entry.id ? "bg-slate-100 hover:bg-slate-200" : "hover:bg-slate-50",
+                                                "flex items-center justify-between rounded-md py-1.5 px-2 cursor-pointer mx-1"
                                             )}
                                         >
                                             <p

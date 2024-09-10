@@ -13,6 +13,7 @@ import {SelectSingleEventHandler} from "react-day-picker";
 
 
 interface EntrySelectionCardProps {
+    uploading: boolean;
     selection: EntrySelection;
     minimumDate?: Date;
     handleEntrySelectionClicked: (id: string) => void;
@@ -21,7 +22,7 @@ interface EntrySelectionCardProps {
 }
 
 export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
-    const {selection, minimumDate, handleEntrySelectionClicked, entrySelectionIdBeingEdited, setEntrySelections} = props;
+    const {uploading, selection, minimumDate, handleEntrySelectionClicked, entrySelectionIdBeingEdited, setEntrySelections} = props;
 
     const onEntrySelectionTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEntrySelections((prev: EntrySelection[]) => {
@@ -64,7 +65,7 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
             className={cn(entrySelectionIdBeingEdited === selection.id ? "border-sky-300 border-2 bg-sky-50" : "border border-slate-200 hover:bg-slate-50", 'flex items-center justify-between rounded-lg p-2 cursor-pointer')}
         >
             <div className={'space-y-1.5'}>
-                {entrySelectionIdBeingEdited === selection.id && <input
+                {entrySelectionIdBeingEdited === selection.id && !uploading && <input
                     disabled={entrySelectionIdBeingEdited !== selection.id}
                     placeholder={"Entry title..."}
                     type="text"
@@ -72,7 +73,7 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
                     className={"hover:bg-slate-200 px-1.5 rounded-md cursor-pointer border-none bg-transparent font-medium"}
                     onChange={onEntrySelectionTitleChange}
                 />}
-                {entrySelectionIdBeingEdited !== selection.id && <p className={"pl-1.5 font-medium text-slate-500"}>{selection.entry.title}</p>}
+                {(entrySelectionIdBeingEdited !== selection.id || uploading) && <p className={"pl-1.5 font-medium text-slate-500"}>{selection.entry.title}</p>}
                 <div className={'flex items-center space-x-2 px-1'}>
                     <p className={cn((!selection.start_page || !selection.end_page)
                         ? "border-red-500 bg-red-50 text-red-500"
@@ -91,7 +92,7 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
                     )}
                     {entrySelectionIdBeingEdited === selection.id && (
                         <Popover>
-                            <PopoverTrigger disabled={entrySelectionIdBeingEdited !== selection.id}>
+                            <PopoverTrigger disabled={entrySelectionIdBeingEdited !== selection.id || uploading}>
                                 <p className={"border-sky-400 bg-sky-50 text-sky-500 hover:bg-slate-100 rounded-md h-fit font-normal text-sm border py-0.5 px-2 flex items-center"}>
                                     <CalendarIcon size={16} className={"mr-1.5 mb-0.5"}/>
                                     {format(new Date(selection?.entry?.created_at!), "MMM dd, yyyy")}
