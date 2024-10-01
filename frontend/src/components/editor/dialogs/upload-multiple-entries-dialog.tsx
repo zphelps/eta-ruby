@@ -233,7 +233,7 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
                         end_page: undefined,
                     }
                 } else {
-                    if (page - selection.start_page > 15) {
+                    if (selection.start_page && page - selection.start_page > 15) {
                         toast.error("Entry cannot be longer than 15 pages.");
                         return selection;
                     }

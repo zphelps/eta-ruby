@@ -7,6 +7,7 @@ export interface Entry {
     notebook_id: string;
     url: string;
     page_count: number;
+    text: string;
 }
 
 export interface CreateEntry {

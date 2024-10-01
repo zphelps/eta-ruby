@@ -48,23 +48,6 @@ const entryTags = [
     },
 ]
 
-interface SearchResult {
-    id: string;
-    entry_title: string;
-    chunk_text: string;
-    entry_id: string;
-}
-//
-// const searchResults = [
-//     // generate 10 more search results
-//     ...Array.from({length: 10}, (_, i) => ({
-//         id: i.toString(),
-//         entry_title: `Test Entry ${i}`,
-//         chunk_text: 'This is a test search result',
-//         entry_id: i.toString(),
-//     }))
-// ]
-
 type Tag = "identify" | "brainstorm" | "select" | "implement" | "test" | "repeat" | "team";
 
 interface SearchFilter {
@@ -125,8 +108,8 @@ export const PreviewSearchSideBar:FC<PreviewSearchSideBarProps> = (props) => {
         params.set('entry', entry.id)
         push(`${pathname}?${params.toString()}`)
         const selectedEntry = preview.entries.find((e) => e.id === entry.id);
+        if (!selectedEntry) return;
         setPage(selectedEntry.start_page);
-        setPage(entry.start_page);
     }
 
     return (
@@ -143,7 +126,7 @@ export const PreviewSearchSideBar:FC<PreviewSearchSideBarProps> = (props) => {
                     onChange={(e) => handleSetQuery(e.target.value)}
                     onKeyUp={async (e) => {
                         console.log(e.key)
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" && filter.query) {
                             await search(filter.query);
                         }
                     }}
@@ -155,7 +138,7 @@ export const PreviewSearchSideBar:FC<PreviewSearchSideBarProps> = (props) => {
                 {entryTags.map((tag) => (
                     <div
                         key={tag.value}
-                        onClick={() => handleSetTag(tag.value)}
+                        onClick={() => handleSetTag(tag.value as Tag)}
                         className={cn(
                             tag.value === filter.tag
                                 ? "border-sky-200 bg-sky-50"

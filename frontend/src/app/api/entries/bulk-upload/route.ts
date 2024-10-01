@@ -1,13 +1,11 @@
 import {NextRequest, NextResponse} from "next/server";
 import {PDFDocument} from "pdf-lib";
 import {extractRangeFromDoc} from "@/helpers/entries";
-import {getLastQueueValue, getNextQueueValue, getPublicURL, insertEntry, uploadPDF} from "@/app/api/notebooks/helpers";
-import {v4 as uuid} from "uuid";
+import {getLastQueueValue, getPublicURL, insertEntry, uploadPDF} from "@/app/api/notebooks/helpers";
 import {CreateEntry} from "@/types/entry";
 import {EntrySelection} from "@/components/editor/dialogs/upload-multiple-entries-dialog";
-import entries from "@/slices/entries";
-import {getDocumentText} from "@/app/api/document_ocr/helpers.ts";
-import {createClient} from "@/utils/supabase/server.ts";
+import {getDocumentText} from "@/app/api/document_ocr/helpers";
+import {createClient} from "@/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();

@@ -28,7 +28,10 @@ export async function POST(request: Request) {
 
     try {
 
-        const text = await getDocumentText(body.file);
+        const arrayBuffer = await body.file.arrayBuffer();
+        const pdf = await PDFDocument.load(arrayBuffer);
+
+        const text = await getDocumentText(pdf);
 
         // // Extract shards from the text field
         // const getText = textAnchor => {
