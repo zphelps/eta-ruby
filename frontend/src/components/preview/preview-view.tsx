@@ -10,6 +10,7 @@ import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {Preview} from "@/types/preview";
 import {PreviewHeader} from "@/components/preview/preview-header";
 import {usePreview} from "@/hooks/usePreview";
+import {PreviewSearchSideBar} from "@/components/preview/preview-search-side-bar.tsx";
 
 interface PreviewViewProps {
     entry_id: string;
@@ -21,8 +22,6 @@ export const PreviewView:FC<PreviewViewProps> = (props) => {
     const {notebook_id, navigating, entry_id} = props;
     const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
 
-
-    console.log('notebook_id', notebook_id)
     const preview = usePreview(notebook_id);
 
     console.log('PREVIEW', preview)
@@ -59,12 +58,10 @@ export const PreviewView:FC<PreviewViewProps> = (props) => {
         <div>
             {preview && <PreviewHeader preview={preview}/>}
             <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
-                <div className={'min-w-[325px] max-w-[325px]'}>
-                    {preview && <PreviewTocSideBar
-                        entries={preview?.entries}
-                        setPage={(page) => readerAPI?.jumpToPage(page)}
-                    />}
-                </div>
+                {preview && <PreviewTocSideBar
+                    entries={preview?.entries}
+                    setPage={(page) => readerAPI?.jumpToPage(page)}
+                />}
 
                 {preview && preview.entries.length > 0 && (
                     <div className={"w-full h-full"}>
@@ -75,6 +72,10 @@ export const PreviewView:FC<PreviewViewProps> = (props) => {
                             setReaderAPI={setReaderAPI}
                         />
                     </div>
+                )}
+
+                {preview && preview.entries.length > 0 && (
+                    <PreviewSearchSideBar notebook_id={notebook_id} setPage={(page) => readerAPI?.jumpToPage(page)} preview={preview} />
                 )}
 
                 {preview && preview.entries.length === 0 && (

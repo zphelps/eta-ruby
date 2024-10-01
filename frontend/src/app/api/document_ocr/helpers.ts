@@ -3,22 +3,23 @@ import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
 
 const documentOCRClient = new DocumentProcessorServiceClient();
 
-export const getDocumentText = async (file: File) => {
+export const getDocumentText = async (pdf: PDFDocument) => {
     const projectId = 'eta-ruby';
     const location = 'us'; // Format is 'us' or 'eu'
     const processorId = '5f462157b077ca2c'; // Create processor in Cloud Console
 
     const name = `projects/${projectId}/locations/${location}/processors/${processorId}`;
 
-    const buffer = await file.arrayBuffer();
-    const newEntryDoc = await PDFDocument.load(buffer);
-    const num_pages = newEntryDoc.getPages().length;
+    // const buffer = await file.arrayBuffer();
+    const bytes = await pdf.save();
+    // const newEntryDoc = await PDFDocument.load(buffer);
+    const num_pages = pdf.getPages().length;
 
     if (num_pages > 15) {
         throw new Error("Document is too long. Please upload a document with less than 15 pages.");
     }
 
-    const encodedFile = Buffer.from(buffer).toString('base64');
+    const encodedFile = Buffer.from(bytes).toString('base64');
 
     const request = {
         name,

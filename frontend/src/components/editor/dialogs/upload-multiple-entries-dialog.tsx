@@ -49,9 +49,6 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
 
     const [numPagesSuccessfullyLoaded, setNumPagesSuccessfullyLoaded] = useState<number>(0);
 
-    // Debounced version of numPagesSuccessfullyLoaded
-    const [debouncedNumPagesSuccessfullyLoaded] = useDebounce(numPagesSuccessfullyLoaded, 100); // 100ms debounce delay
-
     const [uploading, setUploading] = useState<boolean>(false);
 
     const [entrySelectionIdBeingEdited, setEntrySelectionIdBeingEdited] = useState<string>(initialEntrySelectionID);
@@ -236,6 +233,10 @@ export const UploadMultipleEntriesDialog: FC<UploadMultipleEntriesDialogProps> =
                         end_page: undefined,
                     }
                 } else {
+                    if (page - selection.start_page > 15) {
+                        toast.error("Entry cannot be longer than 15 pages.");
+                        return selection;
+                    }
                     return {
                         ...selection,
                         end_page: page,

@@ -68,7 +68,7 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
     }
 
     return (
-        <div className={'h-[calc(100vh-56px)] border-r border-r-slate-200 w-full'}>
+        <div className={'h-full min-w-[325px] max-w-[325px] border-r border-r-slate-200 w-full'}>
             <div className={'flex justify-between text-md pl-3 pr-1 pt-0.5 items-center h-11 border-b border-b-slate-200'}>
                 <p className={'font-semibold'}>
                     Table of Contents
@@ -83,7 +83,7 @@ export const PreviewTocSideBar:FC<PreviewTocSideBarProps> = (props) => {
                     </p>
                 </div>
             )}
-            <div className={'overflow-y-auto'}>
+            <div className={'h-full overflow-y-auto'}>
                 <Accordion type="multiple" className="w-full" value={accordionValue ?? getDefaultValue()} onValueChange={onAccordionValueChange}>
                     {Object.keys(groupedEntries).map((key, index) => {
                         return (

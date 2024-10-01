@@ -23,7 +23,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {format} from "date-fns";
 import {cn} from "@/lib/utils";
 import {Separator} from "@/components/ui/separator";
-import {redirect, useSearchParams} from "next/navigation";
+import {redirect, useRouter, useSearchParams} from "next/navigation";
 import {api} from "@/lib/api";
 import {FC, useState} from "react";
 import toast from "react-hot-toast";
@@ -63,6 +63,7 @@ export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
     const dispatch = useAppDispatch();
     const {user} = useAuth();
     const searchParams = useSearchParams()
+    const {push} = useRouter()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -81,6 +82,8 @@ export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
         try {
             const notebook_id = uuid()
 
+            console.log("Success URL", `${window.location.origin}${window.location.pathname}/?notebook=${notebook_id}&success=true`)
+
             const { url }: { url: string } = await api.post(
                 "/stripe/create-checkout",
                 {
@@ -95,7 +98,7 @@ export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
                     },
                 }
             );
-            window.location.href = url;
+            push(url)
         } catch (error) {
             setUploading(false)
             toast.error("Failed to upload entry")

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Metadata, ResolvingMetadata} from "next";
 import {createClient} from "@/utils/supabase/server";
 import {validate} from "uuid";

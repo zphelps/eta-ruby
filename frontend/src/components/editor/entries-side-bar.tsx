@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { UploadEntryDropdown } from "@/components/editor/upload-entry-dropdown";
+import {createClient} from "@/utils/supabase/client.ts";
 
 interface EntriesSideBarProps {
     notebook_id: string;
@@ -82,24 +83,28 @@ export const EntriesSideBar: FC<EntriesSideBarProps> = ({ notebook_id }) => {
         <div className={"h-full min-w-[325px] max-w-[325px] border-r border-r-slate-200 w-full"}>
             <div className={"flex justify-between text-md pl-3 pr-1 items-center h-11 border-b border-b-slate-200"}>
                 <p className={"font-semibold"}>Entries</p>
-                {/*<Button onClick={async () => {*/}
-                {/*    const supabase = createClient();*/}
-                {/*    const {data, error} = await supabase*/}
-                {/*        .from("entries")*/}
-                {/*        .select("queue")*/}
-                {/*        .eq("notebook_id", notebook_id)*/}
-                {/*        .order("queue", {ascending: true})*/}
-                {/*        .limit(1);*/}
+                <Button onClick={async () => {
+                    const supabase = createClient();
 
-                {/*    if (error) {*/}
-                {/*        console.log(error);*/}
-                {/*        throw new Error(error.message);*/}
-                {/*    }*/}
-
-                {/*    console.log(data);*/}
-
-                {/*    console.log(data[0]?.queue);*/}
-                {/*}}>Hello</Button>*/}
+                    await supabase.functions.invoke("generate-preview", {
+                        body: {notebook_id: notebook_id}
+                    });
+                    // const {data, error} = await supabase
+                    //     .from("entries")
+                    //     .select("queue")
+                    //     .eq("notebook_id", notebook_id)
+                    //     .order("queue", {ascending: true})
+                    //     .limit(1);
+                    //
+                    // if (error) {
+                    //     console.log(error);
+                    //     throw new Error(error.message);
+                    // }
+                    //
+                    // console.log(data);
+                    //
+                    // console.log(data[0]?.queue);
+                }}>Hello</Button>
                 <UploadEntryDropdown
                     notebook_id={notebook_id}
                     minimum_date={entries.length > 0 ? new Date(entries[entries.length - 1].created_at) : undefined}

@@ -78,6 +78,9 @@ export async function DELETE(request: NextRequest) {
             await uploadPDF("notebooks", `${notebook_id}/preview.pdf`, newPreviewPDF);
         }
 
+        // insert row into preview queue table
+        await supabase.from("preview_queue").insert({notebook_id: notebook_id});
+
         return NextResponse.json({
             success: true,
             message: 'Success',

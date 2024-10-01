@@ -64,17 +64,17 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
             key={selection.id}
             className={cn(entrySelectionIdBeingEdited === selection.id ? "border-sky-300 border-2 bg-sky-50" : "border border-slate-200 hover:bg-slate-50", 'flex items-center justify-between rounded-lg p-2 cursor-pointer')}
         >
-            <div className={'space-y-1.5'}>
+            <div className={'space-y-1.5 w-full'}>
                 {entrySelectionIdBeingEdited === selection.id && !uploading && <input
                     disabled={entrySelectionIdBeingEdited !== selection.id}
                     placeholder={"Entry title..."}
                     type="text"
                     value={selection.entry.title}
-                    className={"hover:bg-slate-200 px-1.5 rounded-md cursor-pointer border-none bg-transparent font-medium"}
+                    className={"hover:bg-slate-200 w-full px-1.5 rounded-md cursor-pointer border-none bg-transparent font-medium"}
                     onChange={onEntrySelectionTitleChange}
                 />}
                 {(entrySelectionIdBeingEdited !== selection.id || uploading) && <p className={"pl-1.5 font-medium text-slate-500"}>{selection.entry.title}</p>}
-                <div className={'flex items-center space-x-2 px-1'}>
+                <div className={'flex items-center space-x-2 px-1 w-full'}>
                     <p className={cn((!selection.start_page || !selection.end_page)
                         ? "border-red-500 bg-red-50 text-red-500"
                         : entrySelectionIdBeingEdited === selection.id
