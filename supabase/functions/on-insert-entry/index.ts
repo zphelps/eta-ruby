@@ -16,20 +16,20 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const {record} = await req.json();
-    const {id: entryId, notebook_id, queue, text} = record;
+    const { record } = await req.json();
+    const { id: entryId, notebook_id, queue, text } = record;
 
     console.log("FUNCTION FOR ENTRY ID:", entryId);
     console.log("ENTRY ID:", entryId, "NOTEBOOK_ID", notebook_id, "QUEUE", queue);
 
     const supabase = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-        {
-          global: {
-            headers: {Authorization: req.headers.get('Authorization')!},
-          },
-        }
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
     )
 
     // // Function to check if current entry's queue value is the smallest
@@ -148,10 +148,10 @@ Deno.serve(async (req) => {
 
       const [{ embedding }] = result.data;
 
-      const {error: updateEntryError} = await supabase
-          .from('entries')
-          .update({ embedding })
-          .eq('id', entryId);
+      const { error: updateEntryError } = await supabase
+        .from('entries')
+        .update({ embedding })
+        .eq('id', entryId);
 
       if (updateEntryError) {
         console.error(updateEntryError);
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
     //
     // console.log("ENTRY ID:", entryId, "UPDATED");
 
-    return new Response(JSON.stringify({success: "true"}), {
+    return new Response(JSON.stringify({ success: "true" }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })

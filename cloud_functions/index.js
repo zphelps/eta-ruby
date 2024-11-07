@@ -1,26 +1,189 @@
-const functions = require('@google-cloud/functions-framework');
-const {createClient} = require("@supabase/supabase-js");
-const {PDFDocument} = require("pdf-lib");
+const functions = require("@google-cloud/functions-framework");
+const { extractTextFromFile, extractTextChunks, uploadEntryToGCS } = require("./services/ocr");
+const cors = require('cors')({ origin: true });
+const Busboy = require('busboy');
+const { PassThrough } = require('stream');
+const { createEntry } = require("./services/entries");
+const { createClient } = require('@supabase/supabase-js');
+const { PDFDocument } = require('pdf-lib');
+const { uploadFileToGCS } = require("./services/gcs");
 
-// Register an HTTP function with the Functions Framework that will be executed
-// when you make an HTTP request to the deployed function's endpoint.
-functions.http('function-1', (req, res) => {
-    res.send('Hello World!');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
+/*
+gcloud functions deploy upload-single-entry \
+--gen2 \
+--env-vars-file=env.yaml \
+--runtime=nodejs20 \
+--region=us-west1 \
+--source=. \
+--entry-point=uploadSingleEntry \
+--trigger-http \
+--allow-unauthenticated
+ */
+functions.http('uploadSingleEntry', (req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') {
+            return res.status(405).send('Method Not Allowed');
+        }
+
+        // Ensure the rawBody is available
+        if (!req.rawBody) {
+            return res.status(400).send('Expected req.rawBody to be a Buffer');
+        }
+
+        const busboy = Busboy({ headers: req.headers });
+        const fields = {};
+        let fileData = null;
+        let fileName = null;
+        let fileMimeType = null;
+
+        busboy.on('file', (fieldname, file, info) => {
+            const { filename, encoding, mimeType } = info;
+            fileName = filename;
+            fileMimeType = mimeType;
+
+            const buffers = [];
+            file.on('data', (data) => {
+                buffers.push(data);
+            });
+            file.on('end', () => {
+                fileData = Buffer.concat(buffers);
+            });
+        });
+
+        busboy.on('field', (fieldname, val) => {
+            fields[fieldname] = val;
+        });
+
+        busboy.on('finish', async () => {
+            const { notebook_id, id, title, date } = fields;
+
+            if (!fileData) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+
+            if (!notebook_id || !id || !title || !date) {
+                return res.status(400).json({ message: 'Missing required fields' });
+            }
+
+            if (!fileName) {
+                console.error('No filename provided, using default filename.');
+                fileName = 'uploaded-file';
+            }
+
+            try {
+                const entry = await createEntry({
+                    notebook_id,
+                    id,
+                    title,
+                    date,
+                    fileData,
+                    fileName,
+                    fileMimeType
+                });
+
+                res.status(200).json(entry);
+            } catch (error) {
+                console.error('Error creating entry:', error);
+                res.status(500).json({ message: 'Internal Server Error', error: error.message });
+            }
+        });
+
+        busboy.on('error', (error) => {
+            console.error('Error parsing form data:', error);
+            res.status(500).json({ message: 'Error parsing form data', error: error.message });
+        });
+
+        // Create a stream from rawBody and pipe it to Busboy
+        const bufferStream = new PassThrough();
+        bufferStream.end(req.rawBody);
+        bufferStream.pipe(busboy);
+    });
+});
+
+/*
+gcloud functions deploy extract-text-from-file \
+--gen2 \
+--runtime=nodejs20 \
+--env-vars-file=env.yaml \
+--region=us-west1 \
+--source=. \
+--entry-point=extractTextFromFile \
+--memory=1GiB \
+--trigger-event-filters="type=google.cloud.storage.object.v1.finalized" \
+--trigger-event-filters="bucket=entries-to-be-processed"
+ */
+functions.cloudEvent('extractTextFromFile', async cloudEvent => {
+    console.log(`Event ID: ${cloudEvent.id}`);
+    console.log(`Event Type: ${cloudEvent.type}`);
+
+    const file = cloudEvent.data;
+
+    console.log(`Bucket: ${file.bucket}`);
+    console.log(`File: ${file.name}`);
+    console.log(`Metageneration: ${file.metageneration}`);
+    console.log(`Created: ${file.timeCreated}`);
+    console.log(`Updated: ${file.updated}`);
+
+    const success = await extractTextFromFile(file.name);
+
+    if (!success) {
+        console.error(`Failed to extract text from file: ${file.name}`);
+    } else {
+        console.log(`Successfully extracted text from file: ${file.name}`);
+    }
 
 });
 
 /*
-gcloud functions deploy generate-preview \
+gcloud functions deploy extract-text-chunks \
 --gen2 \
 --runtime=nodejs20 \
+--region=us-west1 \
+--env-vars-file=env.yaml \
+--source=. \
+--entry-point=extractTextChunks \
+--trigger-event-filters="type=google.cloud.storage.object.v1.finalized" \
+--trigger-event-filters="bucket=processed-entries"
+ */
+functions.cloudEvent('extractTextChunks', async cloudEvent => {
+    console.log(`Event ID: ${cloudEvent.id}`);
+    console.log(`Event Type: ${cloudEvent.type}`);
+
+    const file = cloudEvent.data;
+
+    console.log(`Bucket: ${file.bucket}`);
+    console.log(`File: ${file.name}`);
+    console.log(`Metageneration: ${file.metageneration}`);
+    console.log(`Created: ${file.timeCreated}`);
+    console.log(`Updated: ${file.updated}`);
+
+    const chunks = await extractTextChunks(file);
+
+    console.log("Chunks:", chunks);
+
+    console.log("Iterating through chunks:");
+    for (const chunk of chunks) {
+        console.log(chunk);
+    }
+
+    console.log("Exiting extractTextChunks");
+});
+
+
+/*
+gcloud functions deploy generate-preview-file \
+--gen2 \
+--runtime=nodejs20 \
+--env-vars-file=env.yaml \
 --source=. \
 --region=us-west1 \
---entry-point=generate-preview \
+--entry-point=generatePreviewFile \
 --trigger-http \
 --allow-unauthenticated
  */
-functions.http('generate-preview', async (req, res) => {
+functions.http('generatePreviewFile', async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
 
     if (req.method === 'OPTIONS') {
@@ -31,12 +194,10 @@ functions.http('generate-preview', async (req, res) => {
         res.status(204).send('');
     } else {
         console.log(req.body);
-        const {record} = await req.body;
-        const {id: entryId, notebook_id} = record;
+        const { record } = await req.body;
+        const { id: entryId, notebook_id } = record;
 
         console.log(`Generating preview for entry ${entryId} in notebook ${notebook_id}`);
-
-        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
         try {
             // get all entry urls in the notebook
@@ -84,32 +245,31 @@ functions.http('generate-preview', async (req, res) => {
             const mergedPdfBytes = await mergedPdf.save();
 
             // Upload the merged PDF to the storage bucket
-            const { error: uploadError } = await supabase.storage
-                .from("notebooks")
-                .upload(`${notebook_id}/preview.pdf`, mergedPdfBytes, {
-                    contentType: 'application/pdf',
-                    upsert: true,
-                });
+            const metadata = {
+                fileName: 'preview.pdf',
+                fileMimeType: 'application/pdf',
+                customMetadata: {
+                    notebook_id
+                }
+            };
 
-            if (uploadError) {
-                console.error(uploadError);
-                throw new Error(uploadError.message);
-            }
+            const publicUrl = await uploadFileToGCS(mergedPdfBytes, metadata, "eta-ruby-notebooks", `${notebook_id}`);
 
-            // remove row from preview queue
-            const { error: deleteError } = await supabase
-                .from('preview_queue')
-                .delete()
-                .eq('notebook_id', notebook_id);
+            console.log(`File uploaded to GCS with public URL: ${publicUrl}`);
 
-            if (deleteError) {
-                console.error(deleteError);
-                throw new Error(deleteError.message);
-            }
+            // // remove row from preview queue
+            // const { error: deleteError } = await supabase
+            //     .from('preview_queue')
+            //     .delete()
+            //     .eq('notebook_id', notebook_id);
+
+            // if (deleteError) {
+            //     console.error(deleteError);
+            //     throw new Error(deleteError.message);
+            // }
         } catch (error) {
             console.error(error)
         }
 
     }
 });
-

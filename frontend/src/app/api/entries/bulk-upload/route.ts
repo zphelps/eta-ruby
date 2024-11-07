@@ -21,73 +21,63 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = createClient();
 
-        let entries = [];
-        const initialDoc = await PDFDocument.load(await file.arrayBuffer());
-
-        // sort entry selections by created_at
-        let sortedEntrySelections = entrySelections.toSorted((a, b) => new Date(a.entry.created_at!).getTime() - new Date(b.entry.created_at!).getTime());
-
-        let queue = await getLastQueueValue(notebook_id) ?? 1;
-
-        sortedEntrySelections = sortedEntrySelections.map((entrySelection) => {
-            queue = queue + 1;
-            return {
-                ...entrySelection,
-                queue,
-            }
-        });
-
-        console.log("SORTED ENTRIES:", sortedEntrySelections);
-
-        // Create an array of promises for uploads and entries
-        const uploadPromises = sortedEntrySelections.map(async (entrySelection) => {
+        for (const entrySelection of entrySelections) {
             const entryDoc = await extractRangeFromDoc(
-                initialDoc,
+                await PDFDocument.load(await file.arrayBuffer()),
                 entrySelection.start_page! - 1,
                 entrySelection.end_page!
             );
 
             const text = await getDocumentText(entryDoc);
 
-            console.log(
-                `ENTRY ${entrySelection.entry.id} - ${entrySelection.start_page} - ${entrySelection.end_page} -> entry doc is ${entryDoc.getPageCount()} pages`
-            );
+        }
 
-            // Upload the PDF concurrently
-            await uploadPDF('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`, entryDoc);
-
-            // Get the public URL after uploading
-            const publicURL = await getPublicURL('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`);
-
-            const entry: CreateEntry = {
-                ...entrySelection.entry,
-                notebook_id: notebook_id,
-                url: publicURL,
-                page_count: entryDoc.getPageCount(),
-                queue: entrySelection.queue,
-                text: text,
-            };
-
-            entries.push(entry);
-
-            // Insert entry into the database
-            await insertEntry(entry);
-
-            return entry; // Return entry to be included in the final response
-        });
-
-        // Wait for all uploads and insertions to complete
-        const results = await Promise.all(uploadPromises);
-
-        // // generate preview by calling the generate-preview edge function
-        // await supabase.functions.invoke('generate-preview', {
-        //     body: { notebook_id: notebook_id }
-        // })
-
-        // insert row into preview queue table
-        await supabase.from("preview_queue").insert({notebook_id: notebook_id});
-
-        return NextResponse.json({ entries: results }, { status: 200 });
+        // let entries = [];
+        // const initialDoc = await PDFDocument.load(await file.arrayBuffer());
+        //
+        // // Create an array of promises for uploads and entries
+        // const uploadPromises = entrySelections.map(async (entrySelection) => {
+        //     const entryDoc = await extractRangeFromDoc(
+        //         initialDoc,
+        //         entrySelection.start_page! - 1,
+        //         entrySelection.end_page!
+        //     );
+        //
+        //     const text = await getDocumentText(entryDoc);
+        //
+        //     console.log(
+        //         `ENTRY ${entrySelection.entry.id} - ${entrySelection.start_page} - ${entrySelection.end_page} -> entry doc is ${entryDoc.getPageCount()} pages`
+        //     );
+        //
+        //     // Upload the PDF concurrently
+        //     await uploadPDF('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`, entryDoc);
+        //
+        //     // Get the public URL after uploading
+        //     const publicURL = await getPublicURL('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`);
+        //
+        //     const entry: CreateEntry = {
+        //         ...entrySelection.entry,
+        //         notebook_id: notebook_id,
+        //         url: publicURL,
+        //         page_count: entryDoc.getPageCount(),
+        //         text: text,
+        //     };
+        //
+        //     entries.push(entry);
+        //
+        //     // Insert entry into the database
+        //     await insertEntry(entry);
+        //
+        //     return entry; // Return entry to be included in the final response
+        // });
+        //
+        // // Wait for all uploads and insertions to complete
+        // const results = await Promise.all(uploadPromises);
+        //
+        // // insert row into preview queue table
+        // await supabase.from("preview_queue").insert({notebook_id: notebook_id});
+        //
+        // return NextResponse.json({ entries: results }, { status: 200 });
 
     } catch (e) {
         console.error(e);

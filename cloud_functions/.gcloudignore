@@ -14,5 +14,6 @@
 .gitignore
 
 node_modules
+env.yaml
 
 

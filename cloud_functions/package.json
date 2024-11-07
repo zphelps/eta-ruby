@@ -10,9 +10,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/documentai": "^8.11.0",
     "@google-cloud/functions-framework": "^3.4.2",
     "@google-cloud/storage": "^7.12.1",
-    "@supabase/supabase-js": "^2.45.4",
-    "pdf-lib": "^1.17.1"
+    "@supabase/supabase-js": "^2.46.1",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "langchain": "^0.3.5",
+    "p-queue": "^8.0.1",
+    "pdf-lib": "^1.17.1",
+    "stream": "^0.0.3"
   }
 }

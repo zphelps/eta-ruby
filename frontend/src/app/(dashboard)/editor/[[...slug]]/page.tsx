@@ -1,10 +1,10 @@
 
-import {EntriesSideBar} from "@/components/editor/entries-side-bar";
-import {validate} from "uuid";
-import {EditorHeader} from "@/components/editor/editor-header";
-import {Metadata, ResolvingMetadata} from "next";
-import {EntryView} from "@/components/editor/entry-view";
-import {createClient} from "@/utils/supabase/server";
+import { EntriesSideBar } from "@/components/editor/entries-side-bar";
+import { validate } from "uuid";
+import { EditorHeader } from "@/components/editor/editor-header";
+import { Metadata, ResolvingMetadata } from "next";
+import { EntryView } from "@/components/editor/entry-view";
+import { createClient } from "@/utils/supabase/server";
 
 type Props = {
     params: { slug?: string[] }
@@ -20,7 +20,7 @@ export async function generateMetadata(
 
     const supabase = createClient();
 
-    const {data: notebook, error} = await supabase.from("notebooks").select("*").eq("id", id).single();
+    const { data: notebook, error } = await supabase.from("notebooks").select("*").eq("id", id).single();
 
     if (!id || !validate(id)) {
         return {
@@ -42,13 +42,15 @@ export default function Editor({ params, searchParams }: Props) {
 
     console.log(notebookId, selectedEntryId);
 
+    console.log(params)
+
     return (
         <div>
-            <EditorHeader notebook_id={notebookId}/>
+            <EditorHeader notebook_id={notebookId} />
             <div className={'h-[calc(100vh-56px)] pt-[56px] flex'}>
-                {notebookId && <EntriesSideBar notebook_id={notebookId}/>}
+                {notebookId && <EntriesSideBar notebook_id={notebookId} />}
 
-                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId} notebookId={notebookId}/>}
+                {selectedEntryId && notebookId && <EntryView selectedEntryId={selectedEntryId} notebookId={notebookId} />}
 
                 {!selectedEntryId && (
                     <div className={"w-full h-full items-center align-middle flex justify-center gap-5"}>

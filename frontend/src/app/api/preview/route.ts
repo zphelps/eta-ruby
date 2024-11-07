@@ -1,10 +1,10 @@
-import {NextRequest, NextResponse} from "next/server";
-import {z} from "zod";
-import {createClient} from "@/utils/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { createClient } from "@/utils/supabase/server";
 import PDFMerger from "pdf-merger-js";
-import {v4 as uuid} from "uuid";
-import {PDFDocument} from "pdf-lib";
-import {getPublicURL} from "@/app/api/notebooks/helpers";
+import { v4 as uuid } from "uuid";
+import { PDFDocument } from "pdf-lib";
+import { getPublicURL } from "@/app/api/notebooks/helpers";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -24,11 +24,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     try {
         const supabase = createClient();
 
-        const {data: entries, error: entriesError} = await supabase
+        const { data: entries, error: entriesError } = await supabase
             .from("entries")
             .select("*")
             .eq("notebook_id", params.notebook_id)
-            .order("created_at", {ascending: true})
+            .order("created_at", { ascending: true })
 
         if (entriesError) {
             console.error(entriesError)
@@ -42,12 +42,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         let start_page = 0
 
         for (const entry of entries) {
-            const entryUrl = await getPublicURL("entries", `${params.notebook_id}/${entry.id}.pdf`)
             toc_entries.push({
                 id: entry.id,
                 title: entry.title,
                 created_at: entry.created_at,
-                url: entryUrl,
+                url: entry.url,
                 start_page,
                 end_page: start_page + entry.page_count,
             })
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         }
 
         // get notebook title
-        const {data: notebook, error: notebookError} = await supabase
+        const { data: notebook, error: notebookError } = await supabase
             .from("notebooks")
             .select("team_name, team_number")
             .eq("id", params.notebook_id)
@@ -71,7 +70,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             }, { status: 400 })
         }
 
-        const previewUrl = await getPublicURL("notebooks", `${params.notebook_id}/preview.pdf`)
+        const previewUrl = `https://storage.googleapis.com/eta-ruby-notebooks/${params.notebook_id}/preview.pdf`
 
         const notebookPreview = {
             id: uuid(),
@@ -113,7 +112,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
         const supabase = createClient();
 
-        const {data: entries, error: entriesError} = await supabase
+        const { data: entries, error: entriesError } = await supabase
             .from("entries")
             .select("*")
             .eq("notebook_id", body.notebook_id)
@@ -134,7 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             console.log(entry)
             console.log(body.notebook_id)
             // get entry file from storage
-            const {data: blob, error: fileError} = await supabase.storage
+            const { data: blob, error: fileError } = await supabase.storage
                 .from(body.notebook_id)
                 .download(`${entry.id}.pdf`)
 

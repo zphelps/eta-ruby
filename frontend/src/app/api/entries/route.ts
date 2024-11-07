@@ -11,6 +11,8 @@ import {
     removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
 import {getDocumentText} from "@/app/api/document_ocr/helpers.ts";
+import {uploadFileToGCS} from "@/helpers/gcs.ts";
+import EntriesService, {entriesService} from "@/services/entries/index.ts";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -106,56 +108,54 @@ export async function POST(request: NextRequest) {
     try {
         const id = body.id ?? uuid();
 
-        const supabase = createClient();
+        // const supabase = createClient();
+        //
+        // const buffer = await body.file.arrayBuffer();
+        // const newEntryDoc = await PDFDocument.load(buffer);
+        //
+        // await uploadFileToGCS(body.file, "eta-ruby-entries", {})
 
-        // get number of pages in new pdf file
-        const buffer = await body.file.arrayBuffer();
-        const newEntryDoc = await PDFDocument.load(buffer);
-        const num_pages = newEntryDoc.getPages().length;
-
-        if (num_pages > 15) {
-            throw new Error("Document is too long. Please upload a document with fewer than 15 pages.");
-        }
-
-        // const existingPreviewDoc = await getPreviewPDFDoc(body.notebook_id);
-        // const newPreviewDoc = await mergePDFs([existingPreviewDoc, newEntryDoc]);
-
-        const text = await getDocumentText(newEntryDoc);
-
-        // upload new entry to storage
-        await uploadPDF("entries", `${body.notebook_id}/${id}.pdf`, newEntryDoc);
-
-        // upload notebook preview to storage
-        // await uploadPDF("notebooks", `${body.notebook_id}/preview.pdf`, newPreviewDoc);
-
-        const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
-
-        // const document_text = await getDocumentText(body.file);
-
-        await insertEntry({
+        await entriesService.createEntry({
             id: id,
+            notebook_id: body.notebook_id,
             title: body.title,
             created_at: body.created_at,
-            updated_at: body.created_at,
-            notebook_id: body.notebook_id,
-            url: entryUrl,
-            page_count: num_pages,
-            text,
+            file: body.file,
         });
 
-        // insert row into preview queue table
-        await supabase.from("preview_queue").insert({notebook_id: body.notebook_id});
 
+        // get number of pages in new pdf file
+        // const buffer = await body.file.arrayBuffer();
+        // const newEntryDoc = await PDFDocument.load(buffer);
+        // const num_pages = newEntryDoc.getPages().length;
+        //
+        // if (num_pages > 15) {
+        //     throw new Error("Document is too long. Please upload a document with fewer than 15 pages.");
+        // }
+        //
+        // // upload new entry to storage
+        // await uploadPDF("entries", `${body.notebook_id}/${id}.pdf`, newEntryDoc);
+        //
+        // const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
+        //
+        // const entryToInsert = {
+        //     id: id,
+        //     title: body.title,
+        //     created_at: body.created_at,
+        //     updated_at: body.created_at,
+        //     notebook_id: body.notebook_id,
+        //     url: entryUrl,
+        //     page_count: num_pages,
+        // }
+        //
+        // await insertEntry(entryToInsert);
+        //
+        // // insert row into preview queue table
+        // await supabase.from("preview_queue").insert({notebook_id: body.notebook_id});
+        //
         return NextResponse.json({
             message: 'Success',
-            data: {
-                id: id,
-                title: body.title,
-                created_at: body.created_at,
-                notebook_id: body.notebook_id,
-                url: entryUrl + `?buster=${new Date().getTime()}`,
-                text,
-            }
+            // data: entryToInsert,
         }, { status: 200 });
     } catch (e: any) {
         console.error("Error in POST /entries", e);

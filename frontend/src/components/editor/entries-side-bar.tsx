@@ -1,5 +1,5 @@
 "use client";
-import {FC, useCallback, useEffect, useMemo, useState} from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, StickyNote } from "lucide-react";
 import { Entry } from "@/types/entry";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { UploadEntryDropdown } from "@/components/editor/upload-entry-dropdown";
-import {createClient} from "@/utils/supabase/client.ts";
+import { createClient } from "@/utils/supabase/client.ts";
 
 interface EntriesSideBarProps {
     notebook_id: string;
@@ -83,28 +83,6 @@ export const EntriesSideBar: FC<EntriesSideBarProps> = ({ notebook_id }) => {
         <div className={"h-full min-w-[325px] max-w-[325px] border-r border-r-slate-200 w-full"}>
             <div className={"flex justify-between text-md pl-3 pr-1 items-center h-11 border-b border-b-slate-200"}>
                 <p className={"font-semibold"}>Entries</p>
-                {/*<Button onClick={async () => {*/}
-                {/*    const supabase = createClient();*/}
-
-                {/*    await supabase.functions.invoke("generate-preview", {*/}
-                {/*        body: {notebook_id: notebook_id}*/}
-                {/*    });*/}
-                {/*    // const {data, error} = await supabase*/}
-                {/*    //     .from("entries")*/}
-                {/*    //     .select("queue")*/}
-                {/*    //     .eq("notebook_id", notebook_id)*/}
-                {/*    //     .order("queue", {ascending: true})*/}
-                {/*    //     .limit(1);*/}
-                {/*    //*/}
-                {/*    // if (error) {*/}
-                {/*    //     console.log(error);*/}
-                {/*    //     throw new Error(error.message);*/}
-                {/*    // }*/}
-                {/*    //*/}
-                {/*    // console.log(data);*/}
-                {/*    //*/}
-                {/*    // console.log(data[0]?.queue);*/}
-                {/*}}>Hello</Button>*/}
                 <UploadEntryDropdown
                     notebook_id={notebook_id}
                     minimum_date={entries.length > 0 ? new Date(entries[entries.length - 1].created_at) : undefined}
@@ -146,19 +124,22 @@ export const EntriesSideBar: FC<EntriesSideBarProps> = ({ notebook_id }) => {
                                             key={entry.id}
                                             onClick={() => onEntrySelect(entry.id)}
                                             className={cn(
-                                                selectedEntryId === entry.id ? "bg-slate-100 hover:bg-slate-200" : "hover:bg-slate-50",
-                                                "flex items-center justify-between rounded-md py-1.5 px-2 cursor-pointer mx-1"
+                                                selectedEntryId === entry.id ? "bg-slate-200 hover:bg-slate-200" : "hover:bg-slate-50",
+                                                "flex items-center justify-between rounded-sm py-1 px-2.5 cursor-pointer mx-1"
                                             )}
                                         >
                                             <p
                                                 className={cn(
-                                                    selectedEntryId === entry.id ? "text-gray-700" : "text-gray-500",
-                                                    "font-medium text-sm"
+                                                    selectedEntryId === entry.id ? "text-black" : "text-slate-500",
+                                                    "text-sm"
                                                 )}
                                             >
                                                 {entry.title}
                                             </p>
-                                            <p className={"font-normal text-slate-400 text-sm"}>
+                                            <p className={cn(
+                                                selectedEntryId === entry.id ? "text-slate-600" : "text-slate-400",
+                                                "text-xs"
+                                            )}>
                                                 {format(new Date(entry.created_at), "M/d")}
                                             </p>
                                         </AccordionContent>
