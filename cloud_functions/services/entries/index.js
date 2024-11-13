@@ -1,7 +1,11 @@
 const { createClient } = require('@supabase/supabase-js');
 const { PDFDocument } = require('pdf-lib');
 const { uploadFileToGCS } = require("../gcs");
+const { OpenAI } = require("openai");
 
+const openaiClient = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
@@ -39,3 +43,39 @@ exports.createEntry = async ({ notebook_id, id, title, date, fileData, fileName,
         throw error;
     }
 };
+
+exports.createEntryTextChunks = async ({ id, textChunks }) => {
+    try {
+    
+        const embeddedChunks = await Promise.all(
+            textChunks.map(async chunk => {
+                const embeddingResponse = await openaiClient.embeddings.create({
+                    model: 'text-embedding-3-small',
+                    input: chunk.text
+                });
+
+                const embedding = embeddingResponse.data[0].embedding;
+
+                return {
+                    content: chunk.text,
+                    entry_id: id,
+                    embedding: embedding
+                };
+            })
+        );
+
+        const { data, error } = await supabase
+            .from('entry_chunks')
+            .insert(embeddedChunks)
+            .select();
+
+        if (error) {
+            throw error;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error creating entry text chunks:', error);
+        throw error;
+    }
+}

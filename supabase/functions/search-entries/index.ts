@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     console.log("NOTEBOOK_ID", notebook_id)
 
     // Call hybrid_search Postgres function via RPC
-    const { data: documents } = await supabase.rpc('match_entries', {
+    const { data: documents } = await supabase.rpc('hybrid_search', {
       query_text: query,
       query_embedding: embedding,
       match_count: 10,
@@ -65,6 +65,11 @@ Deno.serve(async (req) => {
 
 
 })
+
+/*
+To deploy:
+supabase functions deploy search-entries --project-ref mqtngvbwllxtievxdfll --env-vars-file=../../cloud_functions/env.yaml
+*/
 
 /* To invoke locally:
 

@@ -1,34 +1,38 @@
 "use client";
 
-import {useCallback, useEffect, useState} from "react";
-import {api} from "@/lib/api";
-import {Preview} from "@/types/preview";
+import { useCallback, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { setPreview } from "@/slices/previews";
+import { api } from "@/lib/api";
+import { Preview } from "@/types/preview";
 
 export const usePreview = (notebook_id?: string) => {
-    const [preview,setPreview] = useState<Preview>();
+    const dispatch = useAppDispatch();
+    const preview = useAppSelector(state => notebook_id ? state.previews.previews[notebook_id] : undefined);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const fetchPreview = useCallback(async (id: string) => {
         try {
-            console.log('FETCHING PREVIEW', id)
+            setLoading(true);
+            console.log('FETCHING PREVIEW', id);
             const response = await api.get("/preview", {
                 params: {
                     notebook_id: id,
                 }
             });
-            setPreview(response.data);
+            dispatch(setPreview({ notebookId: id, preview: response.data }));
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false);
         }
-    }, [notebook_id]);
+    }, [dispatch]);
 
     useEffect(() => {
-            if (!preview && notebook_id) {
-                fetchPreview(notebook_id);
-            }
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [notebook_id]
-    );
+        if (!preview && notebook_id) {
+            fetchPreview(notebook_id);
+        }
+    }, [notebook_id, preview, fetchPreview]);
 
-    return preview;
+    return { preview, loading };
 }

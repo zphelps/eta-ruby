@@ -84,10 +84,6 @@ exports.extractTextChunks = async (file) => {
         const { text } = document;
         const chunks = [];
 
-        // Desired character length for each chunk
-        const chunkSize = 1000; // Adjust if necessary
-        const chunkOverlap = 200; // Overlap between chunks
-
         const getText = (textAnchor) => {
             if (!textAnchor.textSegments || textAnchor.textSegments.length === 0) {
                 return '';
@@ -112,22 +108,11 @@ exports.extractTextChunks = async (file) => {
                 }
             }
 
-            // Use LangChain's text splitter on the page text
-            const splitter = new RecursiveCharacterTextSplitter({
-                chunkSize: chunkSize,
-                chunkOverlap: chunkOverlap,
-                separators: ['\n\n', '\n', ' ', ''],
+            // Create a single chunk for the entire page
+            chunks.push({
+                text: pageText.trim(),
+                page: page.pageNumber,
             });
-
-            const pageChunks = await splitter.splitText(pageText);
-
-            // Add each chunk to the chunks array with the page number
-            for (const chunkText of pageChunks) {
-                chunks.push({
-                    text: chunkText.trim(),
-                    page: page.pageNumber,
-                });
-            }
         }
 
         console.log('Extracted Text Chunks:', chunks);

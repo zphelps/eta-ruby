@@ -7,6 +7,10 @@ const { createEntry } = require("./services/entries");
 const { createClient } = require('@supabase/supabase-js');
 const { PDFDocument } = require('pdf-lib');
 const { uploadFileToGCS } = require("./services/gcs");
+const { createEntryTextChunks } = require("./services/entries");
+const { Storage } = require('@google-cloud/storage');
+
+const storage = new Storage();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
@@ -152,23 +156,25 @@ functions.cloudEvent('extractTextChunks', async cloudEvent => {
     console.log(`Event Type: ${cloudEvent.type}`);
 
     const file = cloudEvent.data;
+    const bucketName = file.bucket;
+    const fileName = file.name;
 
-    console.log(`Bucket: ${file.bucket}`);
-    console.log(`File: ${file.name}`);
+    console.log(`Bucket: ${bucketName}`);
+    console.log(`File: ${fileName}`);
     console.log(`Metageneration: ${file.metageneration}`);
     console.log(`Created: ${file.timeCreated}`);
     console.log(`Updated: ${file.updated}`);
 
+    const entryId = fileName.split('/')[2];
+
     const chunks = await extractTextChunks(file);
 
-    console.log("Chunks:", chunks);
+    const textChunks = await createEntryTextChunks({
+        id: entryId,
+        textChunks: chunks
+    });
 
-    console.log("Iterating through chunks:");
-    for (const chunk of chunks) {
-        console.log(chunk);
-    }
-
-    console.log("Exiting extractTextChunks");
+    console.log("Text Chunks:", textChunks);
 });
 
 

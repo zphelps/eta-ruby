@@ -1,11 +1,11 @@
-import React, {useEffect} from "react";
-import {Metadata, ResolvingMetadata} from "next";
-import {createClient} from "@/utils/supabase/server";
-import {validate} from "uuid";
-import {PreviewView} from "@/components/preview/preview-view";
+import React, { useEffect } from "react";
+import { Metadata, ResolvingMetadata } from "next";
+import { createClient } from "@/utils/supabase/server";
+import { validate } from "uuid";
+import { PreviewView } from "@/components/preview/preview-view";
 
 type Props = {
-    params: { notebook_id: string }
+    params: { slug: string[] },
     searchParams: { [key: string]: string | string[] | undefined }
 }
 
@@ -14,11 +14,11 @@ export async function generateMetadata(
     parent: ResolvingMetadata
 ): Promise<Metadata> {
     // read route params
-    const id = params.notebook_id;
+    const id = params.slug[0];
 
     const supabase = createClient();
 
-    const {data: notebook, error} = await supabase.from("notebooks").select("*").eq("id", id).single();
+    const { data: notebook, error } = await supabase.from("notebooks").select("*").eq("id", id).single();
 
     if (!id || !validate(id)) {
         return {
@@ -32,14 +32,19 @@ export async function generateMetadata(
 }
 
 export default function Preview({ params, searchParams }: Props) {
-    const notebook_id = params.notebook_id;
+
+    console.log(params, searchParams);
+    const notebook_id = params.slug[0];
+    const entry_id = params.slug[1];
+
+    console.log(notebook_id, entry_id);
 
     return (
         <div>
             {notebook_id && validate(notebook_id) && <PreviewView
                 notebook_id={notebook_id}
                 navigating={searchParams["navigating"] as string}
-                entry_id={searchParams["entry"] as string}
+                entry_id={entry_id}
             />}
         </div>
     )

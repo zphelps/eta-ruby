@@ -1,17 +1,20 @@
-import {Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
-import {Bars3Icon, BellIcon, XMarkIcon} from "@heroicons/react/24/outline";
-import {Download, Eye} from "lucide-react";
-import {usePreview} from "@/hooks/usePreview";
-import {Preview} from "@/types/preview";
-import {FC} from "react";
-import {createClient} from "@/utils/supabase/client";
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Download, Eye } from "lucide-react";
+import { usePreview } from "@/hooks/usePreview";
+import { Preview } from "@/types/preview";
+import { FC } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useParams } from "next/navigation";
 
-interface PreviewHeaderProps {
-    preview: Preview;
-}
+// interface PreviewHeaderProps {
+//     preview: Preview;
+// }
 
-export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
-    const {preview} = props;
+export const PreviewHeader: FC<PreviewHeaderProps> = (props) => {
+    // const {preview} = props;
+    const params = useParams();
+    const { preview, loading: previewLoading } = usePreview(params.slug[0]);
 
     function downloadFile(url: string, fileName: string) {
         fetch(url)
@@ -49,7 +52,7 @@ export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
                             </DisclosureButton>
                         </div>
 
-                        <div className={'flex items-center gap-x-2.5'}>
+                        {preview && !previewLoading && <div className={'flex items-center gap-x-2.5'}>
                             <p
                                 className={`text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-md px-2 py-0.5`}
                             >
@@ -59,7 +62,7 @@ export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
                             <p className={'text-md font-semibold text-black'}>
                                 {preview.team_name}
                             </p>
-                        </div>
+                        </div>}
                     </div>
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
@@ -68,7 +71,7 @@ export const PreviewHeader:FC<PreviewHeaderProps> = (props) => {
                                 type="button"
                                 className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black shadow-sm hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                             >
-                                <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
+                                <Download aria-hidden="true" className="-ml-0.5 h-5 w-5" />
                                 Download
                             </button>
                         </div>

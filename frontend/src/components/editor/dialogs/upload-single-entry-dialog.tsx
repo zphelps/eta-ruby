@@ -44,9 +44,8 @@ interface UploadEntryDialogProps {
 }
 
 export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
-    const { minimum_date, notebook_id } = props
+    const { minimum_date, notebook_id, setDialogMenu } = props
     const [uploading, setUploading] = useState(false)
-    const [open, setOpen] = useState(false)
     const dispatch = useAppDispatch();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -120,13 +119,10 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                 date: minimum_date,
                 file: undefined,
             });
-            setOpen(false);
 
             const params = new URLSearchParams(searchParams.toString());
             params.set('entry', id);
             push(`${pathname}?${params.toString()}`);
-
-            toast.success("Entry uploaded successfully");
 
         } catch (error) {
             if (error.name === 'TypeError') {
@@ -137,6 +133,9 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                 toast.error(`Failed to upload entry: ${error instanceof Error && error.message ? error.message : 'Unknown error'}`);
             }
         } finally {
+            setDialogMenu("none");
+            toast.dismiss();
+            toast.success("Entry uploaded successfully");
             setUploading(false);
         }
     }
