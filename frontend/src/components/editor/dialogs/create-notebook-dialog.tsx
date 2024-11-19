@@ -12,28 +12,28 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { FileUploader } from "@/components/editor/file-uploader"
-import {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm} from "react-hook-form";
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Input} from "@/components/ui/input";
-import {Calendar} from "@/components/ui/calendar";
-import {CalendarIcon, Check, ChevronsUpDown, Lock, Plus} from "lucide-react";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import {format} from "date-fns";
-import {cn} from "@/lib/utils";
-import {Separator} from "@/components/ui/separator";
-import {redirect, useRouter, useSearchParams} from "next/navigation";
-import {api} from "@/lib/api";
-import {FC, useState} from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, Check, ChevronsUpDown, Lock, Plus } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { api } from "@/lib/api";
+import { FC, useState } from "react";
 import toast from "react-hot-toast";
-import {v4 as uuid} from "uuid";
-import {setEntry} from "@/slices/entries";
-import {useAppDispatch} from "@/store";
-import {useAuth} from "@/hooks/useAuth";
-import {CreateTeamDialog} from "@/components/editor/dialogs/create-team-dialog";
-import {addNotebookForUser} from "@/slices/notebooks";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { v4 as uuid } from "uuid";
+import { setEntry } from "@/slices/entries";
+import { useAppDispatch } from "@/store";
+import { useAuth } from "@/hooks/useAuth";
+import { CreateTeamDialog } from "@/components/editor/dialogs/create-team-dialog";
+import { addNotebookForUser } from "@/slices/notebooks";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
     team_name: z.string().min(1, "Team name must be at least 1 character.").max(100, "Notebook title cannot be more than 100 characters."),
@@ -58,12 +58,12 @@ const seasons = [
 ]
 
 export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
-    const {setShowDialog} = props
+    const { setShowDialog } = props
     const [uploading, setUploading] = useState(false)
     const dispatch = useAppDispatch();
-    const {user} = useAuth();
+    const { user } = useAuth();
     const searchParams = useSearchParams()
-    const {push} = useRouter()
+    const { push } = useRouter()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -88,7 +88,7 @@ export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
                 "/stripe/create-checkout",
                 {
                     priceId: "price_1PsU4GHfJctXfs5WFnxtWvfW",
-                    successUrl: `${window.location.origin}${window.location.pathname}/?notebook=${notebook_id}&success=true`,
+                    successUrl: `${window.location.origin}${window.location.pathname}/${notebook_id}&success=true`,
                     cancelUrl: window.location.href,
                     mode: "payment",
                     metadata: {
@@ -98,6 +98,7 @@ export const CreateNotebookDialog: FC<CreateNotebookDialogProps> = (props) => {
                     },
                 }
             );
+            console.log("URL", url)
             push(url)
         } catch (error) {
             setUploading(false)

@@ -1,28 +1,27 @@
-import {cn} from "@/lib/utils";
-import {Calendar as CalendarIcon, Layers, Trash} from "lucide-react";
-import {format} from "date-fns";
-import {Button} from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Calendar as CalendarIcon, Layers, Trash } from "lucide-react";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 import * as React from "react";
-import {FC} from "react";
+import { FC } from "react";
 import { EntrySelection } from "./dialogs/upload-multiple-entries-dialog";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import {FormControl} from "@/components/ui/form";
-import {Calendar} from "@/components/ui/calendar";
-import {SelectSingleEventHandler} from "react-day-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FormControl } from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar";
+import { SelectSingleEventHandler } from "react-day-picker";
 
 
 
 interface EntrySelectionCardProps {
     uploading: boolean;
     selection: EntrySelection;
-    minimumDate?: Date;
     handleEntrySelectionClicked: (id: string) => void;
     entrySelectionIdBeingEdited?: string;
     setEntrySelections: (prev: React.SetStateAction<EntrySelection[]>) => void;
 }
 
-export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
-    const {uploading, selection, minimumDate, handleEntrySelectionClicked, entrySelectionIdBeingEdited, setEntrySelections} = props;
+export const EntrySelectionCard: FC<EntrySelectionCardProps> = (props) => {
+    const { uploading, selection, handleEntrySelectionClicked, entrySelectionIdBeingEdited, setEntrySelections } = props;
 
     const onEntrySelectionTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEntrySelections((prev: EntrySelection[]) => {
@@ -78,15 +77,15 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
                     <p className={cn((!selection.start_page || !selection.end_page)
                         ? "border-red-500 bg-red-50 text-red-500"
                         : entrySelectionIdBeingEdited === selection.id
-                                ? "border-sky-400 bg-sky-50 text-sky-500"
-                                : "border-slate-200 bg-slate-50 text-slate-500",
+                            ? "border-sky-400 bg-sky-50 text-sky-500"
+                            : "border-slate-200 bg-slate-50 text-slate-500",
                         "rounded-md text-sm font-normal border px-1.5 py-0.5 flex items-center")}>
-                        <Layers size={16} className={cn((!selection.start_page || !selection.end_page) && "text-red-500", "mr-1.5")}/>
+                        <Layers size={16} className={cn((!selection.start_page || !selection.end_page) && "text-red-500", "mr-1.5")} />
                         {selection.start_page || "?"}-{selection.end_page || "?"}
                     </p>
                     {entrySelectionIdBeingEdited !== selection.id && (
                         <p className={"border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-md h-fit font-normal text-sm border py-0.5 px-2 flex items-center"}>
-                            <CalendarIcon size={16} className={"mr-1.5 mb-0.5"}/>
+                            <CalendarIcon size={16} className={"mr-1.5 mb-0.5"} />
                             {format(new Date(selection?.entry?.created_at!), "MMM dd, yyyy")}
                         </p>
                     )}
@@ -94,7 +93,7 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
                         <Popover>
                             <PopoverTrigger disabled={entrySelectionIdBeingEdited !== selection.id || uploading}>
                                 <p className={"border-sky-400 bg-sky-50 text-sky-500 hover:bg-slate-100 rounded-md h-fit font-normal text-sm border py-0.5 px-2 flex items-center"}>
-                                    <CalendarIcon size={16} className={"mr-1.5 mb-0.5"}/>
+                                    <CalendarIcon size={16} className={"mr-1.5 mb-0.5"} />
                                     {format(new Date(selection?.entry?.created_at!), "MMM dd, yyyy")}
                                 </p>
                             </PopoverTrigger>
@@ -104,14 +103,14 @@ export const EntrySelectionCard:FC<EntrySelectionCardProps> = (props) => {
                                     required
                                     selected={selection?.entry?.created_at ? new Date(selection.entry.created_at) : undefined}
                                     onSelect={onEntrySelectionDateChange}
-                                    disabled={(date) => {
-                                        if (minimumDate) {
-                                            return date < minimumDate;
-                                        } else {
-                                            return false;
-                                        }
-                                    }
-                                    }
+                                    // disabled={(date) => {
+                                    //     if (minimumDate) {
+                                    //         return date < minimumDate;
+                                    //     } else {
+                                    //         return false;
+                                    //     }
+                                    // }
+                                    // }
                                     initialFocus
                                 />
                             </PopoverContent>

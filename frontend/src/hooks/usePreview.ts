@@ -14,7 +14,7 @@ export const usePreview = (notebook_id?: string) => {
     const fetchPreview = useCallback(async (id: string) => {
         try {
             setLoading(true);
-            console.log('FETCHING PREVIEW', id);
+            // console.log('FETCHING PREVIEW', id);
             const response = await api.get("/preview", {
                 params: {
                     notebook_id: id,

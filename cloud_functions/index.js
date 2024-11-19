@@ -9,6 +9,8 @@ const { PDFDocument } = require('pdf-lib');
 const { uploadFileToGCS } = require("./services/gcs");
 const { createEntryTextChunks } = require("./services/entries");
 const { Storage } = require('@google-cloud/storage');
+const { deleteEntry } = require("./services/entries");
+const { createMultipleEntries } = require("./services/entries");
 
 const storage = new Storage();
 
@@ -25,85 +27,155 @@ gcloud functions deploy upload-single-entry \
 --trigger-http \
 --allow-unauthenticated
  */
-functions.http('uploadSingleEntry', (req, res) => {
-    cors(req, res, async () => {
-        if (req.method !== 'POST') {
-            return res.status(405).send('Method Not Allowed');
+functions.http('uploadSingleEntry', async (req, res) => {
+    // Set CORS headers for all responses
+    res.set('Access-Control-Allow-Origin', '*'); // Or specify allowed origin
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        // Handle preflight OPTIONS request
+        res.status(204).send('');
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+    }
+
+    // Ensure Content-Type is application/json
+    if (!req.is('application/json')) {
+        res.status(400).send('Expected application/json content type');
+        return;
+    }
+
+    const { notebook_id, id, title, date, file_url } = req.body;
+
+    if (!file_url || !notebook_id || !id || !title || !date) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    try {
+        const entry = await createEntry({
+            notebook_id,
+            id,
+            title,
+            date,
+            file_url
+        });
+
+        res.status(200).json(entry);
+    } catch (error) {
+        console.error('Error creating entry:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
+
+/*
+gcloud functions deploy upload-multiple-entries \
+--gen2 \
+--env-vars-file=env.yaml \
+--runtime=nodejs20 \
+--region=us-west1 \
+--source=. \
+--entry-point=uploadMultipleEntries \
+--trigger-http \
+--allow-unauthenticated
+ */
+functions.http('uploadMultipleEntries', async (req, res) => {
+    // Set CORS headers for all responses
+    res.set('Access-Control-Allow-Origin', '*'); // Or specify allowed origin
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        // Handle preflight OPTIONS request
+        res.status(204).send('');
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+    }
+
+    // Ensure Content-Type is application/json
+    if (!req.is('application/json')) {
+        res.status(400).send('Expected application/json content type');
+        return;
+    }
+
+    const { notebook_id, entries, base_file_url } = req.body;
+
+    if (!base_file_url || !notebook_id || !entries) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    let parsedEntries;
+    try {
+        parsedEntries = JSON.parse(entries);
+        if (!Array.isArray(parsedEntries) || parsedEntries.length === 0) {
+            return res.status(400).json({ message: 'Invalid entries data' });
         }
+    } catch (error) {
+        return res.status(400).json({ message: 'Entries must be a valid JSON array' });
+    }
 
-        // Ensure the rawBody is available
-        if (!req.rawBody) {
-            return res.status(400).send('Expected req.rawBody to be a Buffer');
+    try {
+        const createdEntries = await createMultipleEntries({
+            notebook_id,
+            base_file_url: base_file_url,
+            entries: parsedEntries
+        });
+
+        res.status(200).json({ message: 'Entries created successfully', data: createdEntries });
+    } catch (error) {
+        console.error('Error creating multiple entries:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
+
+/*
+gcloud functions deploy delete-entry \
+--gen2 \
+--env-vars-file=env.yaml \
+--runtime=nodejs20 \
+--region=us-west1 \
+--source=. \
+--entry-point=deleteEntry \
+--trigger-http \
+--allow-unauthenticated
+ */
+functions.http('deleteEntry', async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).send('');
+    }
+
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    try {
+        const response = await deleteEntry(id);
+
+        if (response.success) {
+            res.status(200).json({ success: true, message: 'Entry deleted successfully' });
+        } else {
+            res.status(500).json({ success: false, message: 'Failed to delete entry', error: response.message });
         }
-
-        const busboy = Busboy({ headers: req.headers });
-        const fields = {};
-        let fileData = null;
-        let fileName = null;
-        let fileMimeType = null;
-
-        busboy.on('file', (fieldname, file, info) => {
-            const { filename, encoding, mimeType } = info;
-            fileName = filename;
-            fileMimeType = mimeType;
-
-            const buffers = [];
-            file.on('data', (data) => {
-                buffers.push(data);
-            });
-            file.on('end', () => {
-                fileData = Buffer.concat(buffers);
-            });
-        });
-
-        busboy.on('field', (fieldname, val) => {
-            fields[fieldname] = val;
-        });
-
-        busboy.on('finish', async () => {
-            const { notebook_id, id, title, date } = fields;
-
-            if (!fileData) {
-                return res.status(400).json({ message: 'File is required' });
-            }
-
-            if (!notebook_id || !id || !title || !date) {
-                return res.status(400).json({ message: 'Missing required fields' });
-            }
-
-            if (!fileName) {
-                console.error('No filename provided, using default filename.');
-                fileName = 'uploaded-file';
-            }
-
-            try {
-                const entry = await createEntry({
-                    notebook_id,
-                    id,
-                    title,
-                    date,
-                    fileData,
-                    fileName,
-                    fileMimeType
-                });
-
-                res.status(200).json(entry);
-            } catch (error) {
-                console.error('Error creating entry:', error);
-                res.status(500).json({ message: 'Internal Server Error', error: error.message });
-            }
-        });
-
-        busboy.on('error', (error) => {
-            console.error('Error parsing form data:', error);
-            res.status(500).json({ message: 'Error parsing form data', error: error.message });
-        });
-
-        // Create a stream from rawBody and pipe it to Busboy
-        const bufferStream = new PassThrough();
-        bufferStream.end(req.rawBody);
-        bufferStream.pipe(busboy);
-    });
+    } catch (error) {
+        console.error('Error deleting entry:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
 });
 
 /*
@@ -200,8 +272,19 @@ functions.http('generatePreviewFile', async (req, res) => {
         res.status(204).send('');
     } else {
         console.log(req.body);
-        const { record } = await req.body;
-        const { id: entryId, notebook_id } = record;
+        const { type, record, old_record } = await req.body;
+        // const { id: entryId, notebook_id } = record;
+
+        let entryId;
+        let notebook_id;
+
+        if (type === "DELETE") {
+            entryId = old_record.id;
+            notebook_id = old_record.notebook_id;
+        } else {
+            entryId = record.id;
+            notebook_id = record.notebook_id;
+        }
 
         console.log(`Generating preview for entry ${entryId} in notebook ${notebook_id}`);
 

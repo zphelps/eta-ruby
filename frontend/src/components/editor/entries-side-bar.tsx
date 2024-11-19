@@ -10,7 +10,7 @@ import { useEntries } from "@/hooks/useEntries";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { UploadEntryDropdown } from "@/components/editor/upload-entry-dropdown";
+import { UploadEntryDropdown } from "@/components/editor/dropdowns/upload-entry-dropdown";
 import { createClient } from "@/utils/supabase/client.ts";
 
 interface EntriesSideBarProps {
@@ -85,7 +85,6 @@ export const EntriesSideBar: FC<EntriesSideBarProps> = ({ notebook_id }) => {
                 <p className={"font-semibold"}>Entries</p>
                 <UploadEntryDropdown
                     notebook_id={notebook_id}
-                    minimum_date={entries.length > 0 ? new Date(entries[entries.length - 1].created_at) : undefined}
                 >
                     <Button variant="ghost" size="icon" className={"p-2.5 h-fit"}>
                         <Plus size={16} />

@@ -1,87 +1,129 @@
-import {NextRequest, NextResponse} from "next/server";
-import {PDFDocument} from "pdf-lib";
-import {extractRangeFromDoc} from "@/helpers/entries";
-import {getLastQueueValue, getPublicURL, insertEntry, uploadPDF} from "@/app/api/notebooks/helpers";
-import {CreateEntry} from "@/types/entry";
-import {EntrySelection} from "@/components/editor/dialogs/upload-multiple-entries-dialog";
-import {getDocumentText} from "@/app/api/document_ocr/helpers";
-import {createClient} from "@/utils/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuid } from "uuid";
+import { z } from "zod";
+import { Storage } from "@google-cloud/storage";
+import { Readable } from "stream";
+import { PDFDocument } from "pdf-lib";
+import { extractRangeFromDoc } from "@/helpers/entries";
+import { getLastQueueValue, getPublicURL, insertEntry, uploadPDF } from "@/app/api/notebooks/helpers";
+import { CreateEntry } from "@/types/entry";
+import { EntrySelection } from "@/components/editor/dialogs/upload-multiple-entries-dialog";
+import { getDocumentText } from "@/app/api/document_ocr/helpers";
+import { createClient } from "@/utils/supabase/server";
+
+// Initialize GCS client
+const storage = new Storage();
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const body = {
-        entrySelections: JSON.parse(formData.get('entries') as string) as EntrySelection[],
-        file: formData.get('file') as File,
-        notebook_id: formData.get('notebook_id') as string,
-    }
+        entrySelections: JSON.parse(
+            formData.get("entries") as string
+        ) as EntrySelection[],
+        file: formData.get("file") as File,
+        notebook_id: formData.get("notebook_id") as string,
+    };
 
-    const {entrySelections, file, notebook_id} = body;
+    const { entrySelections, file, notebook_id } = body;
 
     try {
-        const supabase = createClient();
+        const id = uuid();
 
-        for (const entrySelection of entrySelections) {
-            const entryDoc = await extractRangeFromDoc(
-                await PDFDocument.load(await file.arrayBuffer()),
-                entrySelection.start_page! - 1,
-                entrySelection.end_page!
+        // Upload the base file to GCS
+        const bucketName = "entries-to-be-processed"; // Replace with your GCS bucket name
+        const filePath = `notebooks/${notebook_id}/${id}/${file.name}`;
+        const bucket = storage.bucket(bucketName);
+        const gcsFile = bucket.file(filePath);
+
+        // Convert the File object to a Buffer
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Create a stream from the buffer
+        const stream = Readable.from(buffer);
+
+        // Upload the file
+        await new Promise<void>((resolve, reject) => {
+            stream
+                .pipe(
+                    gcsFile.createWriteStream({
+                        metadata: {
+                            contentType: file.type,
+                            metadata: {
+                                notebook_id: notebook_id,
+                                entry_id: id,
+                            },
+                        },
+                    })
+                )
+                .on("finish", resolve)
+                .on("error", reject);
+        });
+
+        // Generate the GCS file URL
+        const base_file_url = `https://storage.googleapis.com/${bucketName}/${filePath}`;
+
+        // Prepare the payload
+        const payload = {
+            notebook_id,
+            entries: JSON.stringify(entrySelections),
+            base_file_url,
+        };
+
+        // Call the cloud function
+        const cloudFunctionUrl =
+            "https://upload-multiple-entries-tdyx7enzba-uw.a.run.app";
+
+        const response = await fetch(cloudFunctionUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(
+                "Cloud function error:",
+                response.status,
+                response.statusText
             );
-
-            const text = await getDocumentText(entryDoc);
-
+            console.error("Response:", errorText);
+            throw new Error(
+                `Failed to create entries: ${response.status} ${response.statusText}`
+            );
         }
 
-        // let entries = [];
-        // const initialDoc = await PDFDocument.load(await file.arrayBuffer());
-        //
-        // // Create an array of promises for uploads and entries
-        // const uploadPromises = entrySelections.map(async (entrySelection) => {
-        //     const entryDoc = await extractRangeFromDoc(
-        //         initialDoc,
-        //         entrySelection.start_page! - 1,
-        //         entrySelection.end_page!
-        //     );
-        //
-        //     const text = await getDocumentText(entryDoc);
-        //
-        //     console.log(
-        //         `ENTRY ${entrySelection.entry.id} - ${entrySelection.start_page} - ${entrySelection.end_page} -> entry doc is ${entryDoc.getPageCount()} pages`
-        //     );
-        //
-        //     // Upload the PDF concurrently
-        //     await uploadPDF('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`, entryDoc);
-        //
-        //     // Get the public URL after uploading
-        //     const publicURL = await getPublicURL('entries', `${notebook_id}/${entrySelection.entry.id}.pdf`);
-        //
-        //     const entry: CreateEntry = {
-        //         ...entrySelection.entry,
-        //         notebook_id: notebook_id,
-        //         url: publicURL,
-        //         page_count: entryDoc.getPageCount(),
-        //         text: text,
-        //     };
-        //
-        //     entries.push(entry);
-        //
-        //     // Insert entry into the database
-        //     await insertEntry(entry);
-        //
-        //     return entry; // Return entry to be included in the final response
-        // });
-        //
-        // // Wait for all uploads and insertions to complete
-        // const results = await Promise.all(uploadPromises);
-        //
-        // // insert row into preview queue table
-        // await supabase.from("preview_queue").insert({notebook_id: notebook_id});
-        //
-        // return NextResponse.json({ entries: results }, { status: 200 });
+        const result = await response.json();
 
-    } catch (e) {
-        console.error(e);
-        // @ts-ignore
-        return NextResponse.json({error: e?.message}, {status: 500});
+        return NextResponse.json(
+            {
+                message: "Entries created successfully",
+                data: result.data,
+            },
+            { status: 200 }
+        );
+    } catch (e: any) {
+        console.error("Error in POST /entries/bulk-upload", e);
+
+        // Ensure you are only sending necessary information to the client
+        return NextResponse.json(
+            {
+                message: e.message || "Invalid Request",
+                error: process.env.NODE_ENV === "development" ? e.stack : undefined,
+            },
+            { status: 500 }
+        );
     }
 }
+
+// // Increase the body size limit if necessary
+// export const config = {
+//     api: {
+//         bodyParser: {
+//             sizeLimit: "50mb", // Adjust as needed
+//         },
+//     },
+// };

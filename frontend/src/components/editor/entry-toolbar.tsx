@@ -1,23 +1,23 @@
-import {FC, useEffect, useState} from "react";
-import {useSearchParams} from "next/navigation";
-import {useEntry} from "@/hooks/useEntry";
+import { FC, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEntry } from "@/hooks/useEntry";
 import { format } from "date-fns";
 import * as React from "react";
-import {useAppDispatch} from "@/store";
-import {EntryActionsDropdown} from "@/components/editor/entry-actions-dropdown";
-import {EditEntryNameDialog} from "@/components/editor/dialogs/edit-entry-name-dialog";
-import {ReaderAPI} from "react-pdf-headless";
-import {Button} from "@/components/ui/button";
-import {Minus, Plus} from "lucide-react";
-import {Separator} from "@/components/ui/separator";
+import { useAppDispatch } from "@/store";
+import { EntryActionsDropdown } from "@/components/editor/dropdowns/entry-actions-dropdown";
+import { EditEntryNameDialog } from "@/components/editor/dialogs/edit-entry-name-dialog";
+import { ReaderAPI } from "react-pdf-headless";
+import { Button } from "@/components/ui/button";
+import { Minus, Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface EntryToolbarProps {
     readerAPI: ReaderAPI | null;
     notebookId: string;
 }
 
-export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
-    const {readerAPI, notebookId} = props;
+export const EntryToolbar: FC<EntryToolbarProps> = (props) => {
+    const { readerAPI, notebookId } = props;
     const searchParams = useSearchParams();
 
     const selectedEntryId = searchParams.get("entry") as string;
@@ -44,13 +44,13 @@ export const EntryToolbar:FC<EntryToolbarProps> = (props) => {
 
             <div className={'flex items-center'}>
                 <Button variant="ghost" size="icon" onClick={() => readerAPI?.increaseZoom()}>
-                    <Plus size={16}/>
+                    <Plus size={16} />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => readerAPI?.decreaseZoom()}>
-                    <Minus size={16}/>
+                    <Minus size={16} />
                 </Button>
                 <Separator orientation="vertical" className={'h-5 mx-2'} />
-                <EntryActionsDropdown notebookId={notebookId}/>
+                <EntryActionsDropdown notebookId={notebookId} />
             </div>
 
             {/*<EntryActionsDropdown/>*/}

@@ -6,10 +6,11 @@ import { format } from "date-fns";
 import { PreviewEntry } from "@/types/preview";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, TableProperties } from "lucide-react";
+import { usePreview } from "@/hooks/usePreview";
+import { useSearchParams } from "next/navigation";
 
 export const useGroupedPreviewEntries = (entries: PreviewEntry[]) => {
     return useMemo(() => {
-        console.log('useGroupedPreviewEntries', entries);
 
         // Use a single pass to both sort and group entries
         const groups: { [key: string]: PreviewEntry[] } = {};
@@ -36,28 +37,26 @@ export const useGroupedPreviewEntries = (entries: PreviewEntry[]) => {
 }
 
 interface PreviewTocSideBarProps {
+    notebook_id: string;
+    currentEntryId: string | null;
     entries: PreviewEntry[];
-    setPage: (page: number) => void;
+    handleEntrySelect: (entry: PreviewEntry) => void;
 }
 
 export const PreviewTocSideBar: FC<PreviewTocSideBarProps> = (props) => {
-    const { entries, setPage } = props;
+    const { notebook_id, currentEntryId, entries, handleEntrySelect } = props;
 
-    // const groupedEntries = useGroupedPreviewEntries(entries);
-    const groupedEntries = entries;
-
-    console.log(entries);
-
-    const params = useParams();
     const pathname = usePathname();
     const router = useRouter();
-    const selectedEntryId = params.slug[1];
+    const searchParams = useSearchParams();
+
+    const groupedEntries = useGroupedPreviewEntries(entries);
 
     const [accordionValue, setAccordionValue] = useState<string[]>();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const getDefaultValue = useCallback(() => {
-        const selectedEntry = entries.find(entry => entry.id === selectedEntryId);
+        const selectedEntry = entries.find(entry => entry.id === currentEntryId);
         if (!selectedEntry) {
             return undefined;
         }
@@ -65,17 +64,11 @@ export const PreviewTocSideBar: FC<PreviewTocSideBarProps> = (props) => {
         const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
         return [`${month} ${year}`];
-    }, [entries, selectedEntryId]);
+    }, [entries, currentEntryId]);
 
     function onEntrySelect(entry: PreviewEntry) {
-        if (selectedEntryId === entry.id) return;
-        router.replace(`/preview/${params.slug[0]}/${entry.id}`);
-        // if (selectedEntryId === entry.id) return;
-        // const params = new URLSearchParams(searchParams.toString())
-        // params.set('navigating', '1')
-        // params.set('entry', entry.id)
-        // router.push(`${pathname}?${params.toString()}`)
-        // setPage(entry.start_page);
+        if (currentEntryId === entry.id) return;
+        handleEntrySelect(entry);
     }
 
     function onAccordionValueChange(value: string[]) {
@@ -116,20 +109,20 @@ export const PreviewTocSideBar: FC<PreviewTocSideBarProps> = (props) => {
                                                     key={entry.id}
                                                     onClick={() => onEntrySelect(entry)}
                                                     className={cn(
-                                                        selectedEntryId === entry.id ? "bg-slate-200 hover:bg-slate-200" : "hover:bg-slate-50",
+                                                        currentEntryId === entry.id ? "bg-slate-200 hover:bg-slate-200" : "hover:bg-slate-50",
                                                         "flex items-center justify-between rounded-sm py-1 px-2.5 cursor-pointer mx-1"
                                                     )}
                                                 >
                                                     <p
                                                         className={cn(
-                                                            selectedEntryId === entry.id ? "text-black" : "text-slate-500",
+                                                            currentEntryId === entry.id ? "text-black" : "text-slate-500",
                                                             "text-sm"
                                                         )}
                                                     >
                                                         {entry.title}
                                                     </p>
                                                     <p className={cn(
-                                                        selectedEntryId === entry.id ? "text-slate-600" : "text-slate-400",
+                                                        currentEntryId === entry.id ? "text-slate-600" : "text-slate-400",
                                                         "text-xs"
                                                     )}>
                                                         {format(new Date(entry.created_at), "M/d")}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState, useMemo } from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
 import { PreviewToolbar } from "@/components/preview/preview-toolbar";
 import { PDFViewer } from "@/components/editor/pdf-viewer";
 import { PageChangeEvent, ReaderAPI } from "react-pdf-headless";
@@ -10,85 +10,75 @@ import { ErrorIcon } from "react-hot-toast";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PreviewHeader } from "@/components/preview/preview-header";
 import { usePreview } from "@/hooks/usePreview";
+import { PreviewEntry } from "@/types/preview";
 
 interface PreviewViewProps {
-    entry_id: string;
-    navigating: string;
     notebook_id: string;
 }
 
-export const PreviewView: FC<PreviewViewProps> = (props) => {
-    const { notebook_id, navigating, entry_id } = props;
+export const PreviewView: FC<PreviewViewProps> = ({ notebook_id }) => {
     const [readerAPI, setReaderAPI] = useState<ReaderAPI | null>(null);
+    const [currentEntryId, setCurrentEntryId] = useState<string | null>(null);
 
-    const { preview, loading: previewLoading } = usePreview(notebook_id);
+    const isProgrammaticNavigation = useRef(false);
+    const [targetPage, setTargetPage] = useState<number | null>(null);
 
-    const memoizedEntries = useMemo(() => {
-        console.log('useMemo', preview?.entries);
-
-        // Use a single pass to both sort and group entries
-        const groups: { [key: string]: PreviewEntry[] } = {};
-
-        preview?.entries.forEach(item => {
-            const date = new Date(item.created_at);
-            const month = date.toLocaleString('default', { month: 'long' });
-            const year = date.getFullYear();
-            const key = `${month} ${year}`;
-
-            if (!groups[key]) {
-                groups[key] = [];
-            }
-            groups[key].push(item);
-        });
-
-        // Sort each group by date
-        for (const key in groups) {
-            groups[key].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        }
-
-        return groups;
-    }, [JSON.stringify(preview?.entries)]);
-
+    const { preview } = usePreview(notebook_id);
 
     const searchParams = useSearchParams();
     const { replace } = useRouter();
     const pathname = usePathname();
 
+    useEffect(() => {
+        const entry_id = searchParams.get("entry");
+        setCurrentEntryId(entry_id);
+    }, [searchParams]);
+
+    const handleEntrySelect = (entry: PreviewEntry) => {
+        if (currentEntryId === entry.id) return;
+
+        setCurrentEntryId(entry.id);
+        setTargetPage(entry.start_page);
+        isProgrammaticNavigation.current = true;
+        readerAPI?.jumpToPage(entry.start_page);
+    };
+
     const onPageChange = (e: PageChangeEvent) => {
-        // get current entry based on page number
-        // if (!preview) {
-        //     return;
-        // }
+        if (!preview) return;
 
-        // // const params = new URLSearchParams(searchParams.toString());
+        if (isProgrammaticNavigation.current) {
+            if (e.currentPage === targetPage) {
+                isProgrammaticNavigation.current = false;
+                setTargetPage(null);
+            }
+            return;
+        }
 
-        // for (const entry of preview?.entries) {
-        //     if (entry.start_page <= e.currentPage && entry.end_page >= e.currentPage) {
-        //         if (entry_id === entry.id && navigating === '1') {
-        //             //remove navigating
-        //             //   params.set('entry', entry.id);
-        //             //   params.delete('navigating');
-        //             //   replace(`${pathname}?${params.toString()}`);
-        //             replace(`/preview/${notebook_id}/${entry.id}`);
-        //         } else if (entry_id !== entry.id && navigating !== '1') {
-        //             //    params.set('entry', entry.id);
-        //             replace(`/preview/${notebook_id}/${entry.id}`);
-        //         }
-        //         break;
-        //     }
-        // }
+        const entry = preview.entries.find(
+            (entry) =>
+                entry.start_page <= e.currentPage && entry.end_page >= e.currentPage
+        );
+
+        if (entry && entry.id !== currentEntryId) {
+            setCurrentEntryId(entry.id);
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("entry", entry.id);
+            replace(`${pathname}?${params.toString()}`);
+        }
     };
 
     return (
         <div>
-            <PreviewHeader />
+            {preview && <PreviewHeader preview={preview} />}
 
             <div className="h-[calc(100vh-56px)] pt-[56px] flex relative">
                 {/* TOC Sidebar */}
                 {preview && (
                     <PreviewTocSideBar
-                        entries={memoizedEntries}
-                        setPage={(page) => readerAPI?.jumpToPage(page)}
+                        entries={preview.entries}
+                        notebook_id={notebook_id}
+                        currentEntryId={currentEntryId}
+                        handleEntrySelect={handleEntrySelect}
                     />
                 )}
 

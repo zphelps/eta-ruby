@@ -30,7 +30,7 @@ import toast from "react-hot-toast";
 import { v4 as uuid } from "uuid";
 import { setEntry } from "@/slices/entries";
 import { useAppDispatch } from "@/store";
-
+import { uploadFileToGCS } from "@/helpers/gcs";
 const formSchema = z.object({
     title: z.string().min(3, "Entry title must be at least 3 characters.").max(100, "Entry title cannot be more than 100 characters."),
     date: z.date(),
@@ -39,12 +39,11 @@ const formSchema = z.object({
 
 interface UploadEntryDialogProps {
     notebook_id?: string,
-    minimum_date?: Date,
     setDialogMenu?: (menu: string) => void;
 }
 
 export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
-    const { minimum_date, notebook_id, setDialogMenu } = props
+    const { notebook_id, setDialogMenu } = props
     const [uploading, setUploading] = useState(false)
     const dispatch = useAppDispatch();
 
@@ -52,7 +51,7 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            date: minimum_date,
+            date: new Date(),
             file: undefined,
         },
     })
@@ -70,28 +69,26 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             return;
         }
 
-        toast.loading("Uploading entry...");
+        const toastId = toast.loading("Uploading entry...");
         setUploading(true);
 
         try {
             const id = uuid();
 
-            // Avoid mutating values.date directly
-            let entryDate = new Date(values.date);
-            // If the date is the same as the minimum date, add one millisecond to it
-            if (minimum_date && entryDate.getTime() === minimum_date.getTime()) {
-                entryDate.setMilliseconds(entryDate.getMilliseconds() + 1);
-            }
+            // Convert the date to ISO string for storage
+            const formattedDate = values.date.toISOString();
 
+            // Create FormData to send to the API route
             const formData = new FormData();
             formData.append('id', id);
-            formData.append('file', values.file, values.file.name || 'uploaded-file.pdf');
             formData.append('title', values.title);
-            formData.append('date', entryDate.toUTCString());
+            formData.append('date', formattedDate);
             formData.append('notebook_id', notebook_id);
+            formData.append('file', values.file);
 
-            const response = await fetch("https://us-west1-eta-ruby.cloudfunctions.net/upload-single-entry", {
-                method: "POST",
+            // Send the form data to the API route
+            const response = await fetch('/api/entries', {
+                method: 'POST',
                 body: formData,
             });
 
@@ -110,13 +107,13 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                 throw new Error('Failed to parse server response');
             }
 
-            console.log("Frontend recieved entry:", entry);
+            console.log("Frontend received entry:", entry);
 
             dispatch(setEntry(entry));
 
             form.reset({
                 title: "",
-                date: minimum_date,
+                date: new Date(),
                 file: undefined,
             });
 
@@ -124,18 +121,18 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
             params.set('entry', id);
             push(`${pathname}?${params.toString()}`);
 
-        } catch (error) {
+            toast.success("Entry uploaded successfully", { id: toastId });
+
+        } catch (error: any) {
             if (error.name === 'TypeError') {
                 console.error('Network error:', error);
-                toast.error('Network error occurred. Please check your connection and try again.');
+                toast.error('Network error occurred. Please check your connection and try again.', { id: toastId });
             } else {
                 console.error('Error during upload:', error);
-                toast.error(`Failed to upload entry: ${error instanceof Error && error.message ? error.message : 'Unknown error'}`);
+                toast.error(`Failed to upload entry: ${error instanceof Error && error.message ? error.message : 'Unknown error'}`, { id: toastId });
             }
         } finally {
-            setDialogMenu("none");
-            toast.dismiss();
-            toast.success("Entry uploaded successfully");
+            setDialogMenu?.("none");
             setUploading(false);
         }
     }
@@ -199,15 +196,15 @@ export const UploadSingleEntryDialog: FC<UploadEntryDialogProps> = (props) => {
                                             mode="single"
                                             selected={field.value ? new Date(field.value) : undefined}
                                             onSelect={field.onChange}
-                                            disabled={(date) => {
-                                                if (minimum_date) {
-                                                    return date < minimum_date
-                                                }
-                                                else {
-                                                    return false;
-                                                }
-                                            }
-                                            }
+                                            // disabled={(date) => {
+                                            //     if (minimum_date) {
+                                            //         return date < minimum_date
+                                            //     }
+                                            //     else {
+                                            //         return false;
+                                            //     }
+                                            // }
+                                            // }
                                             initialFocus
                                         />
                                     </PopoverContent>

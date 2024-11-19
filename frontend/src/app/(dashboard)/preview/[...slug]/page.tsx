@@ -32,19 +32,12 @@ export async function generateMetadata(
 }
 
 export default function Preview({ params, searchParams }: Props) {
-
-    console.log(params, searchParams);
     const notebook_id = params.slug[0];
-    const entry_id = params.slug[1];
-
-    console.log(notebook_id, entry_id);
 
     return (
         <div>
             {notebook_id && validate(notebook_id) && <PreviewView
                 notebook_id={notebook_id}
-                navigating={searchParams["navigating"] as string}
-                entry_id={entry_id}
             />}
         </div>
     )

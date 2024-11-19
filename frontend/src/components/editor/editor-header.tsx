@@ -2,21 +2,21 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import {Download, Eye, MoreHorizontal} from "lucide-react";
-import {NotebookSelector} from "@/components/editor/notebook-selector";
-import {FC} from "react";
+import { Download, Eye, MoreHorizontal } from "lucide-react";
+import { NotebookSelector } from "@/components/editor/notebook-selector";
+import { FC } from "react";
 import Link from "next/link";
-import {createClient} from "@/utils/supabase/client";
-import {AccountDropdown} from "@/components/editor/account-dropdown";
+import { createClient } from "@/utils/supabase/client";
+import { AccountDropdown } from "@/components/editor/account-dropdown";
 import toast from "react-hot-toast";
-import {validate} from "uuid";
+import { validate } from "uuid";
 
 interface EditorHeaderProps {
     notebook_id?: string;
 }
 
-export const EditorHeader:FC<EditorHeaderProps> = (props) => {
-    const {notebook_id} = props;
+export const EditorHeader: FC<EditorHeaderProps> = (props) => {
+    const { notebook_id } = props;
 
     function downloadFile(url: string, fileName: string) {
         fetch(url)
@@ -40,18 +40,10 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
             toast.error('No notebook selected');
             return;
         }
-        const supabase = createClient();
-        const {data: notebook, error} = await supabase.from('notebooks').select('id, team_name, team_number').eq('id', notebook_id).single();
-        if (error) {
-            console.error('Error fetching notebook:', error);
-            toast.error('Error fetching notebook');
-        }
-        const {data} = supabase.storage.from("notebooks").getPublicUrl(`${notebook_id}/preview.pdf`);
-        if (!data) {
-            return;
-        }
+
+        const url = `https://storage.googleapis.com/eta-ruby-notebooks/${notebook_id}/preview.pdf`
         // @ts-ignore
-        downloadFile(data.publicUrl, `${notebook.team_number}-${notebook.team_name}.pdf`);
+        downloadFile(url, `${notebook_id}.pdf`);
     }
 
     return (
@@ -80,7 +72,7 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                                     // type="button"
                                     className="relative inline-flex items-center gap-x-3 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                                 >
-                                    <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
+                                    <Eye aria-hidden="true" className="-ml-0.5 h-5 w-5" />
                                     Preview
                                 </Link>
                             </div>}
@@ -89,7 +81,7 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                                 type="button"
                                 className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                             >
-                                <Download aria-hidden="true" className="-ml-0.5 h-5 w-5"/>
+                                <Download aria-hidden="true" className="-ml-0.5 h-5 w-5" />
                                 Download
                             </button>}
                             <AccountDropdown>
@@ -97,7 +89,7 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                                     type="button"
                                     className="relative inline-flex items-center gap-x-3 rounded-lg bg-slate-200 px-3.5 py-2 text-sm font-semibold text-black hover:bg-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                                 >
-                                    <MoreHorizontal aria-hidden="true" className="h-5 w-5"/>
+                                    <MoreHorizontal aria-hidden="true" className="h-5 w-5" />
                                 </button>
                             </AccountDropdown>
                         </div>
@@ -113,7 +105,7 @@ export const EditorHeader:FC<EditorHeaderProps> = (props) => {
                         href="#"
                         className="block border-l-4 border-sky-500 bg-sky-50 py-2 pl-3 pr-4 text-base font-medium text-sky-700 sm:pl-5 sm:pr-6"
                     >
-                    Dashboard
+                        Dashboard
                     </DisclosureButton>
                     <DisclosureButton
                         as="a"

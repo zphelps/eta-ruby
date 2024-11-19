@@ -1,8 +1,8 @@
-import {createClient} from "@/utils/supabase/server";
-import {z} from "zod";
-import {NextRequest, NextResponse} from "next/server";
-import {v4 as uuid} from "uuid";
-import {PDFDocument} from "pdf-lib";
+import { createClient } from "@/utils/supabase/server";
+import { z } from "zod";
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuid } from "uuid";
+import { PDFDocument } from "pdf-lib";
 import {
     deleteEntry, deletePDF, getEntry, getIndicesToRemove,
     getPreviewPDFDoc, getPublicURL,
@@ -10,9 +10,13 @@ import {
     mergePDFs,
     removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
-import {getDocumentText} from "@/app/api/document_ocr/helpers.ts";
-import {uploadFileToGCS} from "@/helpers/gcs.ts";
-import EntriesService, {entriesService} from "@/services/entries/index.ts";
+import { getDocumentText } from "@/app/api/document_ocr/helpers.ts";
+import { uploadFileToGCS } from "@/helpers/gcs.ts";
+import { Storage } from "@google-cloud/storage";
+import { Readable } from "stream";
+
+// Initialize GCS client
+const storage = new Storage();
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -38,7 +42,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         let query = supabase.from("entries").select("*")
 
         // get notebooks that belong to the user
-        const {data: notebooks, error: notebookError} = await supabase.from("user_notebooks").select("notebook_id").eq("user_id", params.uid);
+        const { data: notebooks, error: notebookError } = await supabase.from("user_notebooks").select("notebook_id").eq("user_id", params.uid);
 
         if (notebookError) {
             return NextResponse.json({
@@ -55,7 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             query = query.eq("notebook_id", params.notebook_id).in("notebook_id", notebooks.map((notebook) => notebook.notebook_id))
         }
 
-        const {data, error} = await query.order("created_at", {ascending: true});
+        const { data, error } = await query.order("created_at", { ascending: true });
 
         if (error) {
             return NextResponse.json({
@@ -76,18 +80,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 }
 
-export async function HEAD(request: Request) {}
+export async function HEAD(request: Request) { }
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const body = {
-        id: formData.get('id') as string,
-        title: formData.get('title') as string,
-        created_at: formData.get('date') as string,
-        file: formData.get('file') as File,
-        notebook_id: formData.get('notebook_id') as string,
-    }
+        id: formData.get("id") as string,
+        title: formData.get("title") as string,
+        created_at: formData.get("date") as string,
+        file: formData.get("file") as File,
+        notebook_id: formData.get("notebook_id") as string,
+    };
 
     const schema = z.object({
         id: z.string().optional(),
@@ -99,72 +103,109 @@ export async function POST(request: NextRequest) {
 
     const validationResponse = schema.safeParse(body);
     if (!validationResponse.success) {
-        return NextResponse.json({
-            message: 'Invalid entry schema',
-            error: validationResponse.error.errors
-        }, { status: 400 });
+        return NextResponse.json(
+            {
+                message: "Invalid entry schema",
+                error: validationResponse.error.errors,
+            },
+            { status: 400 }
+        );
     }
 
     try {
         const id = body.id ?? uuid();
+        const notebook_id = body.notebook_id;
+        const file = body.file;
+        const title = body.title;
+        const date = body.created_at;
 
-        // const supabase = createClient();
-        //
-        // const buffer = await body.file.arrayBuffer();
-        // const newEntryDoc = await PDFDocument.load(buffer);
-        //
-        // await uploadFileToGCS(body.file, "eta-ruby-entries", {})
+        // Upload the file to GCS
+        const bucketName = "entries-to-be-processed"; // Replace with your GCS bucket name
+        const filePath = `notebooks/${notebook_id}/${id}/${file.name}`;
+        const bucket = storage.bucket(bucketName);
+        const gcsFile = bucket.file(filePath);
 
-        await entriesService.createEntry({
-            id: id,
-            notebook_id: body.notebook_id,
-            title: body.title,
-            created_at: body.created_at,
-            file: body.file,
+        // Convert the File object to a Buffer
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Create a stream from the buffer
+        const stream = Readable.from(buffer);
+
+        // Upload the file
+        await new Promise<void>((resolve, reject) => {
+            stream
+                .pipe(
+                    gcsFile.createWriteStream({
+                        metadata: {
+                            contentType: file.type,
+                            metadata: {
+                                notebook_id: notebook_id,
+                                entry_id: id,
+                            },
+                        },
+                    })
+                )
+                .on("finish", resolve)
+                .on("error", reject);
         });
 
+        // Generate the GCS file URL
+        const file_url = `https://storage.googleapis.com/${bucketName}/${filePath}`;
 
-        // get number of pages in new pdf file
-        // const buffer = await body.file.arrayBuffer();
-        // const newEntryDoc = await PDFDocument.load(buffer);
-        // const num_pages = newEntryDoc.getPages().length;
-        //
-        // if (num_pages > 15) {
-        //     throw new Error("Document is too long. Please upload a document with fewer than 15 pages.");
-        // }
-        //
-        // // upload new entry to storage
-        // await uploadPDF("entries", `${body.notebook_id}/${id}.pdf`, newEntryDoc);
-        //
-        // const entryUrl = await getPublicURL("entries", `${body.notebook_id}/${id}.pdf`);
-        //
-        // const entryToInsert = {
-        //     id: id,
-        //     title: body.title,
-        //     created_at: body.created_at,
-        //     updated_at: body.created_at,
-        //     notebook_id: body.notebook_id,
-        //     url: entryUrl,
-        //     page_count: num_pages,
-        // }
-        //
-        // await insertEntry(entryToInsert);
-        //
-        // // insert row into preview queue table
-        // await supabase.from("preview_queue").insert({notebook_id: body.notebook_id});
-        //
-        return NextResponse.json({
-            message: 'Success',
-            // data: entryToInsert,
-        }, { status: 200 });
+        // Call the cloud function to create the entry
+        const payload = {
+            id: id,
+            title: title,
+            date: date,
+            notebook_id: notebook_id,
+            file_url: file_url,
+        };
+
+        const cloudFunctionUrl =
+            "https://upload-single-entry-tdyx7enzba-uw.a.run.app";
+        const response = await fetch(cloudFunctionUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(
+                "Cloud function error:",
+                response.status,
+                response.statusText
+            );
+            console.error("Response:", errorText);
+            throw new Error(
+                `Failed to create entry: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const entry = await response.json();
+
+        return NextResponse.json(
+            {
+                message: "Success",
+                data: entry,
+            },
+            { status: 200 }
+        );
     } catch (e: any) {
         console.error("Error in POST /entries", e);
 
         // Ensure you are only sending necessary information to the client
-        return NextResponse.json({
-            message: e.message || 'Invalid Request',
-            error: process.env.NODE_ENV === 'development' ? e.stack : undefined
-        }, { status: 400 });
+        return NextResponse.json(
+            {
+                message: e.message || "Invalid Request",
+                error:
+                    process.env.NODE_ENV === "development" ? e.stack : undefined,
+            },
+            { status: 400 }
+        );
     }
 }
 
@@ -206,4 +247,4 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-export async function PATCH(request: Request) {}
+export async function PATCH(request: Request) { }

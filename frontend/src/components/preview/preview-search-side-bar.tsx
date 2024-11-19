@@ -60,6 +60,7 @@ interface SearchFilter {
 interface SearchResult {
     entry: Entry;
     text: string;
+    page: number;
 }
 
 interface PreviewSearchSideBarProps {
@@ -101,7 +102,7 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebounce(query, 300); // Adjust the delay as needed
 
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -135,6 +136,7 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
     }
 
     const search = async (query: string) => {
+        console.log("Searching for", query);
         setSearching(true);
         setSearchResults([]);
 
@@ -150,15 +152,16 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
             return;
         }
 
-        const results = response.data;
+        const results = response.data.map((result: any) => ({
+            entry: result.entry,
+            text: result.chunk_content,
+            page: preview.entries.find((e) => e.id === result.entry.id)?.start_page + result.page,
+        }));
 
         console.log("Search results:", results)
 
         // Process results as needed
-        setSearchResults(results.map((result: any) => ({
-            entry: result.entry,
-            text: result.chunk_content
-        })));
+        setSearchResults(results);
         setSearching(false);
     }
 
@@ -216,27 +219,36 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
             className={`h-full transition-width duration-300 border-l border-l-slate-200 ${isCollapsed ? "w-10" : "w-[375px]"
                 }`}
         >
-            <div className="flex px-3 gap-x-4 items-center h-11 border-b border-b-slate-200">
+            <div className="flex px-3 gap-x-2 items-center h-11 border-b border-b-slate-200">
                 <Button className="-m-3" variant="ghost" size="icon" onClick={toggleCollapse}>
-                    {isCollapsed ? <Search size={16} /> : <ChevronRight size={16} />}
+                    {isCollapsed ? <Search size={16} /> : <Search size={16} />}
                 </Button>
-                <p className={`font-semibold ${isCollapsed ? "hidden" : "block"}`}>
+                {/* <p className={`font-semibold ${isCollapsed ? "hidden" : "block"}`}>
                     Search
-                </p>
+                </p> */}
+                <input
+                    type="text"
+                    placeholder="Search notebook..."
+                    className={`ml-2 w-full focus:outline-none ${isCollapsed ? "hidden" : "block"}`}
+                    value={query}
+                    onChange={handleQueryChange}
+                />
             </div>
 
             {!isCollapsed && (
                 <div className="h-full overflow-y-auto">
-                    <div className="flex items-center p-2">
+                    {/* <div className="flex items-center p-2">
                         <Search className="w-5 h-5 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Search notebook..."
                             className="ml-2 w-full focus:outline-none"
+                            value={query}
+                            onChange={handleQueryChange}
                         />
-                    </div>
+                    </div> */}
 
-                    <div className={'flex-wrap gap-x-1.5 gap-y-2 flex px-2.5 py-2.5 border-b border-b-slate-200'}>
+                    {/* <div className={'flex-wrap gap-x-1.5 gap-y-2 flex px-2.5 py-2.5 border-b border-b-slate-200'}>
                         {entryTags.map((tag) => (
                             <div
                                 key={tag.value}
@@ -264,31 +276,31 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
                                 )}
                             </div>
                         ))}
-                    </div>
+                    </div> */}
 
                     <div className={"overflow-y-auto"}>
                         {searching && (
-                            <div className={"w-full min-h-full flex items-center text-center justify-center content-center space-y-2"}>
+                            <div className={"w-full min-h-full py-24 flex items-center text-center justify-center content-center space-y-2"}>
                                 <Repeat className="mr-3 text-slate-500 h-6 w-6 animate-spin" />
                                 <p className={"text-gray-400 font-medium text-lg "}>Searching...</p>
                             </div>
                         )}
 
                         {!searching && searchResults.length === 0 && query && (
-                            <div className={"w-full min-h-full text-center justify-center content-center space-y-2"}>
+                            <div className={"w-full min-h-full py-24 text-center justify-center content-center space-y-2"}>
                                 <Search className={"text-gray-400 mx-auto"} size={75} />
                                 <p className={"text-gray-400 font-medium text-lg "}>No search results</p>
                             </div>
                         )}
 
                         {!searching && !query && (
-                            <div className={"w-full min-h-full text-center justify-center content-center space-y-2"}>
+                            <div className={"w-full min-h-full py-48 text-center justify-center content-center space-y-2"}>
                                 <Search className={"text-gray-400 mx-auto"} size={75} />
                                 <p className={"text-gray-400 font-medium text-lg "}>Start typing to search</p>
                             </div>
                         )}
 
-                        {searchResults.length > 0 && searchResults.map((result, index) => (
+                        {searchResults.length > 0 && query.length > 0 && searchResults.map((result, index) => (
                             <div key={index}
                                 onClick={() => handleSearchResultSelected(result.entry)}
                                 className={
@@ -298,7 +310,10 @@ export const PreviewSearchSideBar: FC<PreviewSearchSideBarProps> = (props) => {
                                         'p-2 py-1 border shadow-sm m-2 border-slate-100 cursor-pointer rounded-md')
 
                                 }>
-                                <p className={'text-sm'}>{result.entry.title}</p>
+                                <div className="flex items-center justify-between">
+                                    <p className={'text-sm'}>{result.entry.title}</p>
+                                    <p className={'text-xs text-slate-500'}>{result.page}</p>
+                                </div>
                                 {getHighlightedSnippet(result.text, filter.query || '')}
                             </div>
                         ))}
