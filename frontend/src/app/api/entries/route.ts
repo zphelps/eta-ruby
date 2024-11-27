@@ -10,8 +10,6 @@ import {
     mergePDFs,
     removeIndicesFromPDF, updateEntry, uploadPDF,
 } from "@/app/api/notebooks/helpers";
-import { getDocumentText } from "@/app/api/document_ocr/helpers.ts";
-import { uploadFileToGCS } from "@/helpers/gcs.ts";
 import { Storage } from "@google-cloud/storage";
 import { Readable } from "stream";
 
